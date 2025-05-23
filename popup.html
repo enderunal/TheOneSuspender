@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="popup.css">
+    <title>The One Suspender</title>
+</head>
+
+<body>
+    <div class="container">
+        <h2>The One Suspender</h2>
+
+        <div class="status" id="status-section">
+            Status: <span id="tab-status">Loading...</span>
+            <span id="tab-url"></span>
+        </div>
+
+        <!-- Action feedback div WITHOUT inline styles -->
+        <div class="action-feedback" id="action-feedback-message"></div>
+
+        <div class="actions">
+            <button id="suspend-restore" class="action-button primary" disabled
+                aria-label="Suspend or Restore Tab">Loading...</button>
+            <button id="whitelist-url" class="action-button" disabled aria-label="Never Suspend URL">Never Suspend
+                URL</button>
+            <button id="whitelist-domain" class="action-button" disabled aria-label="Never Suspend Domain">Never Suspend
+                Domain</button>
+            <hr>
+            <button id="suspend-others-window" class="action-button" aria-label="Suspend All Tabs in Window">Suspend
+                (Window)</button>
+            <button id="suspend-others-all" class="action-button" aria-label="Suspend All Tabs in All Windows">Suspend
+                (All)</button>
+            <hr>
+            <button id="unsuspend-all-window" class="action-button" aria-label="Unsuspend All Tabs in Window">Unsuspend
+                (Window)</button>
+            <button id="unsuspend-all-all" class="action-button"
+                aria-label="Unsuspend All Tabs in All Windows">Unsuspend (All)</button>
+            <hr>
+            <button id="open-settings" class="action-button settings-button"
+                aria-label="Open Settings">Settings</button>
+        </div>
+    </div>
+    <script src="popup.js" type="module"></script>
+</body>
+
+</html>

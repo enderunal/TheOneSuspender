@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="
+      default-src   'self';
+      script-src    'self';
+      style-src     'self';
+      img-src       'self' data: blob: chrome-extension: http: https:;
+      connect-src   'self' data: blob:;
+  ">
+  <link id="favicon" rel="icon" href="">
+  <link rel="stylesheet" href="suspended.css">
+  <title>Tab Suspended</title>
+</head>
+
+<body>
+  <div class="container">
+    <p>
+      <img src="icons/icon128.png" class="icon" alt="Logo">
+    </p>
+    <p>
+    <h1 id="suspend-header">Tab Suspended</h1>
+    </p>
+    <p class="info">
+      <strong>Title:</strong> <span id="page-title"></span><br>
+      <strong>URL:</strong> <span id="page-url"></span><br>
+      <strong>Suspended:</strong> <span id="timestamp"></span>
+    </p>
+    <button id="restore-button">
+      Click here or anywhere to restore
+    </button>
+  </div>
+  <script src="suspended.js" type="module"></script>
+</body>
+
+</html>

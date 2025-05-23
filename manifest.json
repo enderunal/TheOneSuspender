@@ -1,0 +1,67 @@
+{
+	"manifest_version": 3,
+	"name": "The One Suspender",
+	"version": "1.0.67",
+	"description": "Auto-suspend inactive tabs with full manual controls and preferences.",
+	"incognito": "split",
+	"permissions": [
+		"tabs",
+		"storage",
+		"alarms",
+		"idle",
+		"contextMenus",
+		"scripting"
+	],
+	"web_accessible_resources": [
+		{
+			"resources": [
+				"suspended.html",
+				"suspended.css",
+				"suspended.js",
+				"icons/icon16.png",
+				"icons/icon48.png",
+				"icons/icon128.png"
+			],
+			"matches": [
+				"<all_urls>"
+			]
+		}
+	],
+	"background": {
+		"service_worker": "background.js",
+		"type": "module"
+	},
+	"host_permissions": [
+		"http://*/*",
+		"https://*/*"
+	],
+	"action": {
+		"default_popup": "popup.html",
+		"default_icon": {
+			"16": "icons/icon16.png",
+			"48": "icons/icon48.png",
+			"128": "icons/icon128.png"
+		}
+	},
+	"options_page": "options.html",
+	"content_scripts": [
+		{
+			"matches": [
+				"http://*/*",
+				"https://*/*"
+			],
+			"js": [
+				"content.js"
+			],
+			"run_at": "document_idle"
+		}
+	],
+	"icons": {
+		"16": "icons/icon16.png",
+		"48": "icons/icon48.png",
+		"128": "icons/icon128.png"
+	},
+	"content_security_policy": {
+		"extension_pages": "script-src 'self'; object-src 'none'; connect-src 'self'; img-src 'self' data: blob: chrome-extension: http: https:; style-src 'self'; base-uri 'self'; form-action 'none';"
+	}
+}

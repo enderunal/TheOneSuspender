@@ -1,0 +1,176 @@
+body {
+	font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+		Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+	font-size: 14px;
+	margin: 0;
+	padding: 0;
+	background-color: #f9f9f9;
+	color: #333;
+	min-width: 280px;
+	max-width: 280px;
+}
+
+.container {
+	padding: 15px;
+}
+
+h2 {
+	font-size: 1.1em;
+	color: #1a73e8;
+	margin-top: 0;
+	margin-bottom: 15px;
+	text-align: center;
+}
+
+.status {
+	background-color: #eee;
+	padding: 8px 12px;
+	border-radius: 4px;
+	margin-bottom: 15px;
+	font-size: 0.9em;
+	word-wrap: break-word;
+}
+
+#tab-status {
+	font-weight: bold;
+}
+
+#tab-url {
+	display: block;
+	font-size: 0.85em;
+	color: #555;
+	margin-top: 4px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.actions {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.action-button {
+	background-color: #fff;
+	color: #333;
+	border: 1px solid #ccc;
+	padding: 8px 12px;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 0.95em;
+	text-align: center;
+	transition: background-color 0.2s ease, border-color 0.2s ease;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.action-button:hover:not(:disabled) {
+	background-color: #f0f0f0;
+	border-color: #bbb;
+}
+
+.action-button:active:not(:disabled) {
+	background-color: #e0e0e0;
+}
+
+.action-button:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.action-button.primary {
+	background-color: #1a73e8;
+	color: white;
+	border-color: #1a73e8;
+	font-weight: bold;
+}
+
+.action-button.primary:hover:not(:disabled) {
+	background-color: #1558b0;
+	border-color: #1558b0;
+}
+
+.action-button.primary:active:not(:disabled) {
+	background-color: #114a9a;
+}
+
+/* Styles for whitelisted buttons */
+.action-button.whitelisted {
+	background-color: #4caf50;
+	/* Green background */
+	color: white;
+	border-color: #4caf50;
+	font-weight: bold;
+}
+
+.action-button.whitelisted:hover:not(:disabled) {
+	background-color: #388e3c;
+	/* Darker green on hover */
+	border-color: #388e3c;
+}
+
+.action-button.whitelisted:active:not(:disabled) {
+	background-color: #2e7d32;
+	/* Even darker green when clicked */
+}
+
+.settings-button {
+	margin-top: 5px;
+}
+
+hr {
+	border: none;
+	border-top: 1px solid #ddd;
+	margin: 10px 0;
+}
+
+/* Styles for the action feedback message area */
+.action-feedback {
+	min-height: 20px;
+	/* Ensures space is reserved even when empty */
+	margin-top: 5px;
+	margin-bottom: 10px;
+	/* Added some bottom margin for spacing before actions */
+	padding: 5px;
+	/* Added some padding */
+	text-align: center;
+	font-style: italic;
+	font-size: 0.9em;
+	/* Slightly smaller text */
+	color: #333;
+	/* Default text color, will be overridden by JS for errors */
+	border-radius: 4px;
+	/* Optional: match other elements */
+	/* background-color: #f0f0f0; */
+	/* Optional: light background for the feedback area */
+	/* border: 1px solid #ddd; */
+	/* Optional: light border */
+	transition: background-color 0.3s ease, color 0.3s ease;
+	/* Smooth transition for color changes */
+}
+
+/* Styles for the feedback message - used by JS */
+.feedback-message {
+	opacity: 0;
+	transition: opacity 0.3s ease;
+}
+
+.feedback-message.visible {
+	opacity: 1;
+}
+
+.feedback-message.error {
+	color: #d32f2f;
+	/* Red for errors */
+}
+
+.feedback-message.success {
+	color: #388e3c;
+	/* Green for success */
+}
+
+.feedback-message.info {
+	color: #1976d2;
+	/* Blue for info */
+}

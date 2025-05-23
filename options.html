@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="options.css">
+    <title>The One Suspender Settings</title>
+</head>
+
+<body>
+    <div class="container">
+        <h1>The One Suspender – Settings</h1>
+
+        <form id="settings-form">
+
+            <section>
+                <h2>Automatic Suspension</h2>
+                <div class="form-group">
+                    <label for="inactivityMinutes">Suspend tabs after (minutes):</label>
+                    <input type="number" id="inactivityMinutes" name="inactivityMinutes" min="1" max="120" step="1"
+                        required>
+                    <span class="description">Inactive time before a tab is suspended (1–120 mins).</span>
+                </div>
+            </section>
+
+            <section>
+                <h2>Exclusions (Never Suspend)</h2>
+                <div class="form-group checkbox-group">
+                    <label><input type="checkbox" id="neverSuspendPinned" name="neverSuspendPinned"> Pinned Tabs</label>
+                    <label><input type="checkbox" id="neverSuspendAudio" name="neverSuspendAudio"> Tabs Playing
+                        Audio</label>
+                    <label><input type="checkbox" id="neverSuspendActive" name="neverSuspendActive"> Never Suspend The
+                        Active Tab in Each Window</label>
+                    <label><input type="checkbox" id="neverSuspendLastWindow" name="neverSuspendLastWindow"> Never
+                        Suspend The Active Tab Only in the Last-Focused Window</label>
+                    <label><input type="checkbox" id="neverSuspendOffline" name="neverSuspendOffline"> When Browser Is
+                        Offline</label>
+                    <label><input type="checkbox" id="neverSuspendWhenCharging" name="neverSuspendWhenCharging"> When
+                        Device Is
+                        Charging</label>
+                    <label><input type="checkbox" id="preserveHistory" name="preserveHistory">Preserve page history when
+                        suspending</label>
+                    <span class="description">When enabled, uses tab discarding to preserve back/forward history. When
+                        disabled, uses the default close & reopen method.</span>
+                </div>
+            </section>
+
+            <section>
+                <h2>Unsaved Form Handling</h2>
+                <div class="form-group">
+                    <p>How to handle tabs with unsaved form input:</p>
+                    <label class="radio-label">
+                        <input type="radio" name="unsavedFormHandling" value="normal" checked>
+                        Suspend Normally (potential data loss)
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="unsavedFormHandling" value="never">
+                        Never Suspend
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="unsavedFormHandling" value="ask">
+                        Ask Before Suspending (using browser's native dialog)
+                    </label>
+                </div>
+            </section>
+
+            <section>
+                <h2>Session Restore</h2>
+                <div class="form-group checkbox-group">
+                    <label>
+                        <input type="checkbox" id="restoreOnStartup" name="restoreOnStartup"> Keep tabs suspended after
+                        browser restart
+                    </label>
+                    <span class="description">If unchecked, placeholder tabs state will be cleared on startup.</span>
+                </div>
+            </section>
+
+            <section>
+                <h2>Developer Options</h2>
+                <div class="form-group checkbox-group">
+                    <label>
+                        <input type="checkbox" id="autoReloadOnUpdate" name="autoReloadOnUpdate"> Automatically reload
+                        tabs when extension is updated
+                    </label>
+                    <span class="description">When checked, all tabs will be reloaded when the extension is updated to
+                        prevent content script errors. Disable this if you have tabs with unsaved data.</span>
+                </div>
+            </section>
+
+            <section>
+                <h2>URL Whitelist</h2>
+                <div class="form-group">
+                    <label for="whitelist">Never suspend URLs matching:</label>
+                    <textarea id="whitelist" name="whitelist" rows="8"
+                        placeholder="One URL or domain per line. E.g., google.com or https://mail.google.com/"></textarea>
+                    <span class="description">Matches either full URLs or domains (`example.com` matches
+                        `www.example.com`).</span>
+                </div>
+            </section>
+
+            <div class="form-actions">
+                <button type="submit" id="save-settings" aria-label="Save Settings">Save Settings</button>
+                <span id="save-status"></span>
+            </div>
+        </form>
+
+        <section class="links">
+            <h2>Support &amp; Info</h2>
+            <p>
+                <a href="#" target="_blank" rel="noopener">User Guide (Placeholder)</a> |
+                <a href="#" target="_blank" rel="noopener">Report an Issue</a> |
+                <a href="#" target="_blank" rel="noopener">Privacy Policy</a>
+            </p>
+        </section>
+    </div>
+
+    <script src="options.js" type="module"></script>
+</body>
+
+</html>
