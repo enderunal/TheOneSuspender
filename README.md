@@ -1,6 +1,27 @@
 # The One Suspender
 
+> **Status:** This extension has been submitted to the Chrome Web Store. Approval may take several weeks. In the meantime, please follow the manual installation instructions below.
+
+## Why The One Suspender?
+
+I developed this extension because The Marvelous Suspender (TMS) could not support Manifest V3, and I couldn't find an alternative that met my specific needs. I found that rewriting TMS from scratch was a more viable path than attempting to port it. The One Suspender includes all the features you're familiar with from The Great Suspender and TMS, plus additional enhancements.
+
 Auto-suspend inactive tabs with full manual controls, robust scheduling, and advanced security for Chrome (Manifest V3).
+
+---
+
+## Screenshots
+
+Here's a glimpse of The One Suspender in action:
+
+**Popup Menu:**
+![Popup Menu](docs/screenshots/ss_popup.png)
+
+**Options Page:**
+![Options Page](docs/screenshots/ss_options.png)
+
+**Dimmed Icon for Suspended Tabs:**
+![Dimmed Icon](docs/screenshots/ss_icon_dim.png)
 
 ---
 
