@@ -1,7 +1,5 @@
 # Privacy Policy for The One Suspender
 
-**Last Updated:** [Date of last update]
-
 **THIS EXTENSION COLLECTS ABSOLUTELY NO USER DATA. IT NEVER HAS, AND IT NEVER WILL!**
 
 The One Suspender is built with your privacy as its highest priority. We believe you have the right to a private browsing experience, and this extension is designed to uphold that right.
