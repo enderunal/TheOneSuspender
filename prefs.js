@@ -5,8 +5,8 @@ export const WHITELIST_KEY = 'whitelist';
 
 /** @type {import('./types.js').Prefs} */
 export const defaultPrefs = {
-    suspendAfter: 1, // Default suspend time in minutes
-    lastPositiveSuspendAfter: 1, // New preference
+    suspendAfter: 5, // Default suspend time in minutes
+    lastPositiveSuspendAfter: 5, // New preference
     preserveHistory: true,
     neverSuspendPinned: true,
     neverSuspendAudio: true,
@@ -74,8 +74,8 @@ function validatePrefs(prefsToValidate) {
         }
     }
     // Type and range checks
-    if (typeof prefsToValidate.suspendAfter !== 'number' || prefsToValidate.suspendAfter < 1 || prefsToValidate.suspendAfter > 120) {
-        throw new Error('suspendAfter must be a number between 1 and 120');
+    if (typeof prefsToValidate.suspendAfter !== 'number' || prefsToValidate.suspendAfter < 1) {
+        throw new Error('suspendAfter must be a number greater than 1');
     }
     if (typeof prefsToValidate.lastPositiveSuspendAfter !== 'number' || prefsToValidate.lastPositiveSuspendAfter < 1) {
         throw new Error('lastPositiveSuspendAfter must be a number >= 1');

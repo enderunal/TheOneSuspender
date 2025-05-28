@@ -31,8 +31,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	function validateInactivityMinutes() {
 		const value = parseInt(inactivityMinutesInput.value, 10);
-		if (isNaN(value) || value < 1 || value > 120) {
-			inactivityErrorSpan.textContent = "Must be a number between 1 and 120.";
+		if (isNaN(value) || value < 1) {
+			inactivityErrorSpan.textContent = "Must be a number greater than 1.";
 			inactivityErrorSpan.style.display = 'block';
 			saveButton.disabled = true;
 			return false;

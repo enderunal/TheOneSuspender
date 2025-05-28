@@ -27,15 +27,14 @@ Here's a glimpse of The One Suspender in action:
 
 ## Features
 
-- **Automatic Tab Suspension**: Frees memory by suspending inactive tabs after a user-defined timeout (1–120 mins).
+- **Automatic Tab Suspension**: Frees memory by suspending inactive tabs after a user-defined timeout (Minimum 1 min).
 - **Manual Controls**: Suspend/unsuspend individual tabs or all tabs in a window/all windows from the popup.
-- **Two Suspension Modes**: Close & Reopen (no history) or Preserve History (via tab discard).
+- **Two Suspension Modes**: Close & Reopen (no history) or Preserve History.
 - **Whitelist Management**: Never suspend specific URLs/domains (with wildcard support).
 - **Conditional Exceptions**: Never suspend pinned tabs, tabs playing audio, active tabs, tabs with unsaved form data, etc.
 - **Ask Before Suspending**: Prompts user if unsaved form data is detected (see below).
 - **Visual Indicators**: Grayed-out favicon for suspended tabs, with robust CORS/SVG handling.
 - **Customizable Settings**: All options available in a modern, responsive Options page.
-- **Robust Error Handling**: All tab/window operations are safe to missing/closed entities.
 - **Security-First**: Strict CSP, minimal permissions, secure messaging, and no user-supplied DOM injection.
 
 ---
