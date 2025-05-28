@@ -30,6 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	const unsavedFormHandlingRadios = document.querySelectorAll('input[name="unsavedFormHandling"]');
 	const autoReloadOnUpdateInput = document.getElementById("autoReloadOnUpdate");
 	const saveButton = document.getElementById("save-settings");
+	const autoSuspendEnabledInput = document.getElementById("autoSuspendEnabled");
 
 	function validateInactivityMinutes() {
 		const value = parseInt(inactivityMinutesInput.value, 10);
@@ -47,6 +48,10 @@ document.addEventListener("DOMContentLoaded", () => {
 	}
 
 	inactivityMinutesInput.addEventListener('input', validateInactivityMinutes);
+
+	autoSuspendEnabledInput.addEventListener('change', () => {
+		inactivityMinutesInput.disabled = !autoSuspendEnabledInput.checked;
+	});
 
 	// --- Load Settings ---
 	function loadSettings() {
@@ -78,6 +83,8 @@ document.addEventListener("DOMContentLoaded", () => {
 		restoreOnStartupInput.checked = settings.restoreOnStartup;
 		autoReloadOnUpdateInput.checked = settings.autoReloadOnUpdate !== false; // Default to true if not set
 		whitelistTextarea.value = (Array.isArray(whitelistItems) ? whitelistItems : []).join("\n");
+		autoSuspendEnabledInput.checked = settings.autoSuspendEnabled !== false; // Default to true if not set
+		inactivityMinutesInput.disabled = !autoSuspendEnabledInput.checked;
 
 		// Set unsaved form handling radio
 		let foundRadio = false;
@@ -121,6 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			unsavedFormHandling: selectedUnsavedHandling ? selectedUnsavedHandling.value : 'normal',
 			autoReloadOnUpdate: autoReloadOnUpdateInput.checked,
 			restoreOnStartup: restoreOnStartupInput.checked,
+			autoSuspendEnabled: autoSuspendEnabledInput.checked,
 		};
 
 		Object.keys(defaultPrefs).forEach(key => {
@@ -134,7 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		const newWhitelist = parseWhitelistText(whitelistTextarea.value);
 		log(`Constructed newWhitelist array: ${newWhitelist}`, LogComponent.OPTIONS);
 
-		chrome.runtime.sendMessage({ type: Const.MSG_SAVE_SETTINGS, settings: newSettings }, (response) => {
+		chrome.runtime.sendMessage({ type: Const.MSG_SAVE_SETTINGS, settings: newSettings }, async (response) => {
 			if (chrome.runtime.lastError || !response?.success) {
 				saveStatus.textContent = "Error saving settings! " + (chrome.runtime.lastError?.message || response?.error || "");
 				saveStatus.className = 'status-message error';
@@ -152,6 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
 					}
 					setTimeout(() => { saveStatus.textContent = ""; saveStatus.className = 'status-message'; }, 3000);
 				});
+				await chrome.runtime.sendMessage({ type: Const.MSG_PREFS_CHANGED });
 			}
 		});
 	});

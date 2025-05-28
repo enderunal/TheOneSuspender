@@ -15,7 +15,8 @@ document.addEventListener("DOMContentLoaded", () => {
 		unsuspendAllWindow: document.getElementById("unsuspend-all-window"),
 		unsuspendAllAll: document.getElementById("unsuspend-all-all"),
 		openSettings: document.getElementById("open-settings"),
-		actionFeedback: document.getElementById("action-feedback-message")
+		actionFeedback: document.getElementById("action-feedback-message"),
+		autoSuspendIndicator: document.getElementById("auto-suspend-indicator")
 	};
 
 	// Consolidated state variables
@@ -98,6 +99,17 @@ document.addEventListener("DOMContentLoaded", () => {
 		if (!currentTab || !elements.status || Object.keys(currentPrefs).length === 0) {
 			if (elements.status) elements.status.textContent = "Loading...";
 			return;
+		}
+
+		// Auto suspension indicator
+		if (elements.autoSuspendIndicator) {
+			if (currentPrefs.autoSuspendEnabled !== false) {
+				elements.autoSuspendIndicator.innerHTML = '<span class="auto-suspend-enabled">&#10003; Auto Suspension Enabled</span>';
+				elements.autoSuspendIndicator.title = 'Tabs will be auto-suspended after the configured inactivity period.';
+			} else {
+				elements.autoSuspendIndicator.innerHTML = '<span class="auto-suspend-disabled">&#10007; Auto Suspension Disabled</span>';
+				elements.autoSuspendIndicator.title = 'Tabs will NOT be auto-suspended until you re-enable this in settings.';
+			}
 		}
 
 		const isSuspendedPage = currentTab.url && currentTab.url.startsWith(chrome.runtime.getURL("suspended.html"));

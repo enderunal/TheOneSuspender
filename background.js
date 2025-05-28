@@ -22,8 +22,13 @@ async function setupStatePersistence() {
     chrome.alarms.create(Const.TS_STATE_CLEANUP_NAME, { periodInMinutes: Const.ALARM_CLEANUP_INTERVAL_MINUTES / 2 });
     log(`State cleanup routine scheduled for every ${Const.ALARM_CLEANUP_INTERVAL_MINUTES / 2} minutes`, LogComponent.BACKGROUND);
     try {
-        await scheduleAllTabs();
-        log("Initial tab scheduling complete", LogComponent.BACKGROUND);
+        if (State.prefs?.autoSuspendEnabled === false || (typeof State.prefs === 'undefined' && typeof prefs !== 'undefined' && prefs.autoSuspendEnabled === false)) {
+            await chrome.alarms.clear(Const.TS_TAB_SCAN_ALARM_NAME);
+            log('Auto suspension is disabled; tab scan alarm cleared.', LogComponent.BACKGROUND);
+        } else {
+            await scheduleAllTabs();
+            log("Initial tab scheduling complete", LogComponent.BACKGROUND);
+        }
     } catch (e) {
         logError("Error during initial tab scheduling", e, LogComponent.BACKGROUND);
     }
@@ -214,6 +219,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (!isInitialized) {
         detailedLog(`[Deferred] Message of type ${message?.type} received before initialization complete`, LogComponent.BACKGROUND);
         sendResponse({ error: "Extension is still initializing. Please try again shortly." });
+        return true;
+    }
+    // Listen for prefs changed and update scheduling if needed
+    if (message?.type === Const.MSG_PREFS_CHANGED) {
+        scheduleAllTabs();
+        sendResponse?.({ success: true });
         return true;
     }
     return Listeners.handleMessage(message, sender, sendResponse);

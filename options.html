@@ -17,6 +17,10 @@
             <section>
                 <h2>Automatic Suspension</h2>
                 <div class="form-group">
+                    <label><input type="checkbox" id="autoSuspendEnabled" name="autoSuspendEnabled" checked> Enable
+                        automatic tab suspension</label>
+                </div>
+                <div class="form-group">
                     <label for="inactivityMinutes">Suspend tabs after (minutes):</label>
                     <input type="number" id="inactivityMinutes" name="inactivityMinutes" min="1" max="120" step="1"
                         required>

@@ -34,6 +34,10 @@ export function removeTabSuspendTime(tabId) {
 export async function setupTabScanAlarm() {
 	try {
 		await chrome.alarms.clear(Const.TS_TAB_SCAN_ALARM_NAME);
+		if (!prefs.autoSuspendEnabled) {
+			log('Auto suspension is disabled; tab scan alarm will not be created.');
+			return false;
+		}
 		await chrome.alarms.create(Const.TS_TAB_SCAN_ALARM_NAME, {
 			periodInMinutes: Const.TS_TAB_SCAN_INTERVAL_MINUTES
 		});
@@ -51,6 +55,10 @@ export async function setupTabScanAlarm() {
  * @returns {Promise<{ scanned: number, suspended: number, errors: number, cleaned: number }>} Stats about the scan operation.
  */
 export async function scanTabsForSuspension() {
+	if (!prefs.autoSuspendEnabled) {
+		log('Auto suspension is disabled; skipping tab scan.');
+		return { scanned: 0, suspended: 0, errors: 0, cleaned: 0 };
+	}
 	const stats = { scanned: 0, suspended: 0, errors: 0, cleaned: 0 };
 	const now = Date.now();
 
@@ -145,6 +153,11 @@ export async function cancelTabSuspendTracking(tabId) {
  * @returns {Promise<boolean>} - Whether the tab was successfully scheduled.
  */
 export async function scheduleTab(tabId, tab = null) {
+	if (!prefs.autoSuspendEnabled) {
+		detailedLog(`Auto suspension is disabled; not scheduling tab ${tabId}`);
+		await cancelTabSuspendTracking(tabId);
+		return false;
+	}
 	try {
 		const tabInfo = tab || await chrome.tabs.get(tabId);
 		const skipReason = await shouldSkipTab(tabInfo, true);
@@ -185,6 +198,11 @@ export async function scheduleTab(tabId, tab = null) {
  * @returns {Promise<boolean>} - Whether the suspension time was successfully created.
  */
 export async function scheduleTabInMap(tabId, delayMinutes = null) {
+	if (!prefs.autoSuspendEnabled) {
+		detailedLog(`Auto suspension is disabled; not scheduling tab ${tabId} in map`);
+		await cancelTabSuspendTracking(tabId);
+		return false;
+	}
 	const delay = delayMinutes !== null ? delayMinutes : prefs.suspendAfter;
 	if (delay <= 0 || !Number.isFinite(delay)) {
 		logError(`Invalid suspension delay for tab ${tabId}: ${delay}`);
@@ -228,6 +246,10 @@ export async function getTabSuspendTime(tabId) {
  */
 export async function handleSuspendAlarm(alarmName) {
 	if (alarmName === Const.TS_TAB_SCAN_ALARM_NAME) {
+		if (!prefs.autoSuspendEnabled) {
+			log('Auto suspension is disabled; ignoring tab scan alarm.');
+			return false;
+		}
 		await scanTabsForSuspension();
 		return true;
 	}
@@ -260,6 +282,12 @@ export async function unscheduleTab(tabId) {
  * - Statistics about the scheduling operation.
  */
 export async function scheduleAllTabs() {
+	if (!prefs.autoSuspendEnabled) {
+		detailedLog('Auto suspension is disabled; not scheduling any tabs. Clearing all suspension tracking.');
+		tabSuspendTimes.clear();
+		await chrome.alarms.clear(Const.TS_TAB_SCAN_ALARM_NAME);
+		return;
+	}
 	const stats = { success: 0, skipped: 0, failed: 0, total: 0 };
 
 	try {

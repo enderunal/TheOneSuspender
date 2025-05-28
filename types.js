@@ -12,6 +12,7 @@
  * @property {boolean} autoReloadOnUpdate
  * @property {number} maxConcurrent
  * @property {boolean} restoreOnStartup
+ * @property {boolean} autoSuspendEnabled
  */
 
-export {}; // Make this a module 
+export { }; // Make this a module 

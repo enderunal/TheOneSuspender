@@ -17,7 +17,8 @@ export const defaultPrefs = {
     unsavedFormHandling: 'ask', // Allowed: 'normal', 'never', 'ask'
     autoReloadOnUpdate: true, // Automatically reload tabs when extension is updated
     maxConcurrent: 5, // Default maximum concurrent operations
-    restoreOnStartup: true
+    restoreOnStartup: true,
+    autoSuspendEnabled: true // New: allow user to disable auto suspension
 };
 
 /** @type {import('./types.js').Prefs} */
@@ -95,6 +96,7 @@ function validatePrefs(prefsToValidate) {
     if (!unsavedFormHandlingValues.includes(prefsToValidate.unsavedFormHandling)) {
         throw new Error('unsavedFormHandling must be one of: normal, never, ask');
     }
+    if (typeof prefsToValidate.autoSuspendEnabled !== 'boolean') throw new Error('autoSuspendEnabled must be boolean');
 }
 
 /**

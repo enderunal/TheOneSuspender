@@ -174,3 +174,13 @@ hr {
 	color: #1976d2;
 	/* Blue for info */
 }
+
+.auto-suspend-enabled {
+	color: #2ecc40;
+	font-weight: bold;
+}
+
+.auto-suspend-disabled {
+	color: #e74c3c;
+	font-weight: bold;
+}
