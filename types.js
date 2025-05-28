@@ -10,7 +10,6 @@
  * @property {boolean} neverSuspendWhenCharging
  * @property {'normal'|'never'|'ask'} unsavedFormHandling
  * @property {number} maxConcurrent
- * @property {boolean} restoreOnStartup
  * @property {boolean} autoSuspendEnabled
  */
 
