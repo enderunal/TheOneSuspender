@@ -11,23 +11,23 @@ body {
 }
 
 .container {
-	padding: 15px;
+	padding: 10px;
 }
 
 h2 {
 	font-size: 1.1em;
 	color: #1a73e8;
 	margin-top: 0;
-	margin-bottom: 15px;
+	margin-bottom: 8px;
 	text-align: center;
 }
 
 .status {
 	background-color: #eee;
-	padding: 8px 12px;
+	padding: 6px 10px;
 	border-radius: 4px;
-	margin-bottom: 15px;
-	font-size: 0.9em;
+	margin-bottom: 4px;
+	font-size: 0.92em;
 	word-wrap: break-word;
 }
 
@@ -48,21 +48,24 @@ h2 {
 .actions {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
+	gap: 5px;
+	margin-top: 6px;
 }
 
 .action-button {
 	background-color: #fff;
 	color: #333;
 	border: 1px solid #ccc;
-	padding: 8px 12px;
+	padding: 6px 8px;
 	border-radius: 4px;
 	cursor: pointer;
-	font-size: 0.95em;
+	font-size: 0.93em;
 	text-align: center;
 	transition: background-color 0.2s ease, border-color 0.2s ease;
-	width: 100%;
+	width: 95%;
 	box-sizing: border-box;
+	/*align to center*/
+	margin: 0 auto;
 }
 
 .action-button:hover:not(:disabled) {
@@ -116,21 +119,21 @@ h2 {
 }
 
 .settings-button {
-	margin-top: 5px;
+	margin-top: 3px;
 }
 
 hr {
 	border: none;
 	border-top: 1px solid #ddd;
-	margin: 10px 0;
+	margin: 6px 0;
 }
 
 /* Styles for the action feedback message area */
 .action-feedback {
-	min-height: 20px;
+	min-height: 0px;
 	/* Ensures space is reserved even when empty */
 	margin-top: 5px;
-	margin-bottom: 10px;
+	margin-bottom: 4px;
 	/* Added some bottom margin for spacing before actions */
 	padding: 5px;
 	/* Added some padding */
@@ -183,4 +186,15 @@ hr {
 .auto-suspend-disabled {
 	color: #e74c3c;
 	font-weight: bold;
+}
+
+.links {
+	margin-top: 8px;
+	font-size: 0.95em;
+}
+
+#auto-suspend-indicator {
+	margin-left: 8px;
+	font-size: 0.95em;
+	display: inline-block;
 }

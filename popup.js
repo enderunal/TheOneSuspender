@@ -104,10 +104,10 @@ document.addEventListener("DOMContentLoaded", () => {
 		// Auto suspension indicator
 		if (elements.autoSuspendIndicator) {
 			if (currentPrefs.autoSuspendEnabled !== false) {
-				elements.autoSuspendIndicator.innerHTML = '<span class="auto-suspend-enabled">&#10003; Auto Suspension Enabled</span>';
+				elements.autoSuspendIndicator.innerHTML = '<span class="auto-suspend-enabled">&#10003; Enabled</span>';
 				elements.autoSuspendIndicator.title = 'Tabs will be auto-suspended after the configured inactivity period.';
 			} else {
-				elements.autoSuspendIndicator.innerHTML = '<span class="auto-suspend-disabled">&#10007; Auto Suspension Disabled</span>';
+				elements.autoSuspendIndicator.innerHTML = '<span class="auto-suspend-disabled">&#10007; Disabled</span>';
 				elements.autoSuspendIndicator.title = 'Tabs will NOT be auto-suspended until you re-enable this in settings.';
 			}
 		}

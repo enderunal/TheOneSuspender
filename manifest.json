@@ -20,7 +20,9 @@
 				"suspended.js",
 				"icons/icon16.png",
 				"icons/icon48.png",
-				"icons/icon128.png"
+				"icons/icon128.png",
+				"migrate.html",
+				"migrate.js"
 			],
 			"matches": [
 				"<all_urls>"

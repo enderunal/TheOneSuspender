@@ -157,3 +157,10 @@ button[type="submit"]:hover {
 .links a:hover {
 	text-decoration: underline;
 }
+
+.prominent-migrate-link {
+	font-size: 1.08em;
+	padding: 10px 18px;
+	margin-bottom: 14px;
+	display: inline-block;
+}

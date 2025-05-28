@@ -1,0 +1,85 @@
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    font-size: 14px;
+    margin: 0;
+    padding: 0;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+.container.migration-container {
+    max-width: 80%;
+    min-width: 600px;
+    margin: 40px auto;
+    padding: 24px 28px 20px 28px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.13);
+}
+
+h2 {
+    font-size: 1.22em;
+    margin: 0 0 14px 0;
+    font-weight: 700;
+}
+
+.description {
+    margin-bottom: 12px;
+    font-size: 1em;
+}
+
+.migration-list {
+    margin: 0.5em 0 0.5em 0;
+    padding-left: 1.1em;
+    font-size: 0.97em;
+    overflow-x: auto;
+    white-space: nowrap;
+    max-height: 60vh;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    background: #fafbfc;
+    padding: 0.5em 0.7em;
+}
+
+.migration-list li {
+    margin-bottom: 0.2em;
+    padding: 0.1em 0;
+    white-space: nowrap;
+    overflow-x: auto;
+    text-overflow: ellipsis;
+}
+
+.migration-status {
+    margin-top: 1em;
+    font-weight: bold;
+}
+
+.links {
+    margin-top: 18px;
+    font-size: 1em;
+    text-align: center;
+}
+
+.action-button,
+.primary {
+    padding: 8px 14px;
+    font-size: 1em;
+    margin: 0;
+    border-radius: 6px;
+    background-color: #1a73e8;
+    color: white;
+    border: none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.action-button.primary:hover {
+    background-color: #1558b0;
+}
+
+.migration-note {
+    color: #888;
+    font-size: 0.95em;
+}
