@@ -22,17 +22,27 @@ async function checkForUnsavedFormData(tabId) {
             return false;
         }
         const tab = await safeGetTab(tabId, `checkForUnsavedFormData(${tabId})`);
-        if (!tab || !tab.url || !tab.url.match(/^https?:\/\//)) {
-            log(`checkForUnsavedFormData: Tab ${tabId} has no valid URL.`);
+        if (!tab || !tab.url) {
+            log(`checkForUnsavedFormData: Tab ${tabId} has no URL.`);
+            return false;
+        }
+        // Improved: Only allow http/https URLs, and exclude more special/internal pages
+        const url = tab.url;
+        if (!/^https?:\/\//.test(url)) {
+            log(`checkForUnsavedFormData: Tab ${tabId} is not http(s), skipping. URL: ${url}`);
             return false;
         }
         if (
-            tab.url.startsWith(chrome.runtime.getURL("suspended.html")) ||
-            tab.url.startsWith("chrome-extension://") ||
-            tab.url.startsWith("chrome://") ||
-            tab.url.startsWith("about:")
+            url.startsWith(chrome.runtime.getURL("suspended.html")) ||
+            url.startsWith("chrome-extension://") ||
+            url.startsWith("chrome://") ||
+            url.startsWith("about:") ||
+            url.startsWith("edge://") ||
+            url.startsWith("file://") ||
+            url.startsWith("view-source:") ||
+            url.startsWith("devtools://")
         ) {
-            log(`checkForUnsavedFormData: Tab ${tabId} is a special/internal page.`);
+            log(`checkForUnsavedFormData: Tab ${tabId} is a special/internal page. URL: ${url}`);
             return false;
         }
         // Run the check in all frames (main + iframes)

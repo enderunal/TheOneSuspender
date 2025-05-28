@@ -3,27 +3,18 @@ import { log, logWarning, logError, LogComponent } from './logger.js';
 
 (async () => {
 	try {
-		const params = new URLSearchParams(location.search);
-		log("Using search parameters.", LogComponent.SUSPENDED);
-
-		// Extract parameters using standardized names
-		let originalUrl = "";
-		const encodedUrlParam = params.get('url');
-		if (encodedUrlParam) {
-			try {
-				originalUrl = decodeURIComponent(encodedUrlParam);
-				log(`Decoded URL from 'url' parameter: ${originalUrl.substring(0, 100)}`, LogComponent.SUSPENDED);
-			} catch (e) {
-				originalUrl = encodedUrlParam; // Use as-is if decode fails (should be rare with new builder)
-				logWarning(`Using undecoded URL from 'url' parameter due to decode error: ${originalUrl.substring(0, 100)}`, LogComponent.SUSPENDED);
-			}
-		} else {
-			logWarning("'url' parameter missing.", LogComponent.SUSPENDED);
+		// Parse parameters from the hash, not the query string
+		const hash = location.hash.startsWith('#') ? location.hash.slice(1) : location.hash;
+		const params = {};
+		for (const part of hash.split('&')) {
+			const [key, ...rest] = part.split('=');
+			if (key) params[key] = rest.join('=');
 		}
-
-		const pageTitle = params.get("title") || (originalUrl || "Tab Suspended");
-		const timestamp = parseInt(params.get("timestamp") || "0", 10);
-		const faviconUrl = params.get("fav") || "";
+		let originalUrl = params.url || "";
+		const pageTitle = params.title ? decodeURIComponent(params.title) : (originalUrl || "Tab Suspended");
+		const timestamp = params.timestamp ? parseInt(params.timestamp, 10) : 0;
+		const faviconUrl = params.fav ? decodeURIComponent(params.fav) : "";
+		log("Using search parameters.", LogComponent.SUSPENDED);
 
 		// 1) Title & header
 		try {

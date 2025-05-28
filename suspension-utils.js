@@ -8,11 +8,26 @@ import { logError } from './logger.js';
  */
 export function getOriginalDataFromUrl(suspendedUrl) {
     try {
+        // Try to parse from hash first (new format)
+        const hash = suspendedUrl.split('#')[1] || '';
+        const hashParams = {};
+        for (const part of hash.split('&')) {
+            const [key, ...rest] = part.split('=');
+            if (key) hashParams[key] = rest.join('=');
+        }
+        if (hashParams.url) return { url: hashParams.url };
+        // Fallback to old query param method
         const url = new URL(suspendedUrl);
         const encodedOriginalUrl = url.searchParams.get('url');
         if (!encodedOriginalUrl) return null;
+        let originalUrl = encodedOriginalUrl;
+        try {
+            if (encodedOriginalUrl.includes('%')) {
+                originalUrl = decodeURIComponent(encodedOriginalUrl);
+            }
+        } catch (e) { /* ignore decode error, use as-is */ }
         return {
-            url: decodeURIComponent(encodedOriginalUrl),
+            url: originalUrl,
         };
     } catch (e) {
         logError('getOriginalDataFromUrl', e);

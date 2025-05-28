@@ -76,7 +76,11 @@ async function migrateTabs() {
             setTimeout(processBatch, 30); // Yield to UI, avoid throttling
         } else {
             migrationStatus.textContent = `Migration complete. ${migrated} tab(s) migrated.`;
-            scanTabs(); // Refresh list
+            // Clear the list immediately
+            migrationList.innerHTML = '<li>No Marvellous Suspender tabs found.</li>';
+            migrateBtn.disabled = true;
+            // Optionally, rescan after a short delay to catch any tabs that may not have reloaded yet
+            setTimeout(scanTabs, 1000);
         }
     }
     processBatch();

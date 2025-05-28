@@ -5,8 +5,8 @@ export const WHITELIST_KEY = 'whitelist';
 
 /** @type {import('./types.js').Prefs} */
 export const defaultPrefs = {
-    suspendAfter: 5, // Default suspend time in minutes
-    lastPositiveSuspendAfter: 5, // New preference
+    suspendAfter: 10, // Default suspend time in minutes
+    lastPositiveSuspendAfter: 10, // New preference
     preserveHistory: true,
     neverSuspendPinned: true,
     neverSuspendAudio: true,

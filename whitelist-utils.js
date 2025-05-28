@@ -74,10 +74,25 @@ export async function resolveTabUrl(tab) {
     // Check if the tab.url starts with the base suspended page URL, ignoring query params for this check
     if (tab.url.startsWith(suspendedPageBase)) {
         try {
+            // Try to parse from hash first (new format)
+            const hash = tab.url.split('#')[1] || '';
+            const hashParams = {};
+            for (const part of hash.split('&')) {
+                const [key, ...rest] = part.split('=');
+                if (key) hashParams[key] = rest.join('=');
+            }
+            if (hashParams.url) return hashParams.url;
+            // Fallback to old query param method
             const urlParams = new URLSearchParams(new URL(tab.url).search);
             const originalEncodedUrl = urlParams.get('url');
             if (originalEncodedUrl) {
-                return decodeURIComponent(originalEncodedUrl);
+                let originalUrl = originalEncodedUrl;
+                try {
+                    if (originalEncodedUrl.includes('%')) {
+                        originalUrl = decodeURIComponent(originalEncodedUrl);
+                    }
+                } catch (e) { /* ignore decode error, use as-is */ }
+                return originalUrl;
             }
             return null; // No 'url' parameter found
         } catch (e) {
