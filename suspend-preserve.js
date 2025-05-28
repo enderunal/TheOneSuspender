@@ -72,7 +72,12 @@ export async function suspendTabPreserveHistory(originalTab, hasUnsavedData = fa
         if (updateError.message && updateError.message.includes("No tab with id") && updateError.message.includes(String(currentTargetTabId))) {
             detailedLog(`${context}: Target tab ${currentTargetTabId} disappeared during update to suspended.html.`);
         } else {
-            logError(`${context}: Error updating tab ${currentTargetTabId} to suspended URL: ${updateError.message}`);
+            // Suppress 'Tabs cannot be edited right now' error
+            if (updateError.message && updateError.message.includes('Tabs cannot be edited right now')) {
+                detailedLog(`${context}: Suppressed error: ${updateError.message}`);
+            } else {
+                logError(`${context}: Error updating tab ${currentTargetTabId} to suspended URL: ${updateError.message}`);
+            }
         }
         return false; // Update failed
     }
