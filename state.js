@@ -3,7 +3,6 @@ import { log, detailedLog, logError, LogComponent } from './logger.js';
 
 // Browser status trackers
 let isOfflineMode = !navigator.onLine; // Initialize with current status
-let isPowerConnectedMode = true;
 let lastFocusedWindowId = chrome.windows.WINDOW_ID_NONE;
 
 // Map of window IDs to their active tab IDs
@@ -43,26 +42,6 @@ export function updateOfflineStatus(status = null) {
     }
 
     return isOfflineMode;
-}
-
-/**
- * Check if the device is connected to power
- * @returns {boolean} Whether the device is connected to power
- */
-export function isPowerConnected() {
-    return isPowerConnectedMode;
-}
-
-/**
- * Update and return the power connection status
- * @param {boolean} [status] - Optional status to set 
- * @returns {boolean} The current power status
- */
-export function updatePowerStatus(status = null) {
-    if (status !== null) {
-        isPowerConnectedMode = status;
-    }
-    return isPowerConnectedMode;
 }
 
 /**

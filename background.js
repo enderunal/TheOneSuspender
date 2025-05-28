@@ -124,9 +124,6 @@ async function initializeCore() {
     }
     log("Step 2: Initializing browser status...", LogComponent.BACKGROUND);
     State.updateOfflineStatus();
-    log("Battery API not available in service workers, assuming always connected", LogComponent.BACKGROUND);
-    //todo review-note: look at this later
-    State.updatePowerStatus(true);
     log("Step 3: Initializing window and tab info...", LogComponent.BACKGROUND);
     try {
         const windows = await chrome.windows.getAll();

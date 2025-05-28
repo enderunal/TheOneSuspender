@@ -137,10 +137,6 @@ export async function shouldSkipTab(tab, debug = false) {
         return skip("browser is offline");
     }
 
-    if (prefs.neverSuspendWhenCharging && State.isPowerConnected()) {
-        return skip("device is charging");
-    }
-
     if (prefs.neverSuspendActive && tab.active) {
         return skip("active in window");
     }

@@ -22,7 +22,6 @@ document.addEventListener("DOMContentLoaded", () => {
 	const neverSuspendActiveInput = document.getElementById("neverSuspendActive");
 	const neverSuspendLastWindowInput = document.getElementById("neverSuspendLastWindow");
 	const neverSuspendOfflineInput = document.getElementById("neverSuspendOffline");
-	const neverSuspendWhenChargingInput = document.getElementById("neverSuspendWhenCharging");
 	const whitelistTextarea = document.getElementById("whitelist");
 	const saveStatus = document.getElementById("save-status");
 
@@ -77,7 +76,6 @@ document.addEventListener("DOMContentLoaded", () => {
 		neverSuspendActiveInput.checked = settings.neverSuspendActive;
 		neverSuspendLastWindowInput.checked = settings.neverSuspendLastWindow;
 		neverSuspendOfflineInput.checked = settings.neverSuspendOffline;
-		neverSuspendWhenChargingInput.checked = settings.neverSuspendWhenCharging;
 		whitelistTextarea.value = (Array.isArray(whitelistItems) ? whitelistItems : []).join("\n");
 		autoSuspendEnabledInput.checked = settings.autoSuspendEnabled !== false; // Default to true if not set
 		inactivityMinutesInput.disabled = !autoSuspendEnabledInput.checked;
@@ -120,7 +118,6 @@ document.addEventListener("DOMContentLoaded", () => {
 			neverSuspendActive: neverSuspendActiveInput.checked,
 			neverSuspendLastWindow: neverSuspendLastWindowInput.checked,
 			neverSuspendOffline: neverSuspendOfflineInput.checked,
-			neverSuspendWhenCharging: neverSuspendWhenChargingInput.checked,
 			unsavedFormHandling: selectedUnsavedHandling ? selectedUnsavedHandling.value : 'normal',
 			autoSuspendEnabled: autoSuspendEnabledInput.checked,
 		};
