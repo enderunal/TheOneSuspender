@@ -21,7 +21,6 @@ h1 {
 	text-align: center;
 	margin-top: 0;
 	margin-bottom: 30px;
-	border-bottom: 1px solid #eee;
 	padding-bottom: 15px;
 }
 
@@ -91,7 +90,6 @@ input[type="checkbox"] {
 .form-actions {
 	margin-top: 30px;
 	text-align: right;
-	border-top: 1px solid #eee;
 	padding-top: 20px;
 }
 
@@ -144,7 +142,6 @@ button[type="submit"]:hover {
 	text-align: center;
 	font-size: 0.9em;
 	color: #666;
-	border-top: 1px solid #eee;
 	padding-top: 20px;
 }
 
