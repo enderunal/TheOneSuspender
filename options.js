@@ -28,7 +28,6 @@ document.addEventListener("DOMContentLoaded", () => {
 	const saveStatus = document.getElementById("save-status");
 
 	const unsavedFormHandlingRadios = document.querySelectorAll('input[name="unsavedFormHandling"]');
-	const autoReloadOnUpdateInput = document.getElementById("autoReloadOnUpdate");
 	const saveButton = document.getElementById("save-settings");
 	const autoSuspendEnabledInput = document.getElementById("autoSuspendEnabled");
 
@@ -81,7 +80,6 @@ document.addEventListener("DOMContentLoaded", () => {
 		neverSuspendOfflineInput.checked = settings.neverSuspendOffline;
 		neverSuspendWhenChargingInput.checked = settings.neverSuspendWhenCharging;
 		restoreOnStartupInput.checked = settings.restoreOnStartup;
-		autoReloadOnUpdateInput.checked = settings.autoReloadOnUpdate !== false; // Default to true if not set
 		whitelistTextarea.value = (Array.isArray(whitelistItems) ? whitelistItems : []).join("\n");
 		autoSuspendEnabledInput.checked = settings.autoSuspendEnabled !== false; // Default to true if not set
 		inactivityMinutesInput.disabled = !autoSuspendEnabledInput.checked;
@@ -126,7 +124,6 @@ document.addEventListener("DOMContentLoaded", () => {
 			neverSuspendOffline: neverSuspendOfflineInput.checked,
 			neverSuspendWhenCharging: neverSuspendWhenChargingInput.checked,
 			unsavedFormHandling: selectedUnsavedHandling ? selectedUnsavedHandling.value : 'normal',
-			autoReloadOnUpdate: autoReloadOnUpdateInput.checked,
 			restoreOnStartup: restoreOnStartupInput.checked,
 			autoSuspendEnabled: autoSuspendEnabledInput.checked,
 		};
