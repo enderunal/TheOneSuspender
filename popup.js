@@ -342,6 +342,39 @@ document.addEventListener("DOMContentLoaded", () => {
 		}, 5000);
 	}
 
+	// --- Multi-tab suspend/unsuspend buttons logic ---
+	// Utility function to show/hide multiple elements
+	function setElementsVisibility(elements, visible) {
+		elements.forEach(el => {
+			if (el) {
+				el.classList.toggle('hidden', !visible);
+			}
+		});
+	}
+
+	const suspendSelectedBtn = document.getElementById('suspend-selected-tabs');
+	const unsuspendSelectedBtn = document.getElementById('unsuspend-selected-tabs');
+	const selectedTabsHr = document.getElementById('selected-tabs-hr');
+
+	chrome.tabs.query({ currentWindow: true, highlighted: true }, function (tabs) {
+		const show = tabs.length > 1;
+		setElementsVisibility([suspendSelectedBtn, unsuspendSelectedBtn, selectedTabsHr], show);
+
+		if (show) {
+			const tabIds = tabs.map(tab => tab.id);
+			suspendSelectedBtn.onclick = function () {
+				tabIds.forEach(tabId => {
+					chrome.runtime.sendMessage({ type: 'MSG_suspendTab', tabId, isManual: true });
+				});
+			};
+			unsuspendSelectedBtn.onclick = function () {
+				tabIds.forEach(tabId => {
+					chrome.runtime.sendMessage({ type: 'MSG_unsuspendTab', tabId });
+				});
+			};
+		}
+	});
+
 	// --- Startup Sequence ---
 	loadInitialData();
 	setupEventListeners();

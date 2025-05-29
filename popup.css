@@ -198,3 +198,7 @@ hr {
 	font-size: 0.95em;
 	display: inline-block;
 }
+
+.hidden {
+	display: none !important;
+}
