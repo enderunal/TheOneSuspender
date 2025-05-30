@@ -1,10 +1,10 @@
 // ===================== Imports =====================
 import { log, detailedLog, logError, logWarning, LogComponent } from './logger.js';
 import { loadPrefs } from './prefs.js';
-import { scheduleAllTabs, clearDebouncedTimeouts } from './scheduling.js';
-import * as Listeners from './listeners.js'; // Import logic handlers
+import { scheduleAllTabs } from './scheduling.js';
+import * as Listeners from './listeners.js';
 import * as Const from './constants.js';
-import * as State from './state.js'; // Import shared state
+import * as State from './state.js';
 
 // ===================== Constants and Global State =====================
 let isInitialized = false;

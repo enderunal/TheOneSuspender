@@ -1,10 +1,9 @@
 // scheduling.js
-import { log, detailedLog, logError } from './logger.js';
-import { prefs } from './prefs.js';
-import { suspendTab } from './suspension.js';
-import { shouldSkipTab } from './tab-classifier.js';
 import * as Const from './constants.js';
 import * as State from './state.js';
+import { log, detailedLog, logError } from './logger.js';
+import { prefs } from './prefs.js';
+import { suspendTab, shouldSkipTabForScheduling } from './suspension.js';
 
 export const SMALL_DELAY_MS = 50;
 export const DEBOUNCE_DELAY_MS = 5000; // For debouncing frequent events like settings changes before rescheduling
@@ -96,7 +95,7 @@ export async function scanTabsForSuspension() {
 						? suspendData
 						: suspendData.scheduledTime;
 					if (suspendTime <= now) {
-						const skipReason = await shouldSkipTab(tab, true);
+						const skipReason = await shouldSkipTabForScheduling(tab, true);
 						if (skipReason) {
 							detailedLog(`Tab ${tab.id} will not be suspended: ${skipReason}`);
 							tabSuspendTimes.delete(tab.id);
@@ -160,7 +159,7 @@ export async function scheduleTab(tabId, tab = null) {
 	}
 	try {
 		const tabInfo = tab || await chrome.tabs.get(tabId);
-		const skipReason = await shouldSkipTab(tabInfo, true);
+		const skipReason = await shouldSkipTabForScheduling(tabInfo, true);
 		if (skipReason) {
 			detailedLog(`Tab ${tabId} skipped scheduling: ${skipReason}`);
 			await cancelTabSuspendTracking(tabId);
@@ -326,7 +325,7 @@ export async function scheduleAllTabs() {
 						stats.skipped++;
 						detailedLog(`Tab ${tab.id} scheduling skipped: active tab protected by preferences`);
 					} else {
-						const skipReason = await shouldSkipTab(tab, true);
+						const skipReason = await shouldSkipTabForScheduling(tab, true);
 
 						if (skipReason) {
 							await cancelTabSuspendTracking(tab.id);

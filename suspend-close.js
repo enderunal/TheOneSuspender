@@ -9,7 +9,7 @@ import { buildSuspendedUrl } from './url-builder.js';
  * @param {chrome.tabs.Tab} tab - The tab to suspend.
  * @returns {Promise<boolean>} Success status.
  */
-export async function suspendClose(tab, hasUnsavedData = false) {
+export async function suspendClose(tab) {
     const context = `suspendClose(${tab?.id})`;
 
     if (!tab || !tab.id) {

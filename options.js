@@ -1,7 +1,7 @@
 // options.js
 import { defaultPrefs, PREFS_KEY, WHITELIST_KEY } from './prefs.js'; // Import PREFS_KEY and WHITELIST_KEY
-import { log, logError, LogComponent } from './logger.js';
-import { parseWhitelistText, addToWhitelist, isWhitelisted, resolveTabUrl } from './whitelist-utils.js';
+import { log, LogComponent } from './logger.js';
+import { parseWhitelistText } from './whitelist-utils.js';
 import * as Const from './constants.js';
 
 document.addEventListener("DOMContentLoaded", () => {

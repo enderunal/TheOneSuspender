@@ -159,7 +159,7 @@ export async function suspendTab(tabId, isManual = false) {
         } else {
             // For "Close & Reopen" method
             detailedLog(`${context}: Using 'closeAndReopen' method.`);
-            result = await suspendClose(tabToSuspend, hasUnsavedData);
+            result = await suspendClose(tabToSuspend);
         }
 
         return result;
@@ -380,5 +380,15 @@ export async function unsuspendAllTabsAllSpecs() {
         await chrome.storage.local.set({ BULK_OP_IN_PROGRESS: false });
         log(`${context}: BULK_OP_IN_PROGRESS set to false`);
     }
+}
+
+/**
+ * Checks if a tab should be skipped for suspension (wrapper for scheduling.js).
+ * @param {chrome.tabs.Tab} tab
+ * @param {boolean} [debug=false]
+ * @returns {Promise<string|boolean>}
+ */
+export async function shouldSkipTabForScheduling(tab, debug = false) {
+    return shouldSkipTab(tab, debug);
 }
 

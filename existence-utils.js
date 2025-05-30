@@ -1,4 +1,4 @@
-import { detailedLog, logError, log } from './logger.js';
+import { log } from './logger.js';
 
 /**
  * Checks if a tab exists
