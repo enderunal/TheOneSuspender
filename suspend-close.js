@@ -1,6 +1,6 @@
 // suspend-close.js
-import { log, detailedLog, logError } from './logger.js'; // Import shared logger with error handling
-import { buildSuspendedUrl } from './url-builder.js';
+import * as Logger from './logger.js'; // Import shared logger with error handling
+import * as UrlBuilder from './url-builder.js';
 
 /**
  * Suspends a tab using the close & reopen method.
@@ -13,15 +13,15 @@ export async function suspendClose(tab) {
     const context = `suspendClose(${tab?.id})`;
 
     if (!tab || !tab.id) {
-        logError(context, "Invalid tab object passed");
+        Logger.logError(context, "Invalid tab object passed");
         return false;
     }
 
 
-    log(`${context}: Using "close & reopen" method for tab ${tab.id} (${tab.url?.substring(0, 50)}...)`);
+    Logger.log(`${context}: Using "close & reopen" method for tab ${tab.id} (${tab.url?.substring(0, 50)}...)`);
 
-    const suspendedPageUrl = buildSuspendedUrl(tab);
-    detailedLog(`${context}: Built suspended page URL: ${suspendedPageUrl}`);
+    const suspendedPageUrl = UrlBuilder.buildSuspendedUrl(tab);
+    Logger.detailedLog(`${context}: Built suspended page URL: ${suspendedPageUrl}`);
 
     // Step 1: Create the placeholder tab first.
     // It's created as inactive to avoid stealing focus.
@@ -36,35 +36,35 @@ export async function suspendClose(tab) {
     if (!newTab || !newTab.id) {
         throw new Error("Failed to create placeholder tab - chrome.tabs.create returned invalid tab object.");
     }
-    detailedLog(`${context}: Placeholder tab ${newTab.id} created successfully at index ${newTab.index}.`);
+    Logger.detailedLog(`${context}: Placeholder tab ${newTab.id} created successfully at index ${newTab.index}.`);
 
     // Step 2: Remove the original tab *after* the new one is confirmed created.
     try {
         await chrome.tabs.remove(tab.id);
-        log(`${context}: Original tab ${tab.id} closed. Placeholder ${newTab.id} is active.`);
+        Logger.log(`${context}: Original tab ${tab.id} closed. Placeholder ${newTab.id} is active.`);
         return true;
     } catch (removeError) {
         // If error is due to beforeunload prompt being rejected by user,
         // we should cancel suspension and remove the placeholder
         if (removeError.message?.includes("Cannot close tab, user cancelled")) {
-            log(`${context}: User cancelled tab closure due to unsaved changes. Removing placeholder.`);
+            Logger.log(`${context}: User cancelled tab closure due to unsaved changes. Removing placeholder.`);
 
             try {
                 await chrome.tabs.remove(newTab.id);
-                log(`${context}: Placeholder tab ${newTab.id} removed after user cancelled suspension.`);
+                Logger.log(`${context}: Placeholder tab ${newTab.id} removed after user cancelled suspension.`);
             } catch (cleanupError) {
-                logError(context, `Error removing placeholder tab: ${cleanupError.message}`);
+                Logger.logError(context, `Error removing placeholder tab: ${cleanupError.message}`);
             }
             return false;
         }
 
-        logError(context, `Error removing original tab ${tab.id}: ${removeError.message}. Attempting to clean up placeholder ${newTab.id}.`);
+        Logger.logError(context, `Error removing original tab ${tab.id}: ${removeError.message}. Attempting to clean up placeholder ${newTab.id}.`);
         // If removing the original tab fails for other reasons, we should try to clean up the placeholder
         try {
             await chrome.tabs.remove(newTab.id);
-            logError(context, `Placeholder tab ${newTab.id} removed after failing to remove original tab.`);
+            Logger.logError(context, `Placeholder tab ${newTab.id} removed after failing to remove original tab.`);
         } catch (cleanupError) {
-            logError(context, `CRITICAL: Failed to remove original tab AND failed to clean up placeholder tab ${newTab.id}: ${cleanupError.message}`);
+            Logger.logError(context, `CRITICAL: Failed to remove original tab AND failed to clean up placeholder tab ${newTab.id}: ${cleanupError.message}`);
         }
 
         // Propagate the original error that caused this cleanup attempt.
@@ -83,10 +83,10 @@ export async function suspendClose(tab) {
  */
 export async function unsuspendClose(placeholderTabId, originalUrl, shouldFocus = false) {
     const context = `unsuspendClose(placeholder:${placeholderTabId})`;
-    log(`${context}: Attempting to unsuspend to URL: ${originalUrl.substring(0, 100)}..., Focus: ${shouldFocus}`);
+    Logger.log(`${context}: Attempting to unsuspend to URL: ${originalUrl.substring(0, 100)}..., Focus: ${shouldFocus}`);
 
     if (typeof placeholderTabId !== 'number' || !originalUrl) {
-        logError(context, `Invalid parameters: tabId=${placeholderTabId}, originalUrl=${originalUrl}`);
+        Logger.logError(context, `Invalid parameters: tabId=${placeholderTabId}, originalUrl=${originalUrl}`);
         return false;
     }
 
@@ -95,7 +95,7 @@ export async function unsuspendClose(placeholderTabId, originalUrl, shouldFocus 
         try {
             new URL(originalUrl);
         } catch (urlError) {
-            logError(context, `Invalid original URL '${originalUrl}' for restoration: ${urlError.message}`);
+            Logger.logError(context, `Invalid original URL '${originalUrl}' for restoration: ${urlError.message}`);
             // Potentially try to close the placeholder if the URL is invalid, or just fail.
             // For now, just failing to prevent unexpected closure.
             return false;
@@ -107,13 +107,13 @@ export async function unsuspendClose(placeholderTabId, originalUrl, shouldFocus 
             placeholderTab = await chrome.tabs.get(placeholderTabId);
             if (!placeholderTab) throw new Error("Tab not found by chrome.tabs.get."); // Should be caught by catch block
         } catch (getTabError) {
-            logError(context, `Placeholder tab ${placeholderTabId} not found or error fetching it: ${getTabError.message}`);
+            Logger.logError(context, `Placeholder tab ${placeholderTabId} not found or error fetching it: ${getTabError.message}`);
             return false; // Placeholder tab is gone.
         }
 
         // Optional: Verify it's still a suspended.html page (though suspension.js should ensure this).
         if (!placeholderTab.url || !placeholderTab.url.startsWith(chrome.runtime.getURL("suspended.html"))) {
-            detailedLog(`${context}: Tab ${placeholderTabId} is no longer a suspended.html page (URL: ${placeholderTab.url}). Attempting to update and focus if requested.`);
+            Logger.detailedLog(`${context}: Tab ${placeholderTabId} is no longer a suspended.html page (URL: ${placeholderTab.url}). Attempting to update and focus if requested.`);
             // If it's not our page, but we're asked to restore it, still try to navigate it.
         }
 
@@ -126,18 +126,18 @@ export async function unsuspendClose(placeholderTabId, originalUrl, shouldFocus 
             try {
                 await chrome.windows.update(placeholderTab.windowId, { focused: true });
             } catch (focusWindowError) {
-                detailedLog(context, `Could not focus window ${placeholderTab.windowId} during unsuspend: ${focusWindowError.message}`);
+                Logger.detailedLog(context, `Could not focus window ${placeholderTab.windowId} during unsuspend: ${focusWindowError.message}`);
             }
         }
 
-        log(`${context}: Successfully restored tab ${placeholderTabId} to ${originalUrl}`);
+        Logger.log(`${context}: Successfully restored tab ${placeholderTabId} to ${originalUrl}`);
         return true;
 
     } catch (error) {
-        logError(context, `Error updating placeholder tab ${placeholderTabId}: ${error.message}`);
+        Logger.logError(context, `Error updating placeholder tab ${placeholderTabId}: ${error.message}`);
         // Check if the error implies the tab was closed during the operation.
         if (error.message?.includes("No tab with id")) {
-            detailedLog(context, `Placeholder tab ${placeholderTabId} was likely closed during restoration attempt.`);
+            Logger.detailedLog(context, `Placeholder tab ${placeholderTabId} was likely closed during restoration attempt.`);
         }
         return false;
     }

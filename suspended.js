@@ -1,5 +1,5 @@
 // suspended.js
-import { log, logWarning, logError, LogComponent } from './logger.js';
+import * as Logger from './logger.js';
 
 (async () => {
 	try {
@@ -14,7 +14,7 @@ import { log, logWarning, logError, LogComponent } from './logger.js';
 		const pageTitle = params.title ? decodeURIComponent(params.title) : (originalUrl || "Tab Suspended");
 		const timestamp = params.timestamp ? parseInt(params.timestamp, 10) : 0;
 		const faviconUrl = params.fav ? decodeURIComponent(params.fav) : "";
-		log("Using search parameters.", LogComponent.SUSPENDED);
+		Logger.log("Using search parameters.", Logger.LogComponent.SUSPENDED);
 
 		// 1) Title & header
 		try {
@@ -32,7 +32,7 @@ import { log, logWarning, logError, LogComponent } from './logger.js';
 			const timestampElement = document.getElementById("timestamp");
 			if (timestampElement) timestampElement.textContent = timestamp ? new Date(timestamp).toLocaleString() : 'N/A';
 		} catch (domError) {
-			logError("Error updating DOM elements", domError, LogComponent.SUSPENDED);
+			Logger.logError("Error updating DOM elements", domError, Logger.LogComponent.SUSPENDED);
 			// Continue despite DOM errors, as restore functionality is more important
 		}
 
@@ -57,7 +57,7 @@ import { log, logWarning, logError, LogComponent } from './logger.js';
 					new URL(originalUrl); // Validate URL before navigating
 					location.href = originalUrl;
 				} catch (e) {
-					logError("restore", `Invalid URL for restore: ${originalUrl}`, LogComponent.SUSPENDED, e);
+					Logger.logError("restore", `Invalid URL for restore: ${originalUrl}`, Logger.LogComponent.SUSPENDED, e);
 					alert(`Error restoring tab: The original URL (${originalUrl.substring(0, 50)}...) appears to be invalid. Please report this issue.`);
 					if (restoreButton) {
 						restoreButton.disabled = false;
@@ -69,13 +69,13 @@ import { log, logWarning, logError, LogComponent } from './logger.js';
 				}
 			} catch (error) {
 				// Handle extension context invalidation or other errors during restore
-				logError("Error during restore preparation", error, LogComponent.SUSPENDED);
+				Logger.logError("Error during restore preparation", error, Logger.LogComponent.SUSPENDED);
 				// Attempt direct navigation as last resort
 				if (originalUrl) {
 					try {
 						location.href = originalUrl;
 					} catch (navError) {
-						logError("Failed even direct navigation", navError, LogComponent.SUSPENDED);
+						Logger.logError("Failed even direct navigation", navError, Logger.LogComponent.SUSPENDED);
 					}
 				}
 			}
@@ -86,7 +86,7 @@ import { log, logWarning, logError, LogComponent } from './logger.js';
 				e.stopPropagation(); // Prevent body click handler from firing as well
 				restore();
 			} catch (error) {
-				logError("Error in click handler", error, LogComponent.SUSPENDED);
+				Logger.logError("Error in click handler", error, Logger.LogComponent.SUSPENDED);
 				// Attempt direct navigation as fallback
 				if (originalUrl) location.href = originalUrl;
 			}
@@ -98,7 +98,7 @@ import { log, logWarning, logError, LogComponent } from './logger.js';
 			}
 			document.body.addEventListener("click", restore);
 		} catch (eventError) {
-			logError("Error setting up event listeners", eventError, LogComponent.SUSPENDED);
+			Logger.logError("Error setting up event listeners", eventError, Logger.LogComponent.SUSPENDED);
 		}
 
 		// 4) Favicon
@@ -109,7 +109,7 @@ import { log, logWarning, logError, LogComponent } from './logger.js';
 				faviconLink.onerror = null;
 				faviconLink.href = 'icons/icon16.png';
 				faviconLink.style.filter = 'none';
-				log("Setting fallback icon.", LogComponent.SUSPENDED);
+				Logger.log("Setting fallback icon.", Logger.LogComponent.SUSPENDED);
 			};
 
 			const processFaviconWithCanvas = (imageUrl) => {
@@ -135,17 +135,17 @@ import { log, logWarning, logError, LogComponent } from './logger.js';
 							try {
 								faviconLink.href = canvas.toDataURL();
 								faviconLink.style.filter = 'none';
-								log(`Applied canvas effect to favicon: ${imageUrl.substring(0, 60)}`, LogComponent.SUSPENDED);
+								Logger.log(`Applied canvas effect to favicon: ${imageUrl.substring(0, 60)}`, Logger.LogComponent.SUSPENDED);
 							} catch (e) {
-								logWarning(`Canvas toDataURL() failed for ${imageUrl.substring(0, 60)}:`, LogComponent.SUSPENDED, e);
+								Logger.logWarning(`Canvas toDataURL() failed for ${imageUrl.substring(0, 60)}:`, Logger.LogComponent.SUSPENDED, e);
 								setFallbackIcon();
 							}
 						} else {
-							logWarning(`Failed to get canvas 2D context for: ${imageUrl.substring(0, 60)}`, LogComponent.SUSPENDED);
+							Logger.logWarning(`Failed to get canvas 2D context for: ${imageUrl.substring(0, 60)}`, Logger.LogComponent.SUSPENDED);
 							setFallbackIcon();
 						}
 					} catch (canvasError) {
-						logError("Error processing favicon with canvas", canvasError, LogComponent.SUSPENDED);
+						Logger.logError("Error processing favicon with canvas", canvasError, Logger.LogComponent.SUSPENDED);
 						setFallbackIcon();
 					} finally {
 						if (objectUrl) URL.revokeObjectURL(objectUrl);
@@ -153,7 +153,7 @@ import { log, logWarning, logError, LogComponent } from './logger.js';
 				};
 
 				img.onerror = () => {
-					logWarning(`Failed to load image for canvas processing: ${imageUrl.substring(0, 100)}`, LogComponent.SUSPENDED);
+					Logger.logWarning(`Failed to load image for canvas processing: ${imageUrl.substring(0, 100)}`, Logger.LogComponent.SUSPENDED);
 					setFallbackIcon();
 					if (objectUrl) URL.revokeObjectURL(objectUrl);
 				};
@@ -168,39 +168,39 @@ import { log, logWarning, logError, LogComponent } from './logger.js';
 							objectUrl = URL.createObjectURL(blob);
 							img.src = objectUrl;
 						} catch (e) {
-							logWarning(`Error creating blob/object URL for SVG: ${e}; Original URL: ${imageUrl.substring(0, 100)}`, LogComponent.SUSPENDED);
+							Logger.logWarning(`Error creating blob/object URL for SVG: ${e}; Original URL: ${imageUrl.substring(0, 100)}`, Logger.LogComponent.SUSPENDED);
 							setFallbackIcon();
 						}
 					} else {
 						img.src = imageUrl;
 					}
 				} catch (imgError) {
-					logError("Error setting image source", imgError, LogComponent.SUSPENDED);
+					Logger.logError("Error setting image source", imgError, Logger.LogComponent.SUSPENDED);
 					setFallbackIcon();
 				}
 			};
 
 			if (faviconLink) {
 				faviconLink.onerror = () => {
-					logWarning(`Failed to load favicon via <link> tag: ${faviconLink.href || faviconUrl}. Using fallback.`, LogComponent.SUSPENDED);
+					Logger.logWarning(`Failed to load favicon via <link> tag: ${faviconLink.href || faviconUrl}. Using fallback.`, Logger.LogComponent.SUSPENDED);
 					setFallbackIcon();
 				};
 
 				if (!faviconUrl) {
-					log("No favicon URL provided. Using fallback.", LogComponent.SUSPENDED);
+					Logger.log("No favicon URL provided. Using fallback.", Logger.LogComponent.SUSPENDED);
 					setFallbackIcon();
 				} else if (faviconUrl.startsWith("data:") || faviconUrl.startsWith("http")) { // Process data URIs and http/s
-					log(`Processing favicon with canvas: ${faviconUrl.substring(0, 60)}`, LogComponent.SUSPENDED);
+					Logger.log(`Processing favicon with canvas: ${faviconUrl.substring(0, 60)}`, Logger.LogComponent.SUSPENDED);
 					processFaviconWithCanvas(faviconUrl);
 				} else {
-					logWarning(`Disallowed/unknown favicon protocol (${faviconUrl.substring(0, 30)})... using fallback.`, LogComponent.SUSPENDED);
+					Logger.logWarning(`Disallowed/unknown favicon protocol (${faviconUrl.substring(0, 30)})... using fallback.`, Logger.LogComponent.SUSPENDED);
 					setFallbackIcon();
 				}
 			} else {
-				logWarning("Favicon link element not found in DOM.", LogComponent.SUSPENDED);
+				Logger.logWarning("Favicon link element not found in DOM.", Logger.LogComponent.SUSPENDED);
 			}
 		} catch (faviconError) {
-			logError("Error handling favicon", faviconError, LogComponent.SUSPENDED);
+			Logger.logError("Error handling favicon", faviconError, Logger.LogComponent.SUSPENDED);
 		}
 	} catch (globalError) {
 		// Top-level try-catch to prevent complete script failure

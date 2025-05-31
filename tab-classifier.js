@@ -1,6 +1,6 @@
 // tab-classifier.js
-import { log, detailedLog, logError, withErrorHandling } from './logger.js';
-import { prefs, whitelist } from './prefs.js';
+import * as Logger from './logger.js';
+import * as Prefs from './prefs.js';
 import * as State from './state.js';
 import * as Const from './constants.js';
 
@@ -51,17 +51,17 @@ export async function isUrlWhitelisted(url) {
 
         // Use in-memory whitelist from prefs.js instead of fetching from storage each time
         // This is more efficient for high-frequency calls
-        if (!Array.isArray(whitelist) || whitelist.length === 0) {
+        if (!Array.isArray(Prefs.whitelist) || Prefs.whitelist.length === 0) {
             return null;
         }
 
         // Check for global wildcard
-        if (whitelist.includes('*')) {
+        if (Prefs.whitelist.includes('*')) {
             return '*';
         }
 
         // Find matching pattern
-        const match = whitelist.find(pattern => {
+        const match = Prefs.whitelist.find(pattern => {
             if (!pattern || pattern.trim() === '') return false;
 
             // Direct matches
@@ -84,7 +84,7 @@ export async function isUrlWhitelisted(url) {
 
         return match || null;
     } catch (e) {
-        logError(`Error in isUrlWhitelisted: ${e.message}`);
+        Logger.logError(`Error in isUrlWhitelisted: ${e.message}`);
         return null;
     }
 }
@@ -125,24 +125,24 @@ export async function shouldSkipTab(tab, debug = false) {
     }
 
     // Preference-based checks
-    if (prefs.neverSuspendPinned && tab.pinned) {
+    if (Prefs.prefs.neverSuspendPinned && tab.pinned) {
         return skip("pinned tab");
     }
 
-    if (prefs.neverSuspendAudio && tab.audible) {
+    if (Prefs.prefs.neverSuspendAudio && tab.audible) {
         return skip("playing audio");
     }
 
-    if (prefs.neverSuspendOffline && State.isOffline()) {
+    if (Prefs.prefs.neverSuspendOffline && State.isOffline()) {
         return skip("browser is offline");
     }
 
-    if (prefs.neverSuspendActive && tab.active) {
+    if (Prefs.prefs.neverSuspendActive && tab.active) {
         return skip("active in window");
     }
 
     // Last focused window check
-    if (prefs.neverSuspendLastWindow && tab.active &&
+    if (Prefs.prefs.neverSuspendLastWindow && tab.active &&
         tab.windowId === State.getLastFocusedWindow()) {
         return skip("active in last focused window");
     }
@@ -154,7 +154,7 @@ export async function shouldSkipTab(tab, debug = false) {
             return skip(`URL matches whitelist pattern: ${matchedPattern}`);
         }
     } catch (e) {
-        logError(`Error checking whitelist: ${e.message}`);
+        Logger.logError(`Error checking whitelist: ${e.message}`);
     }
 
     // If we reach here, no reason to skip was found

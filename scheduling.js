@@ -1,9 +1,9 @@
 // scheduling.js
 import * as Const from './constants.js';
 import * as State from './state.js';
-import { log, detailedLog, logError } from './logger.js';
-import { prefs } from './prefs.js';
-import { suspendTab, shouldSkipTabForScheduling } from './suspension.js';
+import * as Logger from './logger.js';
+import * as Prefs from './prefs.js';
+import * as Suspension from './suspension.js';
 
 export const SMALL_DELAY_MS = 50;
 export const DEBOUNCE_DELAY_MS = 5000; // For debouncing frequent events like settings changes before rescheduling
@@ -33,17 +33,17 @@ export function removeTabSuspendTime(tabId) {
 export async function setupTabScanAlarm() {
 	try {
 		await chrome.alarms.clear(Const.TS_TAB_SCAN_ALARM_NAME);
-		if (!prefs.autoSuspendEnabled) {
-			log('Auto suspension is disabled; tab scan alarm will not be created.');
+		if (!Prefs.prefs.autoSuspendEnabled) {
+			Logger.log('Auto suspension is disabled; tab scan alarm will not be created.');
 			return false;
 		}
 		await chrome.alarms.create(Const.TS_TAB_SCAN_ALARM_NAME, {
 			periodInMinutes: Const.TS_TAB_SCAN_INTERVAL_MINUTES
 		});
-		log(`Tab scan alarm created with interval of ${Const.TS_TAB_SCAN_INTERVAL_MINUTES} minutes`);
+		Logger.log(`Tab scan alarm created with interval of ${Const.TS_TAB_SCAN_INTERVAL_MINUTES} minutes`);
 		return true;
 	} catch (e) {
-		logError(`Error setting up tab scan alarm:`, e);
+		Logger.logError(`Error setting up tab scan alarm:`, e);
 		return false;
 	}
 }
@@ -54,8 +54,8 @@ export async function setupTabScanAlarm() {
  * @returns {Promise<{ scanned: number, suspended: number, errors: number, cleaned: number }>} Stats about the scan operation.
  */
 export async function scanTabsForSuspension() {
-	if (!prefs.autoSuspendEnabled) {
-		log('Auto suspension is disabled; skipping tab scan.');
+	if (!Prefs.prefs.autoSuspendEnabled) {
+		Logger.log('Auto suspension is disabled; skipping tab scan.');
 		return { scanned: 0, suspended: 0, errors: 0, cleaned: 0 };
 	}
 	const stats = { scanned: 0, suspended: 0, errors: 0, cleaned: 0 };
@@ -71,12 +71,12 @@ export async function scanTabsForSuspension() {
 			if (!existingTabIds.has(tabId)) {
 				tabSuspendTimes.delete(tabId);
 				stats.cleaned++;
-				detailedLog(`Removed non-existent tab ${tabId} from suspension tracking`);
+				Logger.detailedLog(`Removed non-existent tab ${tabId} from suspension tracking`);
 			}
 		}
 
 		if (stats.cleaned > 0) {
-			log(`Tab suspension map cleanup: removed ${stats.cleaned} stale entries, size reduced from ${mapSizeBefore} to ${tabSuspendTimes.size}`);
+			Logger.log(`Tab suspension map cleanup: removed ${stats.cleaned} stale entries, size reduced from ${mapSizeBefore} to ${tabSuspendTimes.size}`);
 		}
 
 		State.updateOfflineStatus();
@@ -95,14 +95,14 @@ export async function scanTabsForSuspension() {
 						? suspendData
 						: suspendData.scheduledTime;
 					if (suspendTime <= now) {
-						const skipReason = await shouldSkipTabForScheduling(tab, true);
+						const skipReason = await Suspension.shouldSkipTabForScheduling(tab, true);
 						if (skipReason) {
-							detailedLog(`Tab ${tab.id} will not be suspended: ${skipReason}`);
+							Logger.detailedLog(`Tab ${tab.id} will not be suspended: ${skipReason}`);
 							tabSuspendTimes.delete(tab.id);
 							continue;
 						}
-						log(`Tab ${tab.id} has reached its suspension time, suspending...`);
-						const success = await suspendTab(tab.id);
+						Logger.log(`Tab ${tab.id} has reached its suspension time, suspending...`);
+						const success = await Suspension.suspendTab(tab.id);
 						if (success) {
 							stats.suspended++;
 							tabSuspendTimes.delete(tab.id);
@@ -112,7 +112,7 @@ export async function scanTabsForSuspension() {
 					}
 				} catch (e) {
 					stats.errors++;
-					logError(`Error processing tab ${tab.id} during scan:`, e);
+					Logger.logError(`Error processing tab ${tab.id} during scan:`, e);
 				}
 			}
 
@@ -121,10 +121,10 @@ export async function scanTabsForSuspension() {
 			}
 		}
 
-		log(`Tab scan complete: ${stats.scanned} scanned, ${stats.suspended} suspended, ${stats.cleaned} cleaned, ${stats.errors} errors`);
+		Logger.log(`Tab scan complete: ${stats.scanned} scanned, ${stats.suspended} suspended, ${stats.cleaned} cleaned, ${stats.errors} errors`);
 		return stats;
 	} catch (e) {
-		logError(`Error in scanTabsForSuspension:`, e);
+		Logger.logError(`Error in scanTabsForSuspension:`, e);
 		return stats;
 	}
 }
@@ -137,10 +137,10 @@ export async function scanTabsForSuspension() {
 export async function cancelTabSuspendTracking(tabId) {
 	try {
 		tabSuspendTimes.delete(tabId);
-		detailedLog(`Cancelled suspend tracking for tab ${tabId}`);
+		Logger.detailedLog(`Cancelled suspend tracking for tab ${tabId}`);
 		return true;
 	} catch (e) {
-		logError(`Error cancelling tab suspend tracking for ${tabId}:`, e);
+		Logger.logError(`Error cancelling tab suspend tracking for ${tabId}:`, e);
 		return false;
 	}
 }
@@ -152,39 +152,39 @@ export async function cancelTabSuspendTracking(tabId) {
  * @returns {Promise<boolean>} - Whether the tab was successfully scheduled.
  */
 export async function scheduleTab(tabId, tab = null) {
-	if (!prefs.autoSuspendEnabled) {
-		detailedLog(`Auto suspension is disabled; not scheduling tab ${tabId}`);
+	if (!Prefs.prefs.autoSuspendEnabled) {
+		Logger.detailedLog(`Auto suspension is disabled; not scheduling tab ${tabId}`);
 		await cancelTabSuspendTracking(tabId);
 		return false;
 	}
 	try {
 		const tabInfo = tab || await chrome.tabs.get(tabId);
-		const skipReason = await shouldSkipTabForScheduling(tabInfo, true);
+		const skipReason = await Suspension.shouldSkipTabForScheduling(tabInfo, true);
 		if (skipReason) {
-			detailedLog(`Tab ${tabId} skipped scheduling: ${skipReason}`);
+			Logger.detailedLog(`Tab ${tabId} skipped scheduling: ${skipReason}`);
 			await cancelTabSuspendTracking(tabId);
 			return false;
 		}
 		const existingAlarm = await getTabSuspendTime(tabId);
-		const currentDelay = prefs.suspendAfter;
+		const currentDelay = Prefs.prefs.suspendAfter;
 		if (!existingAlarm || existingAlarm.delayMinutes !== currentDelay) {
 			if (existingAlarm) {
 				await cancelTabSuspendTracking(tabId);
 			}
 			const success = await scheduleTabInMap(tabId);
 			if (success) {
-				detailedLog(`Tab ${tabId} scheduled for suspension in ${currentDelay} minutes`);
+				Logger.detailedLog(`Tab ${tabId} scheduled for suspension in ${currentDelay} minutes`);
 			}
 			return success;
 		} else {
-			detailedLog(`Tab ${tabId} already scheduled with correct timing (${existingAlarm.delayMinutes} min), no changes needed`);
+			Logger.detailedLog(`Tab ${tabId} already scheduled with correct timing (${existingAlarm.delayMinutes} min), no changes needed`);
 			return true;
 		}
 	} catch (e) {
 		if (e.message && e.message.includes('No tab with id')) {
-			detailedLog(`Tab ${tabId} no longer exists, can't schedule`);
+			Logger.detailedLog(`Tab ${tabId} no longer exists, can't schedule`);
 		} else {
-			logError(`Error scheduling tab ${tabId}:`, e);
+			Logger.logError(`Error scheduling tab ${tabId}:`, e);
 		}
 		return false;
 	}
@@ -197,14 +197,14 @@ export async function scheduleTab(tabId, tab = null) {
  * @returns {Promise<boolean>} - Whether the suspension time was successfully created.
  */
 export async function scheduleTabInMap(tabId, delayMinutes = null) {
-	if (!prefs.autoSuspendEnabled) {
-		detailedLog(`Auto suspension is disabled; not scheduling tab ${tabId} in map`);
+	if (!Prefs.prefs.autoSuspendEnabled) {
+		Logger.detailedLog(`Auto suspension is disabled; not scheduling tab ${tabId} in map`);
 		await cancelTabSuspendTracking(tabId);
 		return false;
 	}
-	const delay = delayMinutes !== null ? delayMinutes : prefs.suspendAfter;
+	const delay = delayMinutes !== null ? delayMinutes : Prefs.prefs.suspendAfter;
 	if (delay <= 0 || !Number.isFinite(delay)) {
-		logError(`Invalid suspension delay for tab ${tabId}: ${delay}`);
+		Logger.logError(`Invalid suspension delay for tab ${tabId}: ${delay}`);
 		return false;
 	}
 	try {
@@ -214,10 +214,10 @@ export async function scheduleTabInMap(tabId, delayMinutes = null) {
 			delayMinutes: delay
 		});
 		await setupTabScanAlarm();
-		detailedLog(`Scheduled tab ${tabId} for suspension at ${new Date(suspendTime).toLocaleTimeString()}`);
+		Logger.detailedLog(`Scheduled tab ${tabId} for suspension at ${new Date(suspendTime).toLocaleTimeString()}`);
 		return true;
 	} catch (e) {
-		logError(`Error scheduling tab ${tabId} for suspension:`, e);
+		Logger.logError(`Error scheduling tab ${tabId} for suspension:`, e);
 		return false;
 	}
 }
@@ -245,8 +245,8 @@ export async function getTabSuspendTime(tabId) {
  */
 export async function handleSuspendAlarm(alarmName) {
 	if (alarmName === Const.TS_TAB_SCAN_ALARM_NAME) {
-		if (!prefs.autoSuspendEnabled) {
-			log('Auto suspension is disabled; ignoring tab scan alarm.');
+		if (!Prefs.prefs.autoSuspendEnabled) {
+			Logger.log('Auto suspension is disabled; ignoring tab scan alarm.');
 			return false;
 		}
 		await scanTabsForSuspension();
@@ -266,11 +266,11 @@ export async function unscheduleTab(tabId) {
 	try {
 		const cancelled = await cancelTabSuspendTracking(tabId);
 		if (cancelled) {
-			detailedLog(`Tab ${tabId} unscheduled for suspension`);
+			Logger.detailedLog(`Tab ${tabId} unscheduled for suspension`);
 		}
 		return cancelled;
 	} catch (e) {
-		logError(`Error unscheduling tab ${tabId}:`, e);
+		Logger.logError(`Error unscheduling tab ${tabId}:`, e);
 		return false;
 	}
 }
@@ -281,8 +281,8 @@ export async function unscheduleTab(tabId) {
  * - Statistics about the scheduling operation.
  */
 export async function scheduleAllTabs() {
-	if (!prefs.autoSuspendEnabled) {
-		detailedLog('Auto suspension is disabled; not scheduling any tabs. Clearing all suspension tracking.');
+	if (!Prefs.prefs.autoSuspendEnabled) {
+		Logger.detailedLog('Auto suspension is disabled; not scheduling any tabs. Clearing all suspension tracking.');
 		tabSuspendTimes.clear();
 		await chrome.alarms.clear(Const.TS_TAB_SCAN_ALARM_NAME);
 		return;
@@ -299,7 +299,7 @@ export async function scheduleAllTabs() {
 		}
 
 		let activeTabIds = [];
-		if (prefs.neverSuspendActive) {
+		if (Prefs.prefs.neverSuspendActive) {
 			const activeTabs = await chrome.tabs.query({ active: true });
 			activeTabIds = activeTabs.map(tab => tab.id);
 		}
@@ -319,18 +319,18 @@ export async function scheduleAllTabs() {
 				}
 
 				try {
-					if ((prefs.neverSuspendLastWindow && tab.id === focusedWindowActiveTabId) ||
-						(prefs.neverSuspendActive && activeTabIds.includes(tab.id))) {
+					if ((Prefs.prefs.neverSuspendLastWindow && tab.id === focusedWindowActiveTabId) ||
+						(Prefs.prefs.neverSuspendActive && activeTabIds.includes(tab.id))) {
 						await cancelTabSuspendTracking(tab.id);
 						stats.skipped++;
-						detailedLog(`Tab ${tab.id} scheduling skipped: active tab protected by preferences`);
+						Logger.detailedLog(`Tab ${tab.id} scheduling skipped: active tab protected by preferences`);
 					} else {
-						const skipReason = await shouldSkipTabForScheduling(tab, true);
+						const skipReason = await Suspension.shouldSkipTabForScheduling(tab, true);
 
 						if (skipReason) {
 							await cancelTabSuspendTracking(tab.id);
 							stats.skipped++;
-							detailedLog(`Tab ${tab.id} scheduling skipped: ${skipReason}`);
+							Logger.detailedLog(`Tab ${tab.id} scheduling skipped: ${skipReason}`);
 						} else {
 							const scheduled = await scheduleTab(tab.id, tab);
 							if (scheduled) {
@@ -342,7 +342,7 @@ export async function scheduleAllTabs() {
 					}
 				} catch (e) {
 					stats.failed++;
-					logError(`Error batch scheduling tab ${tab.id}:`, e);
+					Logger.logError(`Error batch scheduling tab ${tab.id}:`, e);
 				}
 			}));
 
@@ -351,10 +351,10 @@ export async function scheduleAllTabs() {
 			}
 		}
 
-		log(`Tab scheduling complete: ${stats.success} scheduled, ${stats.skipped} skipped, ${stats.failed} failed, ${stats.total} total`);
+		Logger.log(`Tab scheduling complete: ${stats.success} scheduled, ${stats.skipped} skipped, ${stats.failed} failed, ${stats.total} total`);
 		return stats;
 	} catch (e) {
-		logError(`Error in scheduleAllTabs:`, e);
+		Logger.logError(`Error in scheduleAllTabs:`, e);
 		return stats;
 	}
 }
@@ -380,9 +380,9 @@ function debounce(func, wait, key) {
 					error.message.includes("Extension context invalidated") ||
 					error.message.includes("Extension context was invalidated")
 				)) {
-					logError(`Debounced function execution failed due to extension context invalidation: ${key || 'unknown'}`);
+					Logger.logError(`Debounced function execution failed due to extension context invalidation: ${key || 'unknown'}`);
 				} else {
-					logError(`Error in debounced function execution: ${error.message}`, error);
+					Logger.logError(`Error in debounced function execution: ${error.message}`, error);
 				}
 			}
 		};
@@ -395,15 +395,15 @@ function debounce(func, wait, key) {
 			const newTimeout = setTimeout(later, wait);
 			debounceTimeouts.set(timeoutKey, newTimeout);
 		} catch (error) {
-			logError(`Error setting up debounced timeout: ${error.message}`, error);
+			Logger.logError(`Error setting up debounced timeout: ${error.message}`, error);
 		}
 	};
 }
 
 export const debouncedScheduleAllTabs = debounce(() => {
-	log('Executing debounced scheduleAllTabs');
+	Logger.log('Executing debounced scheduleAllTabs');
 	return scheduleAllTabs().catch(e => {
-		logError('Error in debouncedScheduleAllTabs:', e);
+		Logger.logError('Error in debouncedScheduleAllTabs:', e);
 	});
 }, DEBOUNCE_DELAY_MS, 'scheduleAllTabs');
 
@@ -416,8 +416,8 @@ export function clearDebouncedTimeouts() {
 			clearTimeout(timeout);
 		}
 		debounceTimeouts.clear();
-		log('Cleared all debounced timeouts');
+		Logger.log('Cleared all debounced timeouts');
 	} catch (error) {
-		logError(`Error clearing debounced timeouts: ${error.message}`, error);
+		Logger.logError(`Error clearing debounced timeouts: ${error.message}`, error);
 	}
 }

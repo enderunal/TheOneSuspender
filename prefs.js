@@ -1,4 +1,4 @@
-import { log, detailedLog, logError } from './logger.js';
+import * as Logger from './logger.js';
 
 export const PREFS_KEY = 'prefs';
 export const WHITELIST_KEY = 'whitelist';
@@ -46,13 +46,13 @@ export async function loadPrefs() {
 
         whitelist = Array.isArray(result.whitelist) ? result.whitelist : [];
 
-        detailedLog("[TheOneSuspender] Prefs loaded:", JSON.stringify(prefs));
-        detailedLog("Whitelist loaded:", whitelist);
+        Logger.detailedLog("[TheOneSuspender] Prefs loaded:", JSON.stringify(prefs));
+        Logger.detailedLog("Whitelist loaded:", whitelist);
     } catch (error) {
-        logError("Error loading settings from storage", error);
+        Logger.logError("Error loading settings from storage", error);
         prefs = { ...defaultPrefs }; // Fallback to defaults on error
         whitelist = [];
-        detailedLog("[TheOneSuspender] Prefs set to default due to error:", JSON.stringify(prefs));
+        Logger.detailedLog("[TheOneSuspender] Prefs set to default due to error:", JSON.stringify(prefs));
     }
 }
 
@@ -126,10 +126,10 @@ export async function savePrefs(newPrefsToSave) {
 
         // After saving, reload preferences from storage to update global state
         await loadPrefs();
-        log("Preferences saved and reloaded:", prefs);
+        Logger.log("Preferences saved and reloaded:", prefs);
         return true;
     } catch (error) {
-        logError("Error saving preferences", error);
+        Logger.logError("Error saving preferences", error);
         throw error; // Re-throw to allow caller to handle
     }
 }
@@ -140,11 +140,11 @@ export async function savePrefs(newPrefsToSave) {
  * @returns {Promise<boolean>} True if successful, false otherwise.
  */
 export async function saveWhitelist(newWhitelistArray) {
-    detailedLog("saveWhitelist in prefs.js called with:", newWhitelistArray);
+    Logger.detailedLog("saveWhitelist in prefs.js called with:", newWhitelistArray);
 
     if (!Array.isArray(newWhitelistArray)) {
         const err = new Error("saveWhitelist: Provided whitelist is not an array");
-        logError("saveWhitelist validation", err);
+        Logger.logError("saveWhitelist validation", err);
         throw err;
     }
 
@@ -155,10 +155,10 @@ export async function saveWhitelist(newWhitelistArray) {
         whitelist.length = 0;
         newWhitelistArray.forEach(item => whitelist.push(String(item).trim())); // Ensure items are strings and trimmed
 
-        log("Whitelist saved:", whitelist);
+        Logger.log("Whitelist saved:", whitelist);
         return true;
     } catch (error) {
-        logError("Error saving whitelist", error);
+        Logger.logError("Error saving whitelist", error);
         throw error;
     }
 } 

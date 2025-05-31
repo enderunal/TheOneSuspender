@@ -1,11 +1,11 @@
 // suspension.js
-import { log, detailedLog, logError } from './logger.js';
-import { prefs } from './prefs.js';
-import { shouldSkipTab, isAllowedProtocol } from './tab-classifier.js';
-import { suspendClose } from './suspend-close.js';
-import { suspendTabPreserveHistory } from './suspend-preserve.js';
-import { getOriginalDataFromUrl } from './suspension-utils.js';
-import { windowExists, tabExists, safeGetTab } from './existence-utils.js';
+import * as Logger from './logger.js';
+import * as Prefs from './prefs.js';
+import * as TabClassifier from './tab-classifier.js';
+import * as SuspendClose from './suspend-close.js';
+import * as SuspendPreserve from './suspend-preserve.js';
+import * as SuspensionUtils from './suspension-utils.js';
+import * as ExistenceUtils from './existence-utils.js';
 import * as Const from './constants.js'
 
 /**
@@ -17,19 +17,19 @@ import * as Const from './constants.js'
  */
 async function checkForUnsavedFormData(tabId) {
     try {
-        if (!await tabExists(tabId, `checkForUnsavedFormData(${tabId})`)) {
-            log(`checkForUnsavedFormData: Tab ${tabId} does not exist.`);
+        if (!await ExistenceUtils.tabExists(tabId, `checkForUnsavedFormData(${tabId})`)) {
+            Logger.log(`checkForUnsavedFormData: Tab ${tabId} does not exist.`);
             return false;
         }
-        const tab = await safeGetTab(tabId, `checkForUnsavedFormData(${tabId})`);
+        const tab = await ExistenceUtils.safeGetTab(tabId, `checkForUnsavedFormData(${tabId})`);
         if (!tab || !tab.url) {
-            log(`checkForUnsavedFormData: Tab ${tabId} has no URL.`);
+            Logger.log(`checkForUnsavedFormData: Tab ${tabId} has no URL.`);
             return false;
         }
         // Improved: Only allow http/https URLs, and exclude more special/internal pages
         const url = tab.url;
         if (!/^https?:\/\//.test(url)) {
-            log(`checkForUnsavedFormData: Tab ${tabId} is not http(s), skipping. URL: ${url}`);
+            Logger.log(`checkForUnsavedFormData: Tab ${tabId} is not http(s), skipping. URL: ${url}`);
             return false;
         }
         if (
@@ -42,7 +42,7 @@ async function checkForUnsavedFormData(tabId) {
             url.startsWith("view-source:") ||
             url.startsWith("devtools://")
         ) {
-            log(`checkForUnsavedFormData: Tab ${tabId} is a special/internal page. URL: ${url}`);
+            Logger.log(`checkForUnsavedFormData: Tab ${tabId} is a special/internal page. URL: ${url}`);
             return false;
         }
         // Run the check in all frames (main + iframes)
@@ -67,15 +67,15 @@ async function checkForUnsavedFormData(tabId) {
                 return false;
             }
         });
-        log(`checkForUnsavedFormData: Tab ${tabId} results: ${JSON.stringify(results)}`);
+        Logger.log(`checkForUnsavedFormData: Tab ${tabId} results: ${JSON.stringify(results)}`);
         // If any frame reports unsaved data, return true
         const hasUnsaved = results.some(r => !!r?.result);
-        log(`checkForUnsavedFormData: Tab ${tabId} hasUnsaved=${hasUnsaved}`);
+        Logger.log(`checkForUnsavedFormData: Tab ${tabId} hasUnsaved=${hasUnsaved}`);
         return hasUnsaved;
     } catch (error) {
         const msg = error && error.message ? error.message : String(error);
         // These are expected race conditions, not errors
-        log(`checkForUnsavedFormData: Tab/frame gone for tab ${tabId}: ${msg}`);
+        Logger.log(`checkForUnsavedFormData: Tab/frame gone for tab ${tabId}: ${msg}`);
         return false;
 
     }
@@ -92,48 +92,48 @@ async function checkForUnsavedFormData(tabId) {
  */
 export async function suspendTab(tabId, isManual = false) {
     if (typeof tabId !== 'number') {
-        logError(`suspendTab: Invalid tabId received: ${tabId}`);
+        Logger.logError(`suspendTab: Invalid tabId received: ${tabId}`);
         return false;
     }
     const context = `suspendTab(${tabId}, manual=${isManual})`;
 
     // First check if tab exists to avoid noisy errors
-    const tabToSuspend = await safeGetTab(tabId, context);
+    const tabToSuspend = await ExistenceUtils.safeGetTab(tabId, context);
     if (!tabToSuspend) {
-        log(`${context}: Tab does not exist.`);
+        Logger.log(`${context}: Tab does not exist.`);
         return false; // Tab doesn't exist
     }
 
     if (tabToSuspend.url && tabToSuspend.url.startsWith(chrome.runtime.getURL("suspended.html"))) {
-        detailedLog(`${context}: Tab is already suspended.`);
+        Logger.detailedLog(`${context}: Tab is already suspended.`);
         return true; // Considered successful as the goal is achieved.
     }
 
-    if (!isAllowedProtocol(tabToSuspend.url)) {
-        detailedLog(`suspendTab: Skip non http(s) tabs - Tab ${tabId} is not allowed to be suspended.`);
+    if (!TabClassifier.isAllowedProtocol(tabToSuspend.url)) {
+        Logger.detailedLog(`suspendTab: Skip non http(s) tabs - Tab ${tabId} is not allowed to be suspended.`);
         return false;
     }
 
     let hasUnsavedData = false;
-    log(`${context}: prefs.unsavedFormHandling=${prefs.unsavedFormHandling}`);
+    Logger.log(`${context}: prefs.unsavedFormHandling=${Prefs.prefs.unsavedFormHandling}`);
     if (!isManual) {
-        const tabCheckResult = await shouldSkipTab(tabToSuspend, true);
+        const tabCheckResult = await TabClassifier.shouldSkipTab(tabToSuspend, true);
         if (tabCheckResult) {
-            detailedLog(`${context}: Tab should be skipped: ${tabCheckResult}`);
+            Logger.detailedLog(`${context}: Tab should be skipped: ${tabCheckResult}`);
             return false; // Not an error, but suspension is correctly skipped.
         }
         // Only check for unsaved data if not manual
-        if (prefs.unsavedFormHandling !== 'normal') {
+        if (Prefs.prefs.unsavedFormHandling !== 'normal') {
             try {
                 hasUnsavedData = await checkForUnsavedFormData(tabId);
-                log(`${context}: After checkForUnsavedFormData, hasUnsavedData=${hasUnsavedData}`);
+                Logger.log(`${context}: After checkForUnsavedFormData, hasUnsavedData=${hasUnsavedData}`);
                 if (hasUnsavedData) {
-                    if (prefs.unsavedFormHandling === 'never') {
-                        log(`${context}: Skipping suspension due to unsaved form data`);
+                    if (Prefs.prefs.unsavedFormHandling === 'never') {
+                        Logger.log(`${context}: Skipping suspension due to unsaved form data`);
                         return false;
                     }
-                    if (prefs.unsavedFormHandling === 'ask') {
-                        log(`${context}: Triggering ASK flow: focusing tab and sending MSG_PROMPT_SUSPEND`);
+                    if (Prefs.prefs.unsavedFormHandling === 'ask') {
+                        Logger.log(`${context}: Triggering ASK flow: focusing tab and sending MSG_PROMPT_SUSPEND`);
                         // Focus the tab to trigger the browser's beforeunload prompt
                         await chrome.tabs.update(tabId, { active: true });
                         // Send message to content script to prompt user for suspension
@@ -143,23 +143,23 @@ export async function suspendTab(tabId, isManual = false) {
                     }
                 }
             } catch (formCheckError) {
-                logError(`${context}: Error checking for unsaved form data`, formCheckError);
+                Logger.logError(`${context}: Error checking for unsaved form data`, formCheckError);
                 // Continue with suspension if check fails
             }
         }
     }
 
-    log(`suspendTab: Tab ${tabId} - ${tabToSuspend.url} is allowed to be suspended. Manual: ${isManual}, DetectedUnsaved: ${hasUnsavedData}`);
+    Logger.log(`suspendTab: Tab ${tabId} - ${tabToSuspend.url} is allowed to be suspended. Manual: ${isManual}, DetectedUnsaved: ${hasUnsavedData}`);
 
     try {
         let result;
-        if (prefs.preserveHistory) {
-            detailedLog(`${context}: Using 'preserveHistory' method.`);
-            result = await suspendTabPreserveHistory(tabToSuspend, hasUnsavedData);
+        if (Prefs.prefs.preserveHistory) {
+            Logger.detailedLog(`${context}: Using 'preserveHistory' method.`);
+            result = await SuspendPreserve.suspendTabPreserveHistory(tabToSuspend, hasUnsavedData);
         } else {
             // For "Close & Reopen" method
-            detailedLog(`${context}: Using 'closeAndReopen' method.`);
-            result = await suspendClose(tabToSuspend);
+            Logger.detailedLog(`${context}: Using 'closeAndReopen' method.`);
+            result = await SuspendClose.suspendClose(tabToSuspend);
         }
 
         return result;
@@ -176,29 +176,29 @@ export async function suspendTab(tabId, isManual = false) {
  */
 export async function unsuspendTab(tabId) {
     const context = `unsuspendTab(${tabId})`;
-    detailedLog(`${context}: Attempting to unsuspend.`);
+    Logger.detailedLog(`${context}: Attempting to unsuspend.`);
 
     try {
         // First check if this is actually a suspended tab
-        const tab = await safeGetTab(tabId, context);
+        const tab = await ExistenceUtils.safeGetTab(tabId, context);
         if (!tab) {
             return false; // Tab doesn't exist
         }
 
         if (!tab.url || !tab.url.startsWith(chrome.runtime.getURL("suspended.html"))) {
-            detailedLog(`${context}: Tab is not a suspended tab, cannot unsuspend.`);
+            Logger.detailedLog(`${context}: Tab is not a suspended tab, cannot unsuspend.`);
             return false;
         }
 
         try {
-            const originalData = getOriginalDataFromUrl(tab.url);
+            const originalData = SuspensionUtils.getOriginalDataFromUrl(tab.url);
             if (!originalData || !originalData.url) {
-                logError(`${context}: Failed to extract original URL from suspended tab`);
+                Logger.logError(`${context}: Failed to extract original URL from suspended tab`);
                 return false;
             }
 
             // Verify tab still exists right before attempting to update it
-            if (!await tabExists(tabId, context)) {
+            if (!await ExistenceUtils.tabExists(tabId, context)) {
                 return false;
             }
 
@@ -209,21 +209,21 @@ export async function unsuspendTab(tabId) {
                 highlighted: tab.highlighted // Maintain highlighted state
             });
 
-            log(`Tab ${tabId} unsuspended to ${originalData.url}.`);
+            Logger.log(`Tab ${tabId} unsuspended to ${originalData.url}.`);
             return true;
 
         } catch (error) {
             // Handle specific "No tab with id" errors
             if (error.message && error.message.includes("No tab with id")) {
-                detailedLog(`${context}: Tab ${tabId} no longer exists during unsuspension`);
+                Logger.detailedLog(`${context}: Tab ${tabId} no longer exists during unsuspension`);
                 return false; // Tab is gone, consider unsuspension "complete"
             }
 
-            logError(`${context}: Error unsuspending tab`, error);
+            Logger.logError(`${context}: Error unsuspending tab`, error);
             return false;
         }
     } catch (e) {
-        logError(context, `Unexpected error during unsuspension: ${e.message}`);
+        Logger.logError(context, `Unexpected error during unsuspension: ${e.message}`);
         return false;
     }
 }
@@ -274,19 +274,19 @@ async function processTabsWithConcurrency(tabIds, op, concurrency = 5) {
  */
 export async function suspendAllTabsInWindow(windowId, isManual = false) {
     const context = `suspendAllTabsInWindow(windowId=${windowId}, manual=${isManual})`;
-    log(`${context}: Suspending eligible tabs.`);
-    if (!await windowExists(windowId, context)) {
-        log(`${context}: Window does not exist, skipping.`);
+    Logger.log(`${context}: Suspending eligible tabs.`);
+    if (!await ExistenceUtils.windowExists(windowId, context)) {
+        Logger.log(`${context}: Window does not exist, skipping.`);
         return;
     }
     try {
         const tabsInWindow = await chrome.tabs.query({ windowId, url: ['http://*/*', 'https://*/*'] });
-        log(`${context}: Found ${tabsInWindow.length} tabs in window.`);
+        Logger.log(`${context}: Found ${tabsInWindow.length} tabs in window.`);
         const tabIds = tabsInWindow.filter(tab => tab.id && tab.url).map(tab => tab.id);
         const { success, skipped } = await processTabsWithConcurrency(tabIds, (tabId) => suspendTab(tabId, isManual), 5);
-        log(`${context}: Suspended ${success} tabs, skipped ${skipped} tabs.`);
+        Logger.log(`${context}: Suspended ${success} tabs, skipped ${skipped} tabs.`);
     } catch (error) {
-        logError(context, error);
+        Logger.logError(context, error);
     }
 }
 
@@ -296,20 +296,20 @@ export async function suspendAllTabsInWindow(windowId, isManual = false) {
  */
 export async function unsuspendAllTabsInWindow(windowId) {
     const context = `unsuspendAllTabsInWindow(windowId=${windowId})`;
-    log(`${context}: Unsuspending tabs.`);
-    if (!await windowExists(windowId, context)) {
-        log(`${context}: Window does not exist, skipping.`);
+    Logger.log(`${context}: Unsuspending tabs.`);
+    if (!await ExistenceUtils.windowExists(windowId, context)) {
+        Logger.log(`${context}: Window does not exist, skipping.`);
         return;
     }
     try {
         const suspendedUrlPattern = chrome.runtime.getURL("suspended.html") + "*";
         const tabsInWindow = await chrome.tabs.query({ windowId, url: suspendedUrlPattern });
-        log(`${context}: Found ${tabsInWindow.length} suspended tabs in window.`);
+        Logger.log(`${context}: Found ${tabsInWindow.length} suspended tabs in window.`);
         const tabIds = tabsInWindow.filter(tab => tab.id).map(tab => tab.id);
         const { success, skipped } = await processTabsWithConcurrency(tabIds, unsuspendTab, 5);
-        log(`${context}: Unsuspended ${success} tabs, skipped ${skipped} tabs.`);
+        Logger.log(`${context}: Unsuspended ${success} tabs, skipped ${skipped} tabs.`);
     } catch (error) {
-        logError(context, error);
+        Logger.logError(context, error);
     }
 }
 
@@ -319,32 +319,32 @@ export async function unsuspendAllTabsInWindow(windowId) {
  */
 export async function suspendAllTabsAllSpecs(isManual = false) {
     const context = `suspendAllTabsAllSpecs(manual=${isManual})`;
-    log(`${context}: Suspending all eligible tabs across all windows.`);
+    Logger.log(`${context}: Suspending all eligible tabs across all windows.`);
     const allWindows = await chrome.windows.getAll();
-    log(`${context}: Found ${allWindows.length} windows.`);
+    Logger.log(`${context}: Found ${allWindows.length} windows.`);
     if (!allWindows.length) {
-        log(`${context}: No windows found, skipping.`);
+        Logger.log(`${context}: No windows found, skipping.`);
         return;
     }
     globalThis.isBulkOpRunning = true;
     await chrome.storage.local.set({ BULK_OP_IN_PROGRESS: true, BULK_OP_TIMESTAMP: Date.now() });
-    log(`${context}: BULK_OP_IN_PROGRESS set to true`);
+    Logger.log(`${context}: BULK_OP_IN_PROGRESS set to true`);
     try {
         for (const window of allWindows) {
             try {
-                log(`${context}: Suspending window ${window.id}`);
+                Logger.log(`${context}: Suspending window ${window.id}`);
                 await suspendAllTabsInWindow(window.id, isManual);
             } catch (winErr) {
-                logError(`${context}: Error suspending window ${window.id}`, winErr);
+                Logger.logError(`${context}: Error suspending window ${window.id}`, winErr);
             }
         }
-        log(`${context}: All windows processed.`);
+        Logger.log(`${context}: All windows processed.`);
     } catch (error) {
-        logError(context, error);
+        Logger.logError(context, error);
     } finally {
         globalThis.isBulkOpRunning = false;
         await chrome.storage.local.set({ BULK_OP_IN_PROGRESS: false });
-        log(`${context}: BULK_OP_IN_PROGRESS set to false`);
+        Logger.log(`${context}: BULK_OP_IN_PROGRESS set to false`);
     }
 }
 
@@ -353,32 +353,32 @@ export async function suspendAllTabsAllSpecs(isManual = false) {
  */
 export async function unsuspendAllTabsAllSpecs() {
     const context = `unsuspendAllTabsAllSpecs()`;
-    log(`${context}: Unsuspending all tabs across all windows.`);
+    Logger.log(`${context}: Unsuspending all tabs across all windows.`);
     const allWindows = await chrome.windows.getAll();
-    log(`${context}: Found ${allWindows.length} windows.`);
+    Logger.log(`${context}: Found ${allWindows.length} windows.`);
     if (!allWindows.length) {
-        log(`${context}: No windows found, skipping.`);
+        Logger.log(`${context}: No windows found, skipping.`);
         return;
     }
     globalThis.isBulkOpRunning = true;
     await chrome.storage.local.set({ BULK_OP_IN_PROGRESS: true, BULK_OP_TIMESTAMP: Date.now() });
-    log(`${context}: BULK_OP_IN_PROGRESS set to true`);
+    Logger.log(`${context}: BULK_OP_IN_PROGRESS set to true`);
     try {
         for (const window of allWindows) {
             try {
-                log(`${context}: Unsuspending window ${window.id}`);
+                Logger.log(`${context}: Unsuspending window ${window.id}`);
                 await unsuspendAllTabsInWindow(window.id);
             } catch (winErr) {
-                logError(`${context}: Error unsuspending window ${window.id}`, winErr);
+                Logger.logError(`${context}: Error unsuspending window ${window.id}`, winErr);
             }
         }
-        log(`${context}: All windows processed.`);
+        Logger.log(`${context}: All windows processed.`);
     } catch (error) {
-        logError(context, error);
+        Logger.logError(context, error);
     } finally {
         globalThis.isBulkOpRunning = false;
         await chrome.storage.local.set({ BULK_OP_IN_PROGRESS: false });
-        log(`${context}: BULK_OP_IN_PROGRESS set to false`);
+        Logger.log(`${context}: BULK_OP_IN_PROGRESS set to false`);
     }
 }
 
@@ -389,6 +389,6 @@ export async function unsuspendAllTabsAllSpecs() {
  * @returns {Promise<string|boolean>}
  */
 export async function shouldSkipTabForScheduling(tab, debug = false) {
-    return shouldSkipTab(tab, debug);
+    return TabClassifier.shouldSkipTab(tab, debug);
 }
 

@@ -1,4 +1,4 @@
-import { log } from './logger.js';
+import * as Logger from './logger.js';
 
 /**
  * Checks if a tab exists
@@ -12,7 +12,7 @@ export async function tabExists(tabId, context = '') {
         return true;
     } catch (error) {
         if (context) {
-            log(`${context}: Tab ${tabId} no longer exists. Error: ${error.message}`);
+            Logger.log(`${context}: Tab ${tabId} no longer exists. Error: ${error.message}`);
         }
         return false;
     }
@@ -30,7 +30,7 @@ export async function windowExists(windowId, context = '') {
         return true;
     } catch (error) {
         if (context) {
-            log(`${context}: Window ${windowId} no longer exists. Error: ${error.message}`);
+            Logger.log(`${context}: Window ${windowId} no longer exists. Error: ${error.message}`);
         }
         return false;
     }
@@ -47,7 +47,7 @@ export async function safeGetTab(tabId, context = '') {
         return await chrome.tabs.get(tabId);
     } catch (error) {
         if (context) {
-            log(`${context}: Cannot get tab ${tabId}. Error: ${error.message}`);
+            Logger.log(`${context}: Cannot get tab ${tabId}. Error: ${error.message}`);
         }
         return null;
     }
@@ -64,7 +64,7 @@ export async function safeGetWindow(windowId, context = '') {
         return await chrome.windows.get(windowId);
     } catch (error) {
         if (context) {
-            log(`${context}: Cannot get window ${windowId}. Error: ${error.message}`);
+            Logger.log(`${context}: Cannot get window ${windowId}. Error: ${error.message}`);
         }
         return null;
     }

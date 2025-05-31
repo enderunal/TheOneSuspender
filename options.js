@@ -1,7 +1,7 @@
 // options.js
-import { defaultPrefs, PREFS_KEY, WHITELIST_KEY } from './prefs.js'; // Import PREFS_KEY and WHITELIST_KEY
-import { log, LogComponent } from './logger.js';
-import { parseWhitelistText } from './whitelist-utils.js';
+import * as Prefs from './prefs.js'; // Import PREFS_KEY and WHITELIST_KEY
+import * as Logger from './logger.js';
+import * as WhitelistUtils from './whitelist-utils.js';
 import * as Const from './constants.js';
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -65,17 +65,17 @@ document.addEventListener("DOMContentLoaded", () => {
 	// --- Load Settings ---
 	function loadSettings() {
 		// Populate with defaults first so we always have something
-		populateForm(defaultPrefs, []);
+		populateForm(Prefs.defaultPrefs, []);
 
 		// Corrected: Use chrome.storage.local and PREFS_KEY, WHITELIST_KEY
-		chrome.storage.local.get([PREFS_KEY, WHITELIST_KEY], (result) => {
-			const loadedSettings = { ...defaultPrefs, ...(result[PREFS_KEY] || {}) };
+		chrome.storage.local.get([Prefs.PREFS_KEY, Prefs.WHITELIST_KEY], (result) => {
+			const loadedSettings = { ...Prefs.defaultPrefs, ...(result[Prefs.PREFS_KEY] || {}) };
 			if (loadedSettings.suspendAfter > 0) {
 				loadedSettings.lastPositiveSuspendAfter = loadedSettings.suspendAfter;
 			} else if (!loadedSettings.lastPositiveSuspendAfter || loadedSettings.lastPositiveSuspendAfter <= 0) {
-				loadedSettings.lastPositiveSuspendAfter = defaultPrefs.suspendAfter > 0 ? defaultPrefs.suspendAfter : 1;
+				loadedSettings.lastPositiveSuspendAfter = Prefs.defaultPrefs.suspendAfter > 0 ? Prefs.defaultPrefs.suspendAfter : 1;
 			}
-			populateForm(loadedSettings, result[WHITELIST_KEY] || []);
+			populateForm(loadedSettings, result[Prefs.WHITELIST_KEY] || []);
 			validateInactivityMinutes();
 		});
 	}
@@ -119,7 +119,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		const selectedUnsavedHandling = document.querySelector('input[name="unsavedFormHandling"]:checked');
 		let suspendAfterValue = parseInt(inactivityMinutesInput.value, 10);
 		if (isNaN(suspendAfterValue) || suspendAfterValue <= 0) {
-			suspendAfterValue = defaultPrefs.lastPositiveSuspendAfter > 0 ? defaultPrefs.lastPositiveSuspendAfter : 1;
+			suspendAfterValue = Prefs.defaultPrefs.lastPositiveSuspendAfter > 0 ? Prefs.defaultPrefs.lastPositiveSuspendAfter : 1;
 		}
 
 		const newSettings = {
@@ -134,16 +134,16 @@ document.addEventListener("DOMContentLoaded", () => {
 			autoSuspendEnabled: autoSuspendEnabledInput.checked,
 		};
 
-		Object.keys(defaultPrefs).forEach(key => {
+		Object.keys(Prefs.defaultPrefs).forEach(key => {
 			if (newSettings[key] === undefined) {
-				newSettings[key] = defaultPrefs[key];
+				newSettings[key] = Prefs.defaultPrefs[key];
 			}
 		});
 
-		log(`Value of whitelistTextarea.value before splitting: ${whitelistTextarea.value}`, LogComponent.OPTIONS);
+		Logger.log(`Value of whitelistTextarea.value before splitting: ${whitelistTextarea.value}`, Logger.LogComponent.OPTIONS);
 
-		const newWhitelist = parseWhitelistText(whitelistTextarea.value);
-		log(`Constructed newWhitelist array: ${newWhitelist}`, LogComponent.OPTIONS);
+		const newWhitelist = WhitelistUtils.parseWhitelistText(whitelistTextarea.value);
+		Logger.log(`Constructed newWhitelist array: ${newWhitelist}`, Logger.LogComponent.OPTIONS);
 
 		chrome.runtime.sendMessage({ type: Const.MSG_SAVE_SETTINGS, settings: newSettings }, async (response) => {
 			if (chrome.runtime.lastError || !response?.success) {

@@ -3,7 +3,7 @@
  * All functions are pure and do not interact with storage directly.
  */
 
-import { SUSPENDED_PAGE_PATH } from './constants.js';
+import * as Const from './constants.js';
 
 /**
  * Parse a whitelist string (textarea value) into a clean array of entries.
@@ -70,7 +70,7 @@ export function isWhitelisted(whitelistArr, entry) {
  */
 export async function resolveTabUrl(tab) {
     if (!tab?.url) return null;
-    const suspendedPageBase = chrome.runtime.getURL(SUSPENDED_PAGE_PATH);
+    const suspendedPageBase = chrome.runtime.getURL(Const.SUSPENDED_PAGE_PATH);
     // Check if the tab.url starts with the base suspended page URL, ignoring query params for this check
     if (tab.url.startsWith(suspendedPageBase)) {
         try {

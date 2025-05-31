@@ -4,7 +4,7 @@
  * @param {chrome.tabs.Tab} tab - The tab object being suspended.
  * @returns {string} The fully constructed suspended.html URL string.
  */
-import { detailedLog } from './logger.js';
+import * as Logger from './logger.js';
 
 export function buildSuspendedUrl(tab) {
     const suspendedUrlBase = chrome.runtime.getURL("suspended.html");
@@ -17,6 +17,6 @@ export function buildSuspendedUrl(tab) {
     if (tab.favIconUrl) hash += `&fav=${encodeURIComponent(tab.favIconUrl)}`;
     hash += `&url=${tab.url}`;
     urlObj.hash = hash;
-    detailedLog(`[TheOneSuspender] Built suspended URL with hash for tab ${tab.id}: ${urlObj.toString()}`);
+    Logger.detailedLog(`[TheOneSuspender] Built suspended URL with hash for tab ${tab.id}: ${urlObj.toString()}`);
     return urlObj.toString();
 } 

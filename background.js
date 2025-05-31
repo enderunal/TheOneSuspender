@@ -1,7 +1,7 @@
 // ===================== Imports =====================
-import { log, detailedLog, logError, logWarning, LogComponent } from './logger.js';
-import { loadPrefs } from './prefs.js';
-import { scheduleAllTabs } from './scheduling.js';
+import * as Logger from './logger.js';
+import * as Prefs from './prefs.js';
+import * as Scheduling from './scheduling.js';
 import * as Listeners from './listeners.js';
 import * as Const from './constants.js';
 import * as State from './state.js';
@@ -13,25 +13,25 @@ let initializationInProgress = false;
 let initializationAttempts = 0;
 const MAX_INIT_ATTEMPTS = 3;
 
-log("Initializing TheOneSuspender Service Worker...", LogComponent.BACKGROUND);
+Logger.log("Initializing TheOneSuspender Service Worker...", Logger.LogComponent.BACKGROUND);
 
 // ===================== Utility/Helper Functions =====================
 //+reviewed
 async function setupStatePersistence() {
     chrome.alarms.create(Const.TS_ALARM_CLEANUP_NAME, { periodInMinutes: Const.ALARM_CLEANUP_INTERVAL_MINUTES });
-    log(`Alarm cleanup routine scheduled for every ${Const.ALARM_CLEANUP_INTERVAL_MINUTES} minutes`, LogComponent.BACKGROUND);
+    Logger.log(`Alarm cleanup routine scheduled for every ${Const.ALARM_CLEANUP_INTERVAL_MINUTES} minutes`, Logger.LogComponent.BACKGROUND);
     chrome.alarms.create(Const.TS_STATE_CLEANUP_NAME, { periodInMinutes: Const.ALARM_CLEANUP_INTERVAL_MINUTES / 2 });
-    log(`State cleanup routine scheduled for every ${Const.ALARM_CLEANUP_INTERVAL_MINUTES / 2} minutes`, LogComponent.BACKGROUND);
+    Logger.log(`State cleanup routine scheduled for every ${Const.ALARM_CLEANUP_INTERVAL_MINUTES / 2} minutes`, Logger.LogComponent.BACKGROUND);
     try {
         if (State.prefs?.autoSuspendEnabled === false || (typeof State.prefs === 'undefined' && typeof prefs !== 'undefined' && prefs.autoSuspendEnabled === false)) {
             await chrome.alarms.clear(Const.TS_TAB_SCAN_ALARM_NAME);
-            log('Auto suspension is disabled; tab scan alarm cleared.', LogComponent.BACKGROUND);
+            Logger.log('Auto suspension is disabled; tab scan alarm cleared.', Logger.LogComponent.BACKGROUND);
         } else {
-            await scheduleAllTabs();
-            log("Initial tab scheduling complete", LogComponent.BACKGROUND);
+            await Scheduling.scheduleAllTabs();
+            Logger.log("Initial tab scheduling complete", Logger.LogComponent.BACKGROUND);
         }
     } catch (e) {
-        logError("Error during initial tab scheduling", e, LogComponent.BACKGROUND);
+        Logger.logError("Error during initial tab scheduling", e, Logger.LogComponent.BACKGROUND);
     }
 }
 
@@ -39,12 +39,12 @@ async function setupStatePersistence() {
 //+revieWIP
 async function initialize() {
     if (isInitialized || initializationInProgress) {
-        log("Initialization already complete or in progress.", LogComponent.BACKGROUND);
+        Logger.log("Initialization already complete or in progress.", Logger.LogComponent.BACKGROUND);
         return;
     }
     initializationInProgress = true;
     initializationAttempts++;
-    log(`Starting extension initialization (attempt ${initializationAttempts})...`, LogComponent.BACKGROUND);
+    Logger.log(`Starting extension initialization (attempt ${initializationAttempts})...`, Logger.LogComponent.BACKGROUND);
     const initTimeoutMs = 30000;
     const initTimeoutPromise = new Promise((_, reject) => {
         setTimeout(() => reject(new Error("Initialization timed out")), initTimeoutMs);
@@ -54,14 +54,14 @@ async function initialize() {
         isInitialized = true;
         initializationInProgress = false;
         initializationAttempts = 0; // Reset attempts on success
-        log("Initialization complete!", LogComponent.BACKGROUND);
+        Logger.log("Initialization complete!", Logger.LogComponent.BACKGROUND);
 
         // Clear startup, retry, and onInstalled alarms upon successful initialization
         try {
             await chrome.alarms.clear(Const.TS_INIT_STARTUP_ALARM_NAME);
-            detailedLog("Cleared startup alarm on successful init.", LogComponent.BACKGROUND);
+            Logger.detailedLog("Cleared startup alarm on successful init.", Logger.LogComponent.BACKGROUND);
         } catch (e) {
-            logWarning("Error clearing startup alarm:", LogComponent.BACKGROUND);
+            Logger.logWarning("Error clearing startup alarm:", Logger.LogComponent.BACKGROUND);
         }
 
         const allAlarms = await chrome.alarms.getAll();
@@ -69,9 +69,9 @@ async function initialize() {
             if (anAlarm.name.startsWith(Const.TS_INIT_RETRY_PREFIX) || anAlarm.name.startsWith(Const.TS_INIT_ON_ALARM_PREFIX)) {
                 try {
                     await chrome.alarms.clear(anAlarm.name);
-                    detailedLog(`Cleared init-related alarm ${anAlarm.name} on successful init.`, LogComponent.BACKGROUND);
+                    Logger.detailedLog(`Cleared init-related alarm ${anAlarm.name} on successful init.`, Logger.LogComponent.BACKGROUND);
                 } catch (e) {
-                    logWarning(`Error clearing init-related alarm ${anAlarm.name}:`, LogComponent.BACKGROUND);
+                    Logger.logWarning(`Error clearing init-related alarm ${anAlarm.name}:`, Logger.LogComponent.BACKGROUND);
                 }
             }
         }
@@ -80,30 +80,30 @@ async function initialize() {
         await processPostInitializationTasks(); // This will re-process any "deferred" alarms
     } catch (error) {
         initializationInProgress = false;
-        logError("initialization", error, LogComponent.BACKGROUND);
+        Logger.logError("initialization", error, Logger.LogComponent.BACKGROUND);
         if (initializationAttempts < MAX_INIT_ATTEMPTS) {
             const retryDelayMinutes = Const.INIT_RETRY_DELAY_MINUTES;
-            log(`Scheduling retry (${initializationAttempts}/${MAX_INIT_ATTEMPTS}) in ${retryDelayMinutes} minutes`, LogComponent.BACKGROUND);
+            Logger.log(`Scheduling retry (${initializationAttempts}/${MAX_INIT_ATTEMPTS}) in ${retryDelayMinutes} minutes`, Logger.LogComponent.BACKGROUND);
             const retryAlarmName = `${Const.TS_INIT_RETRY_PREFIX}${Date.now()}`;
             try {
                 await chrome.alarms.create(retryAlarmName, { delayInMinutes: retryDelayMinutes });
-                detailedLog(`Created retry alarm ${retryAlarmName} after failed initialization.`, LogComponent.BACKGROUND);
+                Logger.detailedLog(`Created retry alarm ${retryAlarmName} after failed initialization.`, Logger.LogComponent.BACKGROUND);
             } catch (e) {
-                logWarning(`Error creating retry alarm ${retryAlarmName}:`, LogComponent.BACKGROUND);
+                Logger.logWarning(`Error creating retry alarm ${retryAlarmName}:`, Logger.LogComponent.BACKGROUND);
             }
         } else {
-            log(`Maximum initialization attempts (${MAX_INIT_ATTEMPTS}) reached. Entering degraded mode.`, LogComponent.BACKGROUND);
+            Logger.log(`Maximum initialization attempts (${MAX_INIT_ATTEMPTS}) reached. Entering degraded mode.`, Logger.LogComponent.BACKGROUND);
             isInitialized = true;
             try {
                 await chrome.storage.local.set({ TS_DEGRADED_MODE: true });
-                log("Set TS_DEGRADED_MODE flag in storage.", LogComponent.BACKGROUND);
+                Logger.log("Set TS_DEGRADED_MODE flag in storage.", Logger.LogComponent.BACKGROUND);
             } catch (err) {
-                logWarning("Error setting TS_DEGRADED_MODE flag in storage:", LogComponent.BACKGROUND);
+                Logger.logWarning("Error setting TS_DEGRADED_MODE flag in storage:", Logger.LogComponent.BACKGROUND);
             }
             try {
-                await loadPrefs().catch(() => { });
+                await Prefs.loadPrefs().catch(() => { });
             } catch (err) {
-                logWarning("degraded mode initialization", LogComponent.BACKGROUND);
+                Logger.logWarning("degraded mode initialization", Logger.LogComponent.BACKGROUND);
             }
         }
     }
@@ -111,21 +111,21 @@ async function initialize() {
 
 //+reviewed
 async function initializeCore() {
-    log("Step 1: Loading preferences...", LogComponent.BACKGROUND);
+    Logger.log("Step 1: Loading preferences...", Logger.LogComponent.BACKGROUND);
     try {
         await Promise.race([
-            loadPrefs(),
+            Prefs.loadPrefs(),
             new Promise((_, reject) =>
                 setTimeout(() => reject(new Error("Loading preferences timed out")), 10000)
             )
         ]);
     } catch (prefsError) {
         console.error("[TheOneSuspender] Error loading preferences:", prefsError);
-        log("Continuing with default preferences", LogComponent.BACKGROUND);
+        Logger.log("Continuing with default preferences", Logger.LogComponent.BACKGROUND);
     }
-    log("Step 2: Initializing browser status...", LogComponent.BACKGROUND);
+    Logger.log("Step 2: Initializing browser status...", Logger.LogComponent.BACKGROUND);
     State.updateOfflineStatus();
-    log("Step 3: Initializing window and tab info...", LogComponent.BACKGROUND);
+    Logger.log("Step 3: Initializing window and tab info...", Logger.LogComponent.BACKGROUND);
     try {
         const windows = await chrome.windows.getAll();
         const focusedWindows = windows.filter(w => w.focused);
@@ -139,19 +139,19 @@ async function initializeCore() {
             }
         }
     } catch (windowError) {
-        logError("Error initializing window info:", windowError, LogComponent.BACKGROUND);
+        Logger.logError("Error initializing window info:", windowError, Logger.LogComponent.BACKGROUND);
     }
 }
 
 //+reviewed
 async function processPostInitializationTasks() {
-    log("Processing post-initialization tasks...", LogComponent.BACKGROUND);
+    Logger.log("Processing post-initialization tasks...", Logger.LogComponent.BACKGROUND);
     try {
         await setupStatePersistence();
         const alarms = await chrome.alarms.getAll();
         // NOTE: To avoid double-processing, ensure handleAlarmEvent is idempotent or track processed alarms.
         for (const alarm of alarms) {
-            log(`Processing previously deferred alarm: ${alarm.name}`, LogComponent.BACKGROUND);
+            Logger.log(`Processing previously deferred alarm: ${alarm.name}`, Logger.LogComponent.BACKGROUND);
             try {
                 Listeners.handleAlarmEvent(alarm);
             } catch (alarmError) {
@@ -176,7 +176,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
         alarmName.startsWith(Const.TS_INIT_RETRY_PREFIX);
 
     if (isInitTriggerAlarm) {
-        detailedLog(`[Background] Initialization-triggering alarm received: ${alarmName}`, LogComponent.BACKGROUND);
+        Logger.detailedLog(`[Background] Initialization-triggering alarm received: ${alarmName}`, Logger.LogComponent.BACKGROUND);
         if (!isInitialized && !initializationInProgress) {
             // For onInstalled (TS_INIT_ON_ALARM_PREFIX) and retry (TS_INIT_RETRY_PREFIX) alarms, 
             // they are one-shot and should be cleared before attempting initialization.
@@ -184,7 +184,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
             if (alarmName.startsWith(Const.TS_INIT_ON_ALARM_PREFIX) || alarmName.startsWith(Const.TS_INIT_RETRY_PREFIX)) {
                 try {
                     await chrome.alarms.clear(alarmName);
-                    detailedLog(`Cleared one-shot init alarm ${alarmName} before attempt.`, LogComponent.BACKGROUND);
+                    Logger.detailedLog(`Cleared one-shot init alarm ${alarmName} before attempt.`, Logger.LogComponent.BACKGROUND);
                 } catch (e) { /*ignore*/ }
             }
             await initialize(); // This will set isInitialized = true on success and clear appropriate alarms
@@ -194,18 +194,18 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
             if (alarmName.startsWith(Const.TS_INIT_ON_ALARM_PREFIX) || alarmName.startsWith(Const.TS_INIT_RETRY_PREFIX)) {
                 try {
                     await chrome.alarms.clear(alarmName);
-                    detailedLog(`Cleared stray one-shot init alarm ${alarmName} post-init.`, LogComponent.BACKGROUND);
+                    Logger.detailedLog(`Cleared stray one-shot init alarm ${alarmName} post-init.`, Logger.LogComponent.BACKGROUND);
                 } catch (e) { /*ignore*/ }
             }
         } else {
-            detailedLog(`[Background] Init alarm ${alarmName} received, but init already in progress. Alarm will run again if periodic or be cleared if one-shot.`, LogComponent.BACKGROUND);
+            Logger.detailedLog(`[Background] Init alarm ${alarmName} received, but init already in progress. Alarm will run again if periodic or be cleared if one-shot.`, Logger.LogComponent.BACKGROUND);
         }
         return; // Handled this alarm type
     }
 
     // For all other alarms, require initialization to be complete
     if (!isInitialized) {
-        detailedLog(`[Deferred] Non-init alarm event for ${alarmName} received before initialization complete. It should be processed by processPostInitializationTasks.`, LogComponent.BACKGROUND);
+        Logger.detailedLog(`[Deferred] Non-init alarm event for ${alarmName} received before initialization complete. It should be processed by processPostInitializationTasks.`, Logger.LogComponent.BACKGROUND);
         return; // Defer to processPostInitializationTasks, which re-processes all alarms.
     }
 
@@ -215,13 +215,13 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 //+reviewed
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (!isInitialized) {
-        detailedLog(`[Deferred] Message of type ${message?.type} received before initialization complete`, LogComponent.BACKGROUND);
+        Logger.detailedLog(`[Deferred] Message of type ${message?.type} received before initialization complete`, Logger.LogComponent.BACKGROUND);
         sendResponse({ error: "Extension is still initializing. Please try again shortly." });
         return true;
     }
     // Listen for prefs changed and update scheduling if needed
     if (message?.type === Const.MSG_PREFS_CHANGED) {
-        scheduleAllTabs();
+        Scheduling.scheduleAllTabs();
         sendResponse?.({ success: true });
         return true;
     }
@@ -243,10 +243,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 //+reviewed
 chrome.runtime.onInstalled.addListener(async (details) => {
     try {
-        log(`Extension ${details.reason} event received: ${JSON.stringify(details)}`, LogComponent.BACKGROUND);
+        Logger.log(`Extension ${details.reason} event received: ${JSON.stringify(details)}`, Logger.LogComponent.BACKGROUND);
         const initAlarmName = `${Const.TS_INIT_ON_ALARM_PREFIX}${details.reason}_${Date.now()}`;
         await chrome.alarms.create(initAlarmName, { delayInMinutes: 0.02 });
-        log(`Created alarm ${initAlarmName} to trigger initialization after ${details.reason} event.`, LogComponent.BACKGROUND);
+        Logger.log(`Created alarm ${initAlarmName} to trigger initialization after ${details.reason} event.`, Logger.LogComponent.BACKGROUND);
     } catch (e) {
         console.error(`[TheOneSuspender] Error setting up init alarm during ${details.reason} event:`, e);
         if (!isInitialized && !initializationInProgress) {
@@ -257,7 +257,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 
 //+reviewed
 chrome.runtime.onSuspend.addListener(() => {
-    log("Extension being suspended", LogComponent.BACKGROUND);
+    Logger.log("Extension being suspended", Logger.LogComponent.BACKGROUND);
     // No manual cleanup needed; Chrome manages service worker lifecycle and listener cleanup.
 });
 

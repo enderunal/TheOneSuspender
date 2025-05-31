@@ -1,5 +1,5 @@
 // state.js - Shared state between background and listeners modules
-import { log, detailedLog, logError, LogComponent } from './logger.js';
+import * as Logger from './logger.js';
 
 // Browser status trackers
 let isOfflineMode = !navigator.onLine; // Initialize with current status
@@ -37,7 +37,7 @@ export function updateOfflineStatus(status = null) {
     if (status === null) {
         isOfflineMode = !navigator.onLine;
         if (wasOffline !== isOfflineMode) {
-            log(`Network status changed: ${isOfflineMode ? 'Offline' : 'Online'}`, LogComponent.BACKGROUND);
+            Logger.log(`Network status changed: ${isOfflineMode ? 'Offline' : 'Online'}`, Logger.LogComponent.BACKGROUND);
         }
     }
 
@@ -88,13 +88,13 @@ export function removeWindowTracking(windowId) {
     const hadEntry = activeTabsByWindow.has(windowId);
     activeTabsByWindow.delete(windowId);
     if (hadEntry) {
-        detailedLog(`Removed window ${windowId} from activeTabsByWindow tracking`, LogComponent.BACKGROUND);
+        Logger.detailedLog(`Removed window ${windowId} from activeTabsByWindow tracking`, Logger.LogComponent.BACKGROUND);
     }
 
     // If this was the last focused window, reset it
     if (lastFocusedWindowId === windowId) {
         lastFocusedWindowId = chrome.windows.WINDOW_ID_NONE;
-        detailedLog(`Reset lastFocusedWindowId because window ${windowId} was removed`, LogComponent.BACKGROUND);
+        Logger.detailedLog(`Reset lastFocusedWindowId because window ${windowId} was removed`, Logger.LogComponent.BACKGROUND);
     }
 }
 
@@ -114,7 +114,7 @@ export async function cleanupStateReferences() {
             if (!windowIds.has(windowId)) {
                 activeTabsByWindow.delete(windowId);
                 removedEntries++;
-                detailedLog(`Removed stale window ${windowId} from activeTabsByWindow during cleanup`, LogComponent.BACKGROUND);
+                Logger.detailedLog(`Removed stale window ${windowId} from activeTabsByWindow during cleanup`, Logger.LogComponent.BACKGROUND);
             }
         }
 
@@ -123,13 +123,13 @@ export async function cleanupStateReferences() {
             // Reset to NONE if the window no longer exists
             lastFocusedWindowId = chrome.windows.WINDOW_ID_NONE;
             removedEntries++;
-            log(`Reset stale lastFocusedWindowId during cleanup`, LogComponent.BACKGROUND);
+            Logger.log(`Reset stale lastFocusedWindowId during cleanup`, Logger.LogComponent.BACKGROUND);
         }
 
         if (removedEntries > 0) {
-            log(`State cleanup removed ${removedEntries} stale entries`, LogComponent.BACKGROUND);
+            Logger.log(`State cleanup removed ${removedEntries} stale entries`, Logger.LogComponent.BACKGROUND);
         }
     } catch (e) {
-        logError("Error during state cleanup:", e, LogComponent.BACKGROUND);
+        Logger.logError("Error during state cleanup:", e, Logger.LogComponent.BACKGROUND);
     }
 } 

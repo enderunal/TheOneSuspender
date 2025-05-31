@@ -1,4 +1,4 @@
-import { buildSuspendedUrl } from './url-builder.js';
+import * as UrlBuilder from './url-builder.js';
 
 const MARVELLOUS_SUSPENDER_ID = 'noogafoofpebimajpfpamcfhoaifemoa';
 const MARVELLOUS_SUSPENDED_PREFIX = `chrome-extension://${MARVELLOUS_SUSPENDER_ID}/suspended.html#`;
@@ -62,7 +62,7 @@ async function migrateTabs() {
                 title: title,
                 favIconUrl: tab.favIconUrl
             };
-            const newSuspendedUrl = buildSuspendedUrl(fakeTab);
+            const newSuspendedUrl = UrlBuilder.buildSuspendedUrl(fakeTab);
             try {
                 await chrome.tabs.update(tab.id, { url: newSuspendedUrl });
                 migrated++;

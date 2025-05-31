@@ -1,4 +1,4 @@
-import { logError } from './logger.js';
+import * as Logger from './logger.js';
 
 
 /**
@@ -30,7 +30,7 @@ export function getOriginalDataFromUrl(suspendedUrl) {
             url: originalUrl,
         };
     } catch (e) {
-        logError('getOriginalDataFromUrl', e);
+        Logger.logError('getOriginalDataFromUrl', e);
         return null;
     }
 }

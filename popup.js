@@ -1,6 +1,6 @@
-import { addToWhitelist, removeFromWhitelist, isWhitelisted } from './whitelist-utils.js';
+import * as WhitelistUtils from './whitelist-utils.js';
+import * as Prefs from './prefs.js';
 import * as Const from './constants.js';
-import { PREFS_KEY, WHITELIST_KEY, defaultPrefs } from './prefs.js';
 
 document.addEventListener("DOMContentLoaded", () => {
 	// Consolidated UI elements reference
@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		Object.values(elements).forEach(el => {
 			if (el && typeof el.disabled !== 'undefined') el.disabled = false;
 		});
-		chrome.storage.local.get([PREFS_KEY, WHITELIST_KEY], (result) => {
+		chrome.storage.local.get([Prefs.PREFS_KEY, Prefs.WHITELIST_KEY], (result) => {
 			if (chrome.runtime.lastError) {
 				showError(chrome.runtime.lastError.message);
 				return;
@@ -71,8 +71,8 @@ document.addEventListener("DOMContentLoaded", () => {
 					return;
 				}
 				currentTab = activeTab;
-				currentPrefs = { ...defaultPrefs, ...(result[PREFS_KEY] || {}) };
-				currentWhitelist = result[WHITELIST_KEY] || [];
+				currentPrefs = { ...Prefs.defaultPrefs, ...(result[Prefs.PREFS_KEY] || {}) };
+				currentWhitelist = result[Prefs.WHITELIST_KEY] || [];
 				updateUI();
 			});
 		});
@@ -158,8 +158,8 @@ document.addEventListener("DOMContentLoaded", () => {
 			const domain = normalizeDomain(urlObj.hostname);
 
 			// Use shared utils for whitelist checks
-			const urlWhitelisted = isWhitelisted(currentWhitelist, fullUrl);
-			const domainWhitelisted = isWhitelisted(currentWhitelist, domain);
+			const urlWhitelisted = WhitelistUtils.isWhitelisted(currentWhitelist, fullUrl);
+			const domainWhitelisted = WhitelistUtils.isWhitelisted(currentWhitelist, domain);
 
 			elements.whitelistUrl.textContent = urlWhitelisted ? "URL Whitelisted ✓" : "Never Suspend URL";
 			elements.whitelistDomain.textContent = domainWhitelisted ? "Domain Whitelisted ✓" : "Never Suspend Domain";
@@ -231,11 +231,11 @@ document.addEventListener("DOMContentLoaded", () => {
 			return;
 		}
 		let newWhitelist = [...currentWhitelist];
-		const isCurrentlyWhitelisted = isWhitelisted(newWhitelist, entry);
+		const isCurrentlyWhitelisted = WhitelistUtils.isWhitelisted(newWhitelist, entry);
 		if (isCurrentlyWhitelisted) {
-			newWhitelist = removeFromWhitelist(newWhitelist, entry);
+			newWhitelist = WhitelistUtils.removeFromWhitelist(newWhitelist, entry);
 		} else {
-			newWhitelist = addToWhitelist(newWhitelist, entry);
+			newWhitelist = WhitelistUtils.addToWhitelist(newWhitelist, entry);
 		}
 
 		// Display appropriate message based on action
