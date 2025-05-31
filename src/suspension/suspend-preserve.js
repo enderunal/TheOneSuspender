@@ -1,6 +1,6 @@
-import * as Logger from './logger.js';
-import * as UrlBuilder from './url-builder.js';
-import * as ExistenceUtils from './existence-utils.js';
+import * as Logger from '../common/logger.js';
+import * as UrlBuilder from '../common/url-builder.js';
+import * as ExistenceUtils from '../common/existence-utils.js';
 
 
 /**

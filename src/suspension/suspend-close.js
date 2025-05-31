@@ -1,6 +1,6 @@
 // suspend-close.js
-import * as Logger from './logger.js'; // Import shared logger with error handling
-import * as UrlBuilder from './url-builder.js';
+import * as Logger from '../common/logger.js'; // Import shared logger with error handling
+import * as UrlBuilder from '../common/url-builder.js';
 
 /**
  * Suspends a tab using the close & reopen method.

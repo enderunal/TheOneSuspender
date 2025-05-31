@@ -1,5 +1,5 @@
 // suspended.js
-import * as Logger from './logger.js';
+import * as Logger from '../common/logger.js';
 
 (async () => {
 	try {

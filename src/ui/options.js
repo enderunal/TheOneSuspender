@@ -1,8 +1,8 @@
 // options.js
-import * as Prefs from './prefs.js'; // Import PREFS_KEY and WHITELIST_KEY
-import * as Logger from './logger.js';
-import * as WhitelistUtils from './whitelist-utils.js';
-import * as Const from './constants.js';
+import * as Prefs from '../common/prefs.js'; // Import PREFS_KEY and WHITELIST_KEY
+import * as Logger from '../common/logger.js';
+import * as Const from '../common/constants.js';
+import * as WhitelistUtils from '../common/whitelist-utils.js';
 
 document.addEventListener("DOMContentLoaded", () => {
 	const form = document.getElementById("settings-form");

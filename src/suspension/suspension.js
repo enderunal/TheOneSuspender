@@ -1,12 +1,13 @@
 // suspension.js
-import * as Logger from './logger.js';
-import * as Prefs from './prefs.js';
-import * as TabClassifier from './tab-classifier.js';
+import * as Logger from '../common/logger.js';
+import * as Prefs from '../common/prefs.js';
+import * as TabClassifier from '../common/tab-classifier.js';
+import * as ExistenceUtils from '../common/existence-utils.js';
+import * as Const from '../common/constants.js'
+
 import * as SuspendClose from './suspend-close.js';
 import * as SuspendPreserve from './suspend-preserve.js';
 import * as SuspensionUtils from './suspension-utils.js';
-import * as ExistenceUtils from './existence-utils.js';
-import * as Const from './constants.js'
 
 /**
  * Checks if a tab has unsaved form data in any frame (main frame or iframes).

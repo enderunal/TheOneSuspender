@@ -1,9 +1,9 @@
 // scheduling.js
-import * as Const from './constants.js';
-import * as State from './state.js';
-import * as Logger from './logger.js';
-import * as Prefs from './prefs.js';
-import * as Suspension from './suspension.js';
+import * as Const from '../common/constants.js';
+import * as State from '../common/state.js';
+import * as Logger from '../common/logger.js';
+import * as Prefs from '../common/prefs.js';
+import * as Suspension from '../suspension/suspension.js';
 
 export const SMALL_DELAY_MS = 50;
 export const DEBOUNCE_DELAY_MS = 5000; // For debouncing frequent events like settings changes before rescheduling

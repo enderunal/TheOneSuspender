@@ -1,6 +1,6 @@
-import * as WhitelistUtils from './whitelist-utils.js';
-import * as Prefs from './prefs.js';
-import * as Const from './constants.js';
+import * as Prefs from '../common/prefs.js';
+import * as Const from '../common/constants.js';
+import * as WhitelistUtils from '../common/whitelist-utils.js';
 
 document.addEventListener("DOMContentLoaded", () => {
 	// Consolidated UI elements reference

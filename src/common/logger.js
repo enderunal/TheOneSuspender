@@ -2,9 +2,9 @@
 
 // Global logging configuration
 const LogConfig = {
-    enableStandardLogs: false,    // Standard logs (info)
-    enableDetailedLogs: false,    // Detailed/debug logs
-    enableWarningLogs: false,     // Warnings
+    enableStandardLogs: true,    // Standard logs (info)
+    enableDetailedLogs: true,    // Detailed/debug logs
+    enableWarningLogs: true,     // Warnings
     enableErrorLogs: true,       // Errors
     logPrefix: "TheOneSuspender"    // Base prefix for all logs
 };

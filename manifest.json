@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "TheOneSuspender",
-	"version": "1.0.75",
+	"version": "1.0.76",
 	"description": "Auto-suspend inactive tabs with full manual controls and preferences.",
 	"incognito": "split",
 	"permissions": [
@@ -16,13 +16,13 @@
 		{
 			"resources": [
 				"suspended.html",
-				"suspended.css",
-				"suspended.js",
+				"styles/suspended.css",
+				"src/ui/suspended.js",
 				"icons/icon16.png",
 				"icons/icon48.png",
 				"icons/icon128.png",
 				"migrate.html",
-				"migrate.js"
+				"src/ui/migrate.js"
 			],
 			"matches": [
 				"<all_urls>"
@@ -30,7 +30,7 @@
 		}
 	],
 	"background": {
-		"service_worker": "background.js",
+		"service_worker": "src/background/background.js",
 		"type": "module"
 	},
 	"host_permissions": [
@@ -53,7 +53,7 @@
 				"https://*/*"
 			],
 			"js": [
-				"content.js"
+				"src/ui/content.js"
 			],
 			"run_at": "document_idle"
 		}
