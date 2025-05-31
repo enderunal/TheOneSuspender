@@ -364,12 +364,12 @@ document.addEventListener("DOMContentLoaded", () => {
 			const tabIds = tabs.map(tab => tab.id);
 			suspendSelectedBtn.onclick = function () {
 				tabIds.forEach(tabId => {
-					chrome.runtime.sendMessage({ type: 'MSG_suspendTab', tabId, isManual: true });
+					chrome.runtime.sendMessage({ type: Const.MSG_SUSPEND_TAB, tabId, isManual: true });
 				});
 			};
 			unsuspendSelectedBtn.onclick = function () {
 				tabIds.forEach(tabId => {
-					chrome.runtime.sendMessage({ type: 'MSG_unsuspendTab', tabId });
+					chrome.runtime.sendMessage({ type: Const.MSG_UNSUSPEND_TAB, tabId });
 				});
 			};
 		}

@@ -76,6 +76,22 @@
                 </div>
             </section>
 
+            <section id="export-import-section">
+                <h2>Export/Import Suspended Tabs</h2>
+                <div class="form-group export-group">
+                    <select id="export-format" aria-label="Export format">
+                        <option value="json">JSON</option>
+                        <option value="txt">TXT</option>
+                    </select>
+                    <button type="button" id="export-suspended-tabs">Export</button>
+                </div>
+                <div class="form-group import-group">
+                    <input type="file" id="import-file" accept=".json,.txt">
+                    <button type="button" id="import-suspended-tabs">Import</button>
+                </div>
+                <div id="export-import-status" class="status-message"></div>
+            </section>
+
             <div class="form-actions">
                 <button type="submit" id="save-settings" aria-label="Save Settings">Save Settings</button>
                 <span id="save-status"></span>

@@ -5,6 +5,7 @@ import { scheduleAllTabs } from './scheduling.js';
 import * as Listeners from './listeners.js';
 import * as Const from './constants.js';
 import * as State from './state.js';
+import * as Suspension from './suspension.js';
 
 // ===================== Constants and Global State =====================
 let isInitialized = false;
@@ -223,6 +224,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         scheduleAllTabs();
         sendResponse?.({ success: true });
         return true;
+    }
+    // Handle suspendTab for import
+    if (message?.type === Const.MSG_SUSPEND_TAB) {
+        (async () => {
+            try {
+                const ok = await Suspension.suspendTab(message.tabId, message.isManual);
+                sendResponse({ success: ok });
+            } catch (e) {
+                sendResponse({ success: false, error: e.message });
+            }
+        })();
+        return true; // async
     }
     return Listeners.handleMessage(message, sender, sendResponse);
 });

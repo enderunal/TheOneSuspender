@@ -161,3 +161,83 @@ button[type="submit"]:hover {
 	margin-bottom: 14px;
 	display: inline-block;
 }
+
+#export-import-section {
+	margin-top: 2em;
+	padding: 1em;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	background: #fafbfc;
+}
+
+#export-import-section h2 {
+	margin-top: 0;
+}
+
+#export-import-section .form-group {
+	margin-bottom: 1em;
+}
+
+#export-import-status.status-message {
+	margin-top: 0.5em;
+	padding: 0.5em 1em;
+	border-radius: 4px;
+	font-size: 0.95em;
+}
+
+#export-import-status.success {
+	background: #e6ffed;
+	color: #22863a;
+	border: 1px solid #b7eb8f;
+}
+
+#export-import-status.error {
+	background: #fff1f0;
+	color: #cf222e;
+	border: 1px solid #ffa39e;
+}
+
+#export-import-status.info {
+	background: #e6f7ff;
+	color: #096dd9;
+	border: 1px solid #91d5ff;
+}
+
+.export-group,
+.import-group {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+#export-format {
+	min-width: 80px;
+	padding: 6px 8px;
+	font-size: 1em;
+	border-radius: 4px;
+	border: 1px solid #ccc;
+}
+
+#export-suspended-tabs,
+#import-suspended-tabs {
+	padding: 8px 18px;
+	font-size: 1em;
+	border-radius: 4px;
+	border: 1px solid #ccc;
+	background: #f5f5f5;
+	color: #333;
+	cursor: pointer;
+	transition: background 0.2s;
+}
+
+#export-suspended-tabs:hover,
+#import-suspended-tabs:hover {
+	background: #eaeaea;
+}
+
+#import-file {
+	font-size: 1em;
+	border-radius: 4px;
+	border: 1px solid #ccc;
+	padding: 6px 8px;
+}
