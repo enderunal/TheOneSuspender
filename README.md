@@ -29,6 +29,7 @@ Here's a glimpse of The One Suspender in action:
 
 - **Automatic Tab Suspension**: Frees memory by suspending inactive tabs after a user-defined timeout (Minimum 1 min).
 - **Manual Controls**: Suspend/unsuspend individual tabs or all tabs in a window/all windows from the popup.
+- **Export/Import Suspended Tabs**: Export all suspended tabs (with window/tab structure) as JSON or TXT, and import them later—even across extension reinstalls or devices. (See below for details.)
 - **Two Suspension Modes**: Close & Reopen (no history) or Preserve History.
 - **Whitelist Management**: Never suspend specific URLs/domains (with wildcard support).
 - **Conditional Exceptions**: Never suspend pinned tabs, tabs playing audio, active tabs, tabs with unsaved form data, etc.
@@ -36,6 +37,23 @@ Here's a glimpse of The One Suspender in action:
 - **Visual Indicators**: Grayed-out favicon for suspended tabs, with robust CORS/SVG handling.
 - **Customizable Settings**: All options available in a modern, responsive Options page.
 - **Security-First**: Strict CSP, minimal permissions, secure messaging, and no user-supplied DOM injection.
+
+---
+
+## Export/Import Suspended Tabs
+
+**Easily backup or migrate your suspended tabs!**
+
+- **Export:**
+  - Go to the Options page.
+  - Use the Export section to download all currently suspended tabs (with window/tab structure) as a `.json` or `.txt` file.
+  - The export includes all suspended tabs, grouped by window, with titles, favicons, and original URLs.
+
+- **Import:**
+  - Use the Import section in the Options page to select a previously exported file.
+  - The extension will recreate the original window/tab structure and immediately suspend the imported tabs.
+  - **Extension ID Handling:** If you import on a different device or after reinstalling, the extension will automatically update the internal suspended tab URLs to match the new extension ID—no manual editing required.
+  - Comprehensive error handling and validation is included.
 
 ---
 
@@ -52,7 +70,7 @@ Here's a glimpse of The One Suspender in action:
 ## Usage
 
 - Click the extension icon for quick actions: suspend/restore, whitelist URL/domain, bulk suspend/unsuspend, and open settings.
-- Use the Options page to configure all preferences, exceptions, and the whitelist.
+- Use the Options page to configure all preferences, exceptions, the whitelist, and to export/import suspended tabs.
 - Suspended tabs can be restored with a single click.
 
 ---
@@ -71,7 +89,7 @@ Here's a glimpse of The One Suspender in action:
 
 - **Centralized Scheduling**: All tabs are tracked in a single `tabSuspendTimes` map (see [tab-scheduling-flow.md](docs/tab-scheduling-flow.md)).
 - **Single Scan Alarm**: A single Chrome alarm periodically checks all tabs for suspension eligibility.
-- **Tab Classification**: Tabs are classified with robust rules (see [tab-classifier.js](tab-classifier.js)).
+- **Tab Classification**: Tabs are classified with robust rules (see [tab-classifier.js](src/common/tab-classifier.js)).
 - **Debounced Rescheduling**: Prevents alarm thrashing on rapid changes.
 - **Error Handling**: All tab/window queries are robust to missing/closed entities.
 
