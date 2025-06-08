@@ -8,11 +8,20 @@ I developed this extension because The Marvelous Suspender (TMS) could not suppo
 
 Auto-suspend inactive tabs with full manual controls, robust scheduling, and advanced security for Chrome (Manifest V3).
 
+## Easy Migration From The Marvelous Suspender
+
+![image](https://github.com/user-attachments/assets/3076f48a-59f0-4fda-8ccc-06b7100e99fa)
+
+
 ---
 
 ## Screenshots
 
 Here's a glimpse of The One Suspender in action:
+
+
+**Suspended Page:**
+<img width="1392" alt="image" src="https://github.com/user-attachments/assets/96e2b7b8-152f-4065-b28d-d1fb8d017020" />
 
 **Popup Menu:**
 ![Popup Menu](docs/screenshots/ss_popup.png)
