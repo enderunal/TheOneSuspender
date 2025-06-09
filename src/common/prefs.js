@@ -15,7 +15,8 @@ export const defaultPrefs = {
     neverSuspendOffline: false,
     unsavedFormHandling: 'ask', // Allowed: 'normal', 'never', 'ask'
     maxConcurrent: 5, // Default maximum concurrent operations
-    autoSuspendEnabled: true // New: allow user to disable auto suspension
+    autoSuspendEnabled: true, // New: allow user to disable auto suspension
+    theme: 'light' // Theme preference: 'light' or 'dark'
 };
 
 /** @type {import('./types.js').Prefs} */
@@ -91,6 +92,7 @@ function validatePrefs(prefsToValidate) {
         throw new Error('unsavedFormHandling must be one of: normal, never, ask');
     }
     if (typeof prefsToValidate.autoSuspendEnabled !== 'boolean') throw new Error('autoSuspendEnabled must be boolean');
+    if (!['light', 'dark'].includes(prefsToValidate.theme)) throw new Error('theme must be either "light" or "dark"');
 }
 
 /**

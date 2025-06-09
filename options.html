@@ -73,6 +73,18 @@
             </section>
 
             <section>
+                <h2>Appearance</h2>
+                <div class="form-group">
+                    <label for="theme">Theme:</label>
+                    <select id="theme" name="theme" class="theme-select">
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                    </select>
+                    <span class="description">Choose between light and dark theme for all extension pages.</span>
+                </div>
+            </section>
+
+            <section>
                 <h2>Suspension Mode</h2>
                 <div class="form-group">
                     <label><input type="checkbox" id="preserveHistory" name="preserveHistory">Preserve page history when
@@ -109,7 +121,7 @@
 
             <div class="form-actions">
                 <button type="submit" id="save-settings" aria-label="Save Settings">Save Settings</button>
-                <span id="save-status"></span>
+                <div id="save-status"></div>
             </div>
         </form>
 

@@ -1,8 +1,12 @@
 import * as Prefs from '../common/prefs.js';
 import * as Const from '../common/constants.js';
 import * as WhitelistUtils from '../common/whitelist-utils.js';
+import * as Theme from '../common/theme.js';
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+	// Initialize theme using common method
+	await Theme.initializeThemeForPage();
+
 	// Consolidated UI elements reference
 	const elements = {
 		status: document.getElementById("tab-status"),

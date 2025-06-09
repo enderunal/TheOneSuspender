@@ -3,8 +3,12 @@ import * as Prefs from '../common/prefs.js'; // Import PREFS_KEY and WHITELIST_K
 import * as Logger from '../common/logger.js';
 import * as Const from '../common/constants.js';
 import * as WhitelistUtils from '../common/whitelist-utils.js';
+import * as Theme from '../common/theme.js';
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+	// Initialize theme using common method
+	await Theme.initializeThemeForPage();
+
 	const form = document.getElementById("settings-form");
 	const inactivityMinutesInput = document.getElementById("inactivityMinutes");
 	// Create an error span for inactivityMinutes if it doesn't exist
@@ -24,6 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	const neverSuspendOfflineInput = document.getElementById("neverSuspendOffline");
 	const whitelistTextarea = document.getElementById("whitelist");
 	const saveStatus = document.getElementById("save-status");
+	const themeSelect = document.getElementById("theme");
 
 	const unsavedFormHandlingRadios = document.querySelectorAll('input[name="unsavedFormHandling"]');
 	const saveButton = document.getElementById("save-settings");
@@ -62,6 +67,18 @@ document.addEventListener("DOMContentLoaded", () => {
 		inactivityMinutesInput.disabled = !autoSuspendEnabledInput.checked;
 	});
 
+	// Apply theme immediately when changed
+	themeSelect.addEventListener('change', () => {
+		Theme.applyTheme(themeSelect.value);
+	});
+
+	// Listen for theme changes from other pages
+	Theme.onThemeChange((newTheme) => {
+		if (themeSelect.value !== newTheme) {
+			themeSelect.value = newTheme;
+		}
+	});
+
 	// --- Load Settings ---
 	function loadSettings() {
 		// Populate with defaults first so we always have something
@@ -91,6 +108,10 @@ document.addEventListener("DOMContentLoaded", () => {
 		whitelistTextarea.value = (Array.isArray(whitelistItems) ? whitelistItems : []).join("\n");
 		autoSuspendEnabledInput.checked = settings.autoSuspendEnabled !== false; // Default to true if not set
 		inactivityMinutesInput.disabled = !autoSuspendEnabledInput.checked;
+		themeSelect.value = settings.theme || 'light';
+
+		// Apply theme on load
+		Theme.applyTheme(settings.theme || 'light');
 
 		// Set unsaved form handling radio
 		let foundRadio = false;
@@ -132,6 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			neverSuspendOffline: neverSuspendOfflineInput.checked,
 			unsavedFormHandling: selectedUnsavedHandling ? selectedUnsavedHandling.value : 'normal',
 			autoSuspendEnabled: autoSuspendEnabledInput.checked,
+			theme: themeSelect.value,
 		};
 
 		Object.keys(Prefs.defaultPrefs).forEach(key => {

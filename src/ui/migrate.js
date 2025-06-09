@@ -1,4 +1,5 @@
 import * as UrlBuilder from '../common/url-builder.js';
+import * as Theme from '../common/theme.js';
 
 const MARVELLOUS_SUSPENDER_ID = 'noogafoofpebimajpfpamcfhoaifemoa';
 const MARVELLOUS_SUSPENDED_PREFIX = `chrome-extension://${MARVELLOUS_SUSPENDER_ID}/suspended.html#`;
@@ -88,4 +89,10 @@ async function migrateTabs() {
 
 migrateBtn.addEventListener('click', migrateTabs);
 
-scanTabs(); 
+// Initialize theme and scan tabs
+(async () => {
+    // Initialize theme using common method
+    await Theme.initializeThemeForPage();
+
+    scanTabs();
+})(); 

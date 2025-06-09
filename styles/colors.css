@@ -1,0 +1,117 @@
+/* colors.css - Common color definitions for The One Suspender */
+
+:root {
+    /* Light theme (default) */
+    --bg-primary: #f4f5f7;
+    --bg-secondary: #fff;
+    --bg-tertiary: #fafbfc;
+    --text-primary: #333;
+    --text-secondary: #555;
+    --text-tertiary: #777;
+    --text-muted: #666;
+    --border-primary: #ccc;
+    --border-secondary: #eee;
+    --border-tertiary: #e0e0e0;
+    --accent-primary: #1a73e8;
+    --accent-hover: #1558b0;
+    --accent-active: #0f4c81;
+    --accent-focus: #7aaaf7;
+    --accent-light: #eef;
+    --accent-light-hover: #dde;
+    --success-color: #34a853;
+    --success-hover: #2d8f45;
+    --success-bg: #e6ffed;
+    --success-text: #22863a;
+    --success-border: #b7eb8f;
+    --warning-color: #ea4335;
+    --warning-hover: #d23b2f;
+    --warning-bg: #fff3cd;
+    --warning-text: #856404;
+    --warning-border: #ffecb5;
+    --error-color: #ea4335;
+    --error-bg: #fff1f0;
+    --error-text: #cf222e;
+    --error-border: #ffa39e;
+    --info-color: #1976d2;
+    --shadow-primary: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-secondary: 0 2px 8px rgba(0, 0, 0, 0.15);
+    --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.15);
+    --auto-suspend-enabled: #2ecc40;
+    --auto-suspend-disabled: #e74c3c;
+    --button-bg: #fff;
+    --button-hover: #f0f0f0;
+    --button-active: #e0e0e0;
+    /* Link colors for light theme */
+    --link-color: #1a73e8;
+    --link-hover: #1558b0;
+    --link-visited: #8e4db8;
+    --link-active: #0f4c81;
+}
+
+/* Dark theme - Material UI color palette */
+[data-theme="dark"] {
+    --bg-primary: #121212;
+    --bg-secondary: #1e1e1e;
+    --bg-tertiary: #2d2d2d;
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.87);
+    --text-tertiary: rgba(255, 255, 255, 0.6);
+    --text-muted: rgba(255, 255, 255, 0.38);
+    --border-primary: rgba(255, 255, 255, 0.12);
+    --border-secondary: rgba(255, 255, 255, 0.08);
+    --border-tertiary: rgba(255, 255, 255, 0.23);
+    --accent-primary: #90caf9;
+    --accent-hover: #64b5f6;
+    --accent-active: #42a5f5;
+    --accent-focus: #bbdefb;
+    --accent-light: #1976d2;
+    --accent-light-hover: #1565c0;
+    --success-color: #66bb6a;
+    --success-hover: #4caf50;
+    --success-bg: rgba(76, 175, 80, 0.12);
+    --success-text: #66bb6a;
+    --success-border: rgba(76, 175, 80, 0.5);
+    --warning-color: #ffb74d;
+    --warning-hover: #ff9800;
+    --warning-bg: rgba(255, 152, 0, 0.12);
+    --warning-text: #ffb74d;
+    --warning-border: rgba(255, 152, 0, 0.5);
+    --error-color: #f44336;
+    --error-bg: rgba(244, 67, 54, 0.12);
+    --error-text: #f44336;
+    --error-border: rgba(244, 67, 54, 0.5);
+    --info-color: #29b6f6;
+    --shadow-primary: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+    --shadow-secondary: 0px 3px 3px -2px rgba(0, 0, 0, 0.2), 0px 3px 4px 0px rgba(0, 0, 0, 0.14), 0px 1px 8px 0px rgba(0, 0, 0, 0.12);
+    --shadow-hover: 0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12);
+    --auto-suspend-enabled: #66bb6a;
+    --auto-suspend-disabled: #f44336;
+    --button-bg: #2d2d2d;
+    --button-hover: #3d3d3d;
+    --button-active: #1e1e1e;
+    /* Link colors for dark theme - Material UI inspired */
+    --link-color: #90caf9;
+    --link-hover: #64b5f6;
+    --link-visited: #ce93d8;
+    --link-active: #42a5f5;
+}
+
+/* Global link styling */
+a {
+    color: var(--link-color);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: var(--link-hover);
+    text-decoration: underline;
+}
+
+a:visited {
+    color: var(--link-visited);
+}
+
+a:active {
+    color: var(--link-active);
+}

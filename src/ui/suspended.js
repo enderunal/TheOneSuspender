@@ -1,8 +1,12 @@
 // suspended.js
 import * as Logger from '../common/logger.js';
+import * as Theme from '../common/theme.js';
 
 (async () => {
 	try {
+		// Initialize theme using common method
+		await Theme.initializeThemeForPage();
+
 		// Parse parameters from the hash, not the query string
 		const hash = location.hash.startsWith('#') ? location.hash.slice(1) : location.hash;
 		const params = {};

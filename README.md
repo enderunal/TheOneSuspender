@@ -1,12 +1,16 @@
 # The One Suspender
 
-> **Status:** This extension has been submitted to the Chrome Web Store. Approval may take several weeks. In the meantime, please follow the manual installation instructions below.
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/kbnejigpbcogccaakoafohhkpjpdnipo.svg)](https://chromewebstore.google.com/detail/unasuspender-theonesuspen/kbnejigpbcogccaakoafohhkpjpdnipo)
+
+**Available now on the Chrome Web Store!** 🎉
+
+**[📦 Install from Chrome Web Store](https://chromewebstore.google.com/detail/unasuspender-theonesuspen/kbnejigpbcogccaakoafohhkpjpdnipo)**
 
 ## Why The One Suspender?
 
 I developed this extension because The Marvelous Suspender (TMS) could not support Manifest V3, and I couldn't find an alternative that met my specific needs. I found that rewriting TMS from scratch was a more viable path than attempting to port it. The One Suspender includes all the features you're familiar with from The Great Suspender and TMS, plus additional enhancements.
 
-Auto-suspend inactive tabs with full manual controls, robust scheduling, and advanced security for Chrome (Manifest V3).
+Auto-suspend inactive tabs with full manual controls, robust scheduling, advanced security for Chrome (Manifest V3), and a beautiful dark mode.
 
 ## Easy Migration From The Marvelous Suspender
 
@@ -22,14 +26,20 @@ Here's a glimpse of The One Suspender in action:
 **Migration Tool:**
 ![Migration Tool](docs/screenshots/ss_migration.png)
 
-**Suspended Page:**
-![Suspended Page](docs/screenshots/ss_suspended_page.png)
+**Suspended Page (Light & Dark Theme):**
 
-**Popup Menu:**
-![Popup Menu](docs/screenshots/ss_popup.png)
+![Suspended Page Light](docs/screenshots/ss_suspended_page.png)
+![Suspended Page Dark](docs/screenshots/ss_dark_suspended_page.png)
 
-**Options Page:**
-![Options Page](docs/screenshots/ss_options.png)
+**Popup Menu (Light & Dark Theme):**
+
+![Popup Menu Light](docs/screenshots/ss_popup.png)
+![Popup Menu Dark](docs/screenshots/ss_dark_popup.png)
+
+**Options Page (Light & Dark Theme):**
+
+![Options Page Light](docs/screenshots/ss_options.png)
+![Options Page Dark](docs/screenshots/ss_dark_options.png)
 
 **Dimmed Icon for Suspended Tabs:**
 ![Dimmed Icon](docs/screenshots/ss_icon_dim.png)
@@ -48,7 +58,8 @@ Here's a glimpse of The One Suspender in action:
 - **Conditional Exceptions**: Never suspend pinned tabs, tabs playing audio, active tabs, tabs with unsaved form data, etc.
 - **Ask Before Suspending**: Prompts user if unsaved form data is detected (see below).
 - **Visual Indicators**: Grayed-out favicon for suspended tabs, with robust CORS/SVG handling.
-- **Customizable Settings**: All options available in a modern, responsive Options page.
+- **Customizable Settings**: All options available in a modern, responsive Options page with theme selection.
+- **🌙 Dark Mode**: Beautiful Material UI-inspired dark theme that applies across all extension pages (options, popup, suspended pages). Toggle between light and dark themes in settings.
 - **Security-First**: Strict CSP, minimal permissions, secure messaging, and no user-supplied DOM injection.
 
 ---
@@ -72,6 +83,16 @@ Here's a glimpse of The One Suspender in action:
 
 ## Installation
 
+### Option 1: Chrome Web Store (Recommended)
+
+**[📦 Install from Chrome Web Store](https://chromewebstore.google.com/detail/unasuspender-theonesuspen/kbnejigpbcogccaakoafohhkpjpdnipo)**
+
+1. Visit the Chrome Web Store link above
+2. Click "Add to Chrome"
+3. The extension icon will appear in your toolbar
+
+### Option 2: Manual Installation (Development)
+
 1. Download or clone this repository.
 2. Go to `chrome://extensions` in Chrome.
 3. Enable "Developer mode" (top right).
@@ -84,6 +105,7 @@ Here's a glimpse of The One Suspender in action:
 
 - Click the extension icon for quick actions: suspend/restore, whitelist URL/domain, bulk suspend/unsuspend, and open settings.
 - Use the Options page to configure all preferences, exceptions, the whitelist, and to export/import suspended tabs.
+- **Theme Selection**: Switch between light and dark themes in the Appearance section of the Options page. The theme applies instantly across all extension pages.
 - Suspended tabs can be restored with a single click.
 
 ---

@@ -1,36 +1,43 @@
+/* CSS Custom Properties for theming */
+@import url('colors.css');
+
 body {
 	font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
 		Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-	background-color: #f4f5f7;
-	color: #333;
+	background-color: var(--bg-primary);
+	color: var(--text-primary);
 	margin: 0;
 	padding: 20px;
+	transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .container {
 	max-width: 700px;
 	margin: 20px auto;
-	background-color: #fff;
+	background-color: var(--bg-secondary);
 	padding: 30px;
 	border-radius: 8px;
-	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+	box-shadow: var(--shadow-primary);
+	transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 h1 {
-	color: #1a73e8;
+	color: var(--accent-primary);
 	text-align: center;
 	margin-top: 0;
 	margin-bottom: 30px;
 	padding-bottom: 15px;
+	transition: color 0.3s ease;
 }
 
 h2 {
-	color: #333;
+	color: var(--text-primary);
 	margin-top: 30px;
 	margin-bottom: 15px;
 	font-size: 1.2em;
-	border-bottom: 1px solid #eee;
+	border-bottom: 1px solid var(--border-secondary);
 	padding-bottom: 8px;
+	transition: color 0.3s ease, border-color 0.3s ease;
 }
 
 section {
@@ -45,21 +52,40 @@ label {
 	display: block;
 	margin-bottom: 8px;
 	font-weight: 600;
-	color: #555;
+	color: var(--text-secondary);
+	transition: color 0.3s ease;
 }
 
 input[type="number"],
+input[type="file"],
+select,
 textarea {
 	width: 100%;
 	padding: 10px;
-	border: 1px solid #ccc;
+	border: 1px solid var(--border-primary);
 	border-radius: 4px;
 	box-sizing: border-box;
 	font-size: 1em;
+	background-color: var(--bg-secondary);
+	color: var(--text-primary);
+	transition: all 0.3s ease;
+}
+
+input[type="number"]:focus,
+input[type="file"]:focus,
+select:focus,
+textarea:focus {
+	border-color: var(--accent-primary);
+	outline: none;
 }
 
 input[type="number"] {
 	max-width: 100px;
+}
+
+.theme-select {
+	max-width: 120px !important;
+	width: 120px !important;
 }
 
 textarea {
@@ -76,25 +102,30 @@ input[type="checkbox"] {
 	display: block;
 	margin-bottom: 10px;
 	font-weight: normal;
-	color: #333;
+	color: var(--text-primary);
 	cursor: pointer;
+	transition: color 0.3s ease;
 }
 
 .description {
 	display: block;
 	font-size: 0.85em;
-	color: #777;
+	color: var(--text-tertiary);
 	margin-top: 5px;
+	transition: color 0.3s ease;
 }
 
 .form-actions {
 	margin-top: 30px;
 	text-align: right;
 	padding-top: 20px;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
 }
 
 button[type="submit"] {
-	background-color: #1a73e8;
+	background-color: var(--accent-primary);
 	color: white;
 	border: none;
 	padding: 12px 25px;
@@ -102,34 +133,37 @@ button[type="submit"] {
 	cursor: pointer;
 	font-size: 1em;
 	font-weight: bold;
-	transition: background-color 0.2s ease;
+	transition: background-color 0.3s ease;
 }
 
 button[type="submit"]:hover {
-	background-color: #1558b0;
+	background-color: var(--accent-hover);
 }
 
 #save-status {
-	margin-left: 15px;
+	margin-top: 10px;
 	font-style: italic;
-	color: green;
+	color: var(--success-color);
+	text-align: center;
+	min-height: 20px;
+	transition: color 0.3s ease;
 }
 
 .inline-button {
-	background-color: #eef;
-	color: #1a73e8;
-	border: 1px solid #cdd;
+	background-color: var(--accent-light);
+	color: var(--accent-primary);
+	border: 1px solid var(--border-tertiary);
 	padding: 5px 10px;
 	border-radius: 4px;
 	cursor: pointer;
 	font-size: 0.85em;
 	margin-top: 8px;
 	margin-right: 5px;
-	transition: background-color 0.2s ease;
+	transition: all 0.3s ease;
 }
 
 .inline-button:hover {
-	background-color: #dde;
+	background-color: var(--accent-light-hover);
 }
 
 .inline-button:disabled {
@@ -141,18 +175,29 @@ button[type="submit"]:hover {
 	margin-top: 40px;
 	text-align: center;
 	font-size: 0.9em;
-	color: #666;
+	color: var(--text-muted);
 	padding-top: 20px;
+	transition: color 0.3s ease;
 }
 
 .links a {
-	color: #1a73e8;
+	color: var(--link-color);
 	text-decoration: none;
 	margin: 0 5px;
+	transition: color 0.3s ease;
 }
 
 .links a:hover {
+	color: var(--link-hover);
 	text-decoration: underline;
+}
+
+.links a:visited {
+	color: var(--link-visited);
+}
+
+.links a:active {
+	color: var(--link-active);
 }
 
 .prominent-migrate-link {
@@ -165,9 +210,10 @@ button[type="submit"]:hover {
 #export-import-section {
 	margin-top: 2em;
 	padding: 1em;
-	border: 1px solid #e0e0e0;
+	border: 1px solid var(--border-tertiary);
 	border-radius: 8px;
-	background: #fafbfc;
+	background: var(--bg-tertiary);
+	transition: all 0.3s ease;
 }
 
 #export-import-section h2 {
@@ -186,21 +232,21 @@ button[type="submit"]:hover {
 }
 
 #export-import-status.success {
-	background: #e6ffed;
-	color: #22863a;
-	border: 1px solid #b7eb8f;
+	background: var(--success-bg);
+	color: var(--success-text);
+	border: 1px solid var(--success-border);
 }
 
 #export-import-status.error {
-	background: #fff1f0;
-	color: #cf222e;
-	border: 1px solid #ffa39e;
+	background: var(--error-bg);
+	color: var(--error-text);
+	border: 1px solid var(--error-border);
 }
 
 #export-import-status.info {
-	background: #e6f7ff;
-	color: #096dd9;
-	border: 1px solid #91d5ff;
+	background: var(--warning-bg);
+	color: var(--warning-text);
+	border: 1px solid var(--warning-border);
 }
 
 .export-group,
@@ -215,7 +261,10 @@ button[type="submit"]:hover {
 	padding: 6px 8px;
 	font-size: 1em;
 	border-radius: 4px;
-	border: 1px solid #ccc;
+	border: 1px solid var(--border-primary);
+	background-color: var(--bg-secondary);
+	color: var(--text-primary);
+	transition: all 0.3s ease;
 }
 
 #export-suspended-tabs,
@@ -223,23 +272,26 @@ button[type="submit"]:hover {
 	padding: 8px 18px;
 	font-size: 1em;
 	border-radius: 4px;
-	border: 1px solid #ccc;
-	background: #f5f5f5;
-	color: #333;
+	border: 1px solid var(--border-primary);
+	background: var(--accent-light);
+	color: var(--accent-primary);
 	cursor: pointer;
-	transition: background 0.2s;
+	transition: all 0.3s ease;
 }
 
 #export-suspended-tabs:hover,
 #import-suspended-tabs:hover {
-	background: #eaeaea;
+	background: var(--accent-light-hover);
 }
 
 #import-file {
 	font-size: 1em;
 	border-radius: 4px;
-	border: 1px solid #ccc;
+	border: 1px solid var(--border-primary);
 	padding: 6px 8px;
+	background-color: var(--bg-secondary);
+	color: var(--text-primary);
+	transition: all 0.3s ease;
 }
 
 .tooltip-icon {
@@ -256,22 +308,22 @@ button[type="submit"]:hover {
 	width: 16px;
 	height: 16px;
 	border-radius: 50%;
-	background-color: #e8f0fe;
-	color: #1a73e8;
+	background-color: var(--accent-light);
+	color: var(--accent-primary);
 	font-size: 12px;
 	font-weight: bold;
 	cursor: pointer;
-	border: 1px solid #dadce0;
-	transition: all 0.2s ease;
+	border: 1px solid var(--border-tertiary);
+	transition: all 0.3s ease;
 }
 
 .help-icon:hover {
-	background-color: #d2e3fc;
-	border-color: #1a73e8;
+	background-color: var(--accent-light-hover);
+	border-color: var(--accent-primary);
 }
 
 .tooltip-icon:focus .help-icon {
-	outline: 2px solid #1a73e8;
+	outline: 2px solid var(--accent-primary);
 	outline-offset: 1px;
 }
 
@@ -285,8 +337,8 @@ button[type="submit"]:hover {
 	visibility: hidden;
 	opacity: 0;
 	width: 280px;
-	background-color: #fff;
-	color: #333;
+	background-color: var(--bg-secondary);
+	color: var(--text-primary);
 	text-align: left;
 	border-radius: 8px;
 	padding: 12px;
@@ -298,8 +350,8 @@ button[type="submit"]:hover {
 	transition: opacity 0.3s ease;
 	font-size: 0.9em;
 	line-height: 1.4;
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-	border: 1px solid #dadce0;
+	box-shadow: var(--shadow-primary);
+	border: 1px solid var(--border-tertiary);
 }
 
 .tooltip-text::after {
@@ -310,7 +362,7 @@ button[type="submit"]:hover {
 	margin-left: -5px;
 	border-width: 5px;
 	border-style: solid;
-	border-color: #fff transparent transparent transparent;
+	border-color: var(--bg-secondary) transparent transparent transparent;
 }
 
 .tooltip-text::before {
@@ -321,5 +373,38 @@ button[type="submit"]:hover {
 	margin-left: -6px;
 	border-width: 6px;
 	border-style: solid;
-	border-color: #dadce0 transparent transparent transparent;
+	border-color: var(--border-tertiary) transparent transparent transparent;
+}
+
+/* License page specific styles */
+.license-pre {
+	background-color: var(--bg-tertiary);
+	border: 1px solid var(--border-secondary);
+	padding: 15px;
+	border-radius: 4px;
+	font-family: 'Courier New', Courier, monospace;
+	font-size: 0.9em;
+	line-height: 1.4;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	color: var(--text-primary);
+	transition: all 0.3s ease;
+}
+
+/* Privacy page specific styles */
+.no-data {
+	display: block;
+	background-color: var(--success-bg);
+	color: var(--success-text);
+	border: 1px solid var(--success-border);
+	padding: 15px;
+	border-radius: 4px;
+	margin: 20px 0;
+	text-align: center;
+	font-size: 1.1em;
+	transition: all 0.3s ease;
+}
+
+.margin-top {
+	margin-top: 30px;
 }
