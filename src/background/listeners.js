@@ -537,6 +537,67 @@ export function handleStartup() {
     });
 }
 
+export function handleCommand(command) {
+    Logger.log(`Keyboard command received: ${command}`, Logger.LogComponent.BACKGROUND);
+
+    Logger.withErrorHandling(
+        `handleCommand(${command})`,
+        async () => {
+            try {
+                // Get the current active tab
+                const activeTabs = await chrome.tabs.query({ active: true, currentWindow: true });
+                const activeTab = activeTabs[0];
+
+                switch (command) {
+                    case 'suspend-current-tab':
+                        if (activeTab && activeTab.id) {
+                            await Suspension.suspendTab(activeTab.id, true);
+                            Logger.log(`Suspended current tab ${activeTab.id} via keyboard shortcut`, Logger.LogComponent.BACKGROUND);
+                        }
+                        break;
+
+                    case 'unsuspend-current-tab':
+                        if (activeTab && activeTab.id) {
+                            await Suspension.unsuspendTab(activeTab.id);
+                            Logger.log(`Unsuspended current tab ${activeTab.id} via keyboard shortcut`, Logger.LogComponent.BACKGROUND);
+                        }
+                        break;
+
+                    case 'suspend-all-window':
+                        if (activeTab && activeTab.windowId) {
+                            await Suspension.suspendAllTabsInWindow(activeTab.windowId, true);
+                            Logger.log(`Suspended all tabs in window ${activeTab.windowId} via keyboard shortcut`, Logger.LogComponent.BACKGROUND);
+                        }
+                        break;
+
+                    case 'unsuspend-all-window':
+                        if (activeTab && activeTab.windowId) {
+                            await Suspension.unsuspendAllTabsInWindow(activeTab.windowId);
+                            Logger.log(`Unsuspended all tabs in window ${activeTab.windowId} via keyboard shortcut`, Logger.LogComponent.BACKGROUND);
+                        }
+                        break;
+
+                    case 'suspend-all-tabs':
+                        await Suspension.suspendAllTabsAllSpecs(true);
+                        Logger.log(`Suspended all tabs in all windows via keyboard shortcut`, Logger.LogComponent.BACKGROUND);
+                        break;
+
+                    case 'unsuspend-all-tabs':
+                        await Suspension.unsuspendAllTabsAllSpecs();
+                        Logger.log(`Unsuspended all tabs in all windows via keyboard shortcut`, Logger.LogComponent.BACKGROUND);
+                        break;
+
+                    default:
+                        Logger.log(`Unknown command: ${command}`, Logger.LogComponent.BACKGROUND);
+                        break;
+                }
+            } catch (error) {
+                Logger.logError(`Error executing command ${command}`, error, Logger.LogComponent.BACKGROUND);
+            }
+        }
+    );
+}
+
 // ===================== Exported Functions =====================
 //+reviewed
 export function initListeners() {
@@ -549,6 +610,7 @@ export function initListeners() {
         chrome.tabs.onActivated.removeListener(handleTabActivated);
         chrome.windows.onFocusChanged.removeListener(handleWindowFocusChanged);
         chrome.alarms.onAlarm.removeListener(handleAlarmEvent);
+        chrome.commands.onCommand.removeListener(handleCommand);
     } catch (e) {
         // Ignore errors during cleanup
     }
@@ -561,6 +623,7 @@ export function initListeners() {
     chrome.tabs.onActivated.addListener(handleTabActivated);
     chrome.windows.onFocusChanged.addListener(handleWindowFocusChanged);
     chrome.alarms.onAlarm.addListener(handleAlarmEvent);
+    chrome.commands.onCommand.addListener(handleCommand);
 
     Logger.log("All event listeners initialized", Logger.LogComponent.BACKGROUND);
 }

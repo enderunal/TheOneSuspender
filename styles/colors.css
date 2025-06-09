@@ -5,6 +5,7 @@
     --bg-primary: #f4f5f7;
     --bg-secondary: #fff;
     --bg-tertiary: #fafbfc;
+    --bg-hover: #f0f0f0;
     --text-primary: #333;
     --text-secondary: #555;
     --text-tertiary: #777;
@@ -53,6 +54,7 @@
     --bg-primary: #121212;
     --bg-secondary: #1e1e1e;
     --bg-tertiary: #2d2d2d;
+    --bg-hover: #3d3d3d;
     --text-primary: #ffffff;
     --text-secondary: rgba(255, 255, 255, 0.87);
     --text-tertiary: rgba(255, 255, 255, 0.6);

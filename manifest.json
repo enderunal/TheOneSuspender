@@ -20,7 +20,11 @@
 				"icons/icon48.png",
 				"icons/icon128.png",
 				"migrate.html",
-				"src/ui/migrate.js"
+				"src/ui/migrate.js",
+				"shortcuts.html",
+				"src/ui/shortcuts.js",
+				"styles/options.css",
+				"styles/colors.css"
 			],
 			"matches": [
 				"<all_urls>"
@@ -44,6 +48,38 @@
 		}
 	},
 	"options_page": "options.html",
+	"commands": {
+		"suspend-current-tab": {
+			"suggested_key": {
+				"default": "Ctrl+Shift+S"
+			},
+			"description": "Suspend current tab"
+		},
+		"unsuspend-current-tab": {
+			"suggested_key": {
+				"default": "Ctrl+Shift+U"
+			},
+			"description": "Unsuspend current tab"
+		},
+		"suspend-all-window": {
+			"suggested_key": {
+				"default": "Ctrl+Shift+W"
+			},
+			"description": "Suspend all tabs in current window"
+		},
+		"unsuspend-all-window": {
+			"suggested_key": {
+				"default": "Ctrl+Shift+R"
+			},
+			"description": "Unsuspend all tabs in current window"
+		},
+		"suspend-all-tabs": {
+			"description": "Suspend all tabs in all windows"
+		},
+		"unsuspend-all-tabs": {
+			"description": "Unsuspend all tabs in all windows"
+		}
+	},
 	"content_scripts": [
 		{
 			"matches": [

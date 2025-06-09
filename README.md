@@ -59,6 +59,7 @@ Here's a glimpse of The One Suspender in action:
 - **Ask Before Suspending**: Prompts user if unsaved form data is detected (see below).
 - **Visual Indicators**: Grayed-out favicon for suspended tabs, with robust CORS/SVG handling.
 - **Customizable Settings**: All options available in a modern, responsive Options page with theme selection.
+- **⌨️ Keyboard Shortcuts**: Configurable keyboard shortcuts for all suspend/unsuspend actions. Set custom shortcuts via the dedicated shortcuts configuration page.
 - **🌙 Dark Mode**: Beautiful Material UI-inspired dark theme that applies across all extension pages (options, popup, suspended pages). Toggle between light and dark themes in settings.
 - **Security-First**: Strict CSP, minimal permissions, secure messaging, and no user-supplied DOM injection.
 
@@ -105,6 +106,10 @@ Here's a glimpse of The One Suspender in action:
 
 - Click the extension icon for quick actions: suspend/restore, whitelist URL/domain, bulk suspend/unsuspend, and open settings.
 - Use the Options page to configure all preferences, exceptions, the whitelist, and to export/import suspended tabs.
+- **Keyboard Shortcuts**: Configure keyboard shortcuts in the Options page by clicking "⌨️ Configure Keyboard Shortcuts". Available shortcuts include:
+  - Suspend/unsuspend current tab
+  - Suspend/unsuspend all tabs in current window  
+  - Suspend/unsuspend all tabs in all windows
 - **Theme Selection**: Switch between light and dark themes in the Appearance section of the Options page. The theme applies instantly across all extension pages.
 - Suspended tabs can be restored with a single click.
 

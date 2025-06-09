@@ -9,6 +9,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 	// Initialize theme using common method
 	await Theme.initializeThemeForPage();
 
+	// Initialize tabs functionality
+	initializeTabs();
+
 	const form = document.getElementById("settings-form");
 	const inactivityMinutesInput = document.getElementById("inactivityMinutes");
 	// Create an error span for inactivityMinutes if it doesn't exist
@@ -330,4 +333,136 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 	// --- Initial Load ---
 	loadSettings();
+	loadVersionInfo();
 });
+
+// ===================== Tab Functionality =====================
+
+/**
+ * Initialize the tabs functionality
+ */
+function initializeTabs() {
+	const tabButtons = document.querySelectorAll('.tab-button');
+	const tabPanels = document.querySelectorAll('.tab-panel');
+
+	// Add click listeners to tab buttons
+	tabButtons.forEach(button => {
+		button.addEventListener('click', () => {
+			const targetTabId = button.getAttribute('data-tab');
+			switchToTab(targetTabId);
+		});
+	});
+
+	// Set up keyboard navigation for tabs
+	document.addEventListener('keydown', (e) => {
+		if (e.ctrlKey && e.key >= '1' && e.key <= '3') {
+			e.preventDefault();
+			const tabIndex = parseInt(e.key) - 1;
+			const tabButton = tabButtons[tabIndex];
+			if (tabButton) {
+				const targetTabId = tabButton.getAttribute('data-tab');
+				switchToTab(targetTabId);
+			}
+		}
+	});
+
+	// Handle URL hash for direct tab access
+	handleTabFromHash();
+	window.addEventListener('hashchange', handleTabFromHash);
+
+	Logger.log("Tabs functionality initialized", Logger.LogComponent.OPTIONS);
+}
+
+/**
+ * Switch to a specific tab
+ * @param {string} tabId - The ID of the tab to switch to
+ */
+function switchToTab(tabId) {
+	const tabButtons = document.querySelectorAll('.tab-button');
+	const tabPanels = document.querySelectorAll('.tab-panel');
+
+	// Remove active class from all buttons and panels
+	tabButtons.forEach(button => button.classList.remove('active'));
+	tabPanels.forEach(panel => panel.classList.remove('active'));
+
+	// Add active class to target button and panel
+	const targetButton = document.querySelector(`[data-tab="${tabId}"]`);
+	const targetPanel = document.getElementById(tabId);
+
+	if (targetButton && targetPanel) {
+		targetButton.classList.add('active');
+		targetPanel.classList.add('active');
+
+		// Update URL hash without triggering navigation
+		const newHash = `#${tabId}`;
+		if (window.location.hash !== newHash) {
+			history.replaceState(null, null, newHash);
+		}
+
+		// Focus the first input in the active tab for accessibility
+		setTimeout(() => {
+			const firstInput = targetPanel.querySelector('input, select, textarea, button');
+			if (firstInput && firstInput.focus) {
+				firstInput.focus();
+			}
+		}, 100);
+
+		Logger.detailedLog(`Switched to tab: ${tabId}`, Logger.LogComponent.OPTIONS);
+	} else {
+		Logger.logError(`Tab not found: ${tabId}`, Logger.LogComponent.OPTIONS);
+	}
+}
+
+/**
+ * Handle tab switching from URL hash
+ */
+function handleTabFromHash() {
+	const hash = window.location.hash.substring(1); // Remove the '#'
+	if (hash && document.getElementById(hash)) {
+		switchToTab(hash);
+	} else {
+		// Default to first tab if no valid hash
+		const firstTab = document.querySelector('.tab-button');
+		if (firstTab) {
+			const firstTabId = firstTab.getAttribute('data-tab');
+			switchToTab(firstTabId);
+		}
+	}
+}
+
+/**
+ * Load and display version information
+ */
+function loadVersionInfo() {
+	try {
+		const manifest = chrome.runtime.getManifest();
+		const version = manifest.version;
+
+		// Update version in About tab
+		const extensionVersionSpan = document.getElementById('extension-version');
+		if (extensionVersionSpan) {
+			extensionVersionSpan.textContent = version;
+		}
+
+		// Update version in footer
+		const footerVersionSpan = document.getElementById('footer-version');
+		if (footerVersionSpan) {
+			footerVersionSpan.textContent = version;
+		}
+
+		Logger.detailedLog(`Loaded version: ${version}`, Logger.LogComponent.OPTIONS);
+	} catch (error) {
+		Logger.logError("Error loading version info", error, Logger.LogComponent.OPTIONS);
+
+		// Fallback if version can't be loaded
+		const extensionVersionSpan = document.getElementById('extension-version');
+		const footerVersionSpan = document.getElementById('footer-version');
+
+		if (extensionVersionSpan) {
+			extensionVersionSpan.textContent = 'Unknown';
+		}
+		if (footerVersionSpan) {
+			footerVersionSpan.textContent = 'Unknown';
+		}
+	}
+}
