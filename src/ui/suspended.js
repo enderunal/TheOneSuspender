@@ -130,7 +130,7 @@ import * as Logger from '../common/logger.js';
 						const ctx = canvas.getContext('2d');
 
 						if (ctx) {
-							ctx.filter = 'grayscale(60%) opacity(50%)';
+							ctx.filter = 'grayscale(40%) opacity(60%)';
 							ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 							try {
 								faviconLink.href = canvas.toDataURL();

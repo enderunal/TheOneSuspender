@@ -38,10 +38,6 @@
                         Suspend The Active Tab Only in the Last-Focused Window</label>
                     <label><input type="checkbox" id="neverSuspendOffline" name="neverSuspendOffline"> When Browser Is
                         Offline</label>
-                    <label><input type="checkbox" id="preserveHistory" name="preserveHistory">Preserve page history when
-                        suspending</label>
-                    <span class="description">When enabled, uses tab discarding to preserve back/forward history. When
-                        disabled, uses the default close & reopen method.</span>
                 </div>
             </section>
 
@@ -73,6 +69,25 @@
                         placeholder="One URL or domain per line. E.g., google.com or https://mail.google.com/"></textarea>
                     <span class="description">Matches either full URLs or domains (`example.com` matches
                         `www.example.com`).</span>
+                </div>
+            </section>
+
+            <section>
+                <h2>Suspension Mode</h2>
+                <div class="form-group">
+                    <label><input type="checkbox" id="preserveHistory" name="preserveHistory">Preserve page history when
+                        suspending <span class="tooltip-icon" tabindex="0" role="button"
+                            aria-label="More information"><span class="help-icon">?</span>
+                            <span class="tooltip-text">
+                                <b>Preserve History (default):</b>
+                                Uses regular suspension, keeping tab history and state.
+                                <br><br>
+                                <b>Close & Reopen:</b>
+                                Experimental! Might free more RAM when preserve history does not help but loses tab
+                                history. Might consume more CPU.
+                            </span>
+                        </span>
+                    </label>
                 </div>
             </section>
 

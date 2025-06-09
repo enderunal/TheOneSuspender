@@ -91,12 +91,32 @@ async function checkForUnsavedFormData(tabId) {
  * @param {boolean} [isManual=false] - True if the suspension is user-initiated (manual).
  * @returns {Promise<boolean>} True if suspension process was successfully initiated and completed.
  */
+// Track recent suspension attempts to prevent duplicates
+const recentSuspensions = new Map();
+const SUSPENSION_DEDUP_WINDOW = 1000; // 1 second
+
 export async function suspendTab(tabId, isManual = false) {
     if (typeof tabId !== 'number') {
         Logger.logError(`suspendTab: Invalid tabId received: ${tabId}`);
         return false;
     }
     const context = `suspendTab(${tabId}, manual=${isManual})`;
+
+    // Check for duplicate suspension attempts
+    const now = Date.now();
+    const lastAttempt = recentSuspensions.get(tabId);
+    if (lastAttempt && (now - lastAttempt < SUSPENSION_DEDUP_WINDOW)) {
+        Logger.log(`${context}: Duplicate suspension attempt detected within ${SUSPENSION_DEDUP_WINDOW}ms, ignoring.`);
+        return true; // Return true to indicate the operation is "successful" (already in progress)
+    }
+    recentSuspensions.set(tabId, now);
+
+    // Clean up old entries
+    for (const [id, timestamp] of recentSuspensions.entries()) {
+        if (now - timestamp > SUSPENSION_DEDUP_WINDOW) {
+            recentSuspensions.delete(id);
+        }
+    }
 
     // First check if tab exists to avoid noisy errors
     const tabToSuspend = await ExistenceUtils.safeGetTab(tabId, context);

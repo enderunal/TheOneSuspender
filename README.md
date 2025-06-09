@@ -19,9 +19,11 @@ Auto-suspend inactive tabs with full manual controls, robust scheduling, and adv
 
 Here's a glimpse of The One Suspender in action:
 
+**Migration Tool:**
+![Migration Tool](docs/screenshots/ss_migration.png)
 
 **Suspended Page:**
-<img width="1392" alt="image" src="https://github.com/user-attachments/assets/96e2b7b8-152f-4065-b28d-d1fb8d017020" />
+![Suspended Page](docs/screenshots/ss_suspended_page.png)
 
 **Popup Menu:**
 ![Popup Menu](docs/screenshots/ss_popup.png)
@@ -39,7 +41,9 @@ Here's a glimpse of The One Suspender in action:
 - **Automatic Tab Suspension**: Frees memory by suspending inactive tabs after a user-defined timeout (Minimum 1 min).
 - **Manual Controls**: Suspend/unsuspend individual tabs or all tabs in a window/all windows from the popup.
 - **Export/Import Suspended Tabs**: Export all suspended tabs (with window/tab structure) as JSON or TXT, and import them later—even across extension reinstalls or devices. (See below for details.)
-- **Two Suspension Modes**: Close & Reopen (no history) or Preserve History.
+- **Two Suspension Modes**: 
+  - **Preserve History (default):** Uses regular suspension, keeping tab history and state.
+  - **Close & Reopen:** Experimental! Might free more RAM when preserve history does not help but loses tab history. Might consume more CPU.
 - **Whitelist Management**: Never suspend specific URLs/domains (with wildcard support).
 - **Conditional Exceptions**: Never suspend pinned tabs, tabs playing audio, active tabs, tabs with unsaved form data, etc.
 - **Ask Before Suspending**: Prompts user if unsaved form data is detected (see below).

@@ -241,3 +241,85 @@ button[type="submit"]:hover {
 	border: 1px solid #ccc;
 	padding: 6px 8px;
 }
+
+.tooltip-icon {
+	display: inline-block;
+	position: relative;
+	margin-left: 6px;
+	vertical-align: middle;
+}
+
+.help-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background-color: #e8f0fe;
+	color: #1a73e8;
+	font-size: 12px;
+	font-weight: bold;
+	cursor: pointer;
+	border: 1px solid #dadce0;
+	transition: all 0.2s ease;
+}
+
+.help-icon:hover {
+	background-color: #d2e3fc;
+	border-color: #1a73e8;
+}
+
+.tooltip-icon:focus .help-icon {
+	outline: 2px solid #1a73e8;
+	outline-offset: 1px;
+}
+
+.tooltip-icon:focus .tooltip-text,
+.tooltip-icon:hover .tooltip-text {
+	visibility: visible;
+	opacity: 1;
+}
+
+.tooltip-text {
+	visibility: hidden;
+	opacity: 0;
+	width: 280px;
+	background-color: #fff;
+	color: #333;
+	text-align: left;
+	border-radius: 8px;
+	padding: 12px;
+	position: absolute;
+	z-index: 100;
+	bottom: 140%;
+	left: 50%;
+	transform: translateX(-50%);
+	transition: opacity 0.3s ease;
+	font-size: 0.9em;
+	line-height: 1.4;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	border: 1px solid #dadce0;
+}
+
+.tooltip-text::after {
+	content: "";
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	margin-left: -5px;
+	border-width: 5px;
+	border-style: solid;
+	border-color: #fff transparent transparent transparent;
+}
+
+.tooltip-text::before {
+	content: "";
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	margin-left: -6px;
+	border-width: 6px;
+	border-style: solid;
+	border-color: #dadce0 transparent transparent transparent;
+}
