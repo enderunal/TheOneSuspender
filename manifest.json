@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "UnaSuspender - TheOneSuspender",
-	"version": "1.0.79",
+	"version": "1.0.84",
 	"description": "Auto-suspend inactive tabs with full manual controls and preferences.",
 	"incognito": "split",
 	"permissions": [
@@ -24,7 +24,18 @@
 				"shortcuts.html",
 				"src/ui/shortcuts.js",
 				"styles/options.css",
-				"styles/colors.css"
+				"styles/colors.css",
+				"styles/material-colors.css",
+				"styles/material-components.css",
+				"styles/popup-material.css",
+				"styles/options-material.css",
+				"styles/suspended-material.css",
+				"styles/shortcuts-material.css",
+				"vendor/fonts/roboto-local.css",
+				"vendor/fonts/roboto-v30-latin-300.woff2",
+				"vendor/fonts/roboto-v30-latin-regular.woff2",
+				"vendor/fonts/roboto-v30-latin-500.woff2",
+				"vendor/fonts/roboto-v30-latin-700.woff2"
 			],
 			"matches": [
 				"<all_urls>"
@@ -56,21 +67,15 @@
 			"description": "Suspend current tab"
 		},
 		"unsuspend-current-tab": {
-			"suggested_key": {
-				"default": "Ctrl+Shift+U"
-			},
 			"description": "Unsuspend current tab"
 		},
 		"suspend-all-window": {
-			"suggested_key": {
-				"default": "Ctrl+Shift+W"
-			},
 			"description": "Suspend all tabs in current window"
 		},
+		"open-settings": {
+			"description": "Open extension settings"
+		},
 		"unsuspend-all-window": {
-			"suggested_key": {
-				"default": "Ctrl+Shift+R"
-			},
 			"description": "Unsuspend all tabs in current window"
 		},
 		"suspend-all-tabs": {

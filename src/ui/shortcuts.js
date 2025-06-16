@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", async () => {
  * Apply the current theme to the page
  */
 function applyTheme() {
-    const theme = Prefs.prefs.theme || 'light';
+    const theme = Prefs.prefs.theme || 'gold';
     document.documentElement.setAttribute('data-theme', theme);
     Logger.detailedLog(`Applied theme: ${theme}`, Logger.LogComponent.UI);
 }
@@ -41,16 +41,18 @@ async function loadCurrentShortcuts() {
 
         // Update the display for each command
         commands.forEach(command => {
-            const shortcutElement = document.querySelector(`[data-command="${command.name}"]`);
-            if (shortcutElement) {
-                const keyDisplay = shortcutElement.querySelector('.key-display');
+            const shortcutControl = document.querySelector(`[data-command="${command.name}"]`);
+            if (shortcutControl) {
+                const keyDisplay = shortcutControl.querySelector('.key-display');
                 if (keyDisplay) {
                     if (command.shortcut) {
                         keyDisplay.textContent = command.shortcut;
                         keyDisplay.classList.remove('not-set');
+                        keyDisplay.classList.add('has-shortcut');
                     } else {
                         keyDisplay.textContent = 'Not set';
                         keyDisplay.classList.add('not-set');
+                        keyDisplay.classList.remove('has-shortcut');
                     }
                 }
             }
@@ -81,8 +83,19 @@ function setupEventListeners() {
  */
 function handleChangeShortcut(event) {
     const button = event.target;
-    const shortcutElement = button.closest('.shortcut-key');
-    const command = shortcutElement.getAttribute('data-command');
+    const shortcutControl = button.closest('.shortcut-control');
+
+    if (!shortcutControl) {
+        Logger.logError("Could not find shortcut control element", null, Logger.LogComponent.UI);
+        return;
+    }
+
+    const command = shortcutControl.getAttribute('data-command');
+
+    if (!command) {
+        Logger.logError("Could not find command attribute", null, Logger.LogComponent.UI);
+        return;
+    }
 
     Logger.log(`Opening Chrome shortcuts page for command: ${command}`, Logger.LogComponent.UI);
 
@@ -103,16 +116,23 @@ function showError(message) {
     if (!errorElement) {
         errorElement = document.createElement('div');
         errorElement.id = 'error-message';
-        errorElement.className = 'error-message';
-        document.querySelector('.container').prepend(errorElement);
+        errorElement.className = 'md-feedback visible error';
+
+        // Insert after the header
+        const header = document.querySelector('.shortcuts-header');
+        if (header) {
+            header.insertAdjacentElement('afterend', errorElement);
+        } else {
+            document.querySelector('.shortcuts-container').prepend(errorElement);
+        }
     }
 
     errorElement.textContent = message;
-    errorElement.style.display = 'block';
+    errorElement.classList.add('visible');
 
     // Hide error after 5 seconds
     setTimeout(() => {
-        errorElement.style.display = 'none';
+        errorElement.classList.remove('visible');
     }, 5000);
 }
 

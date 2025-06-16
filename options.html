@@ -1,218 +1,457 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="gold" data-theme-loading="gold" class="theme-gold">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles/options.css">
+
+    <!-- Immediate theme injection - MUST be first -->
+    <script src="src/common/theme-injector.js"></script>
+
+    <link rel="stylesheet" href="styles/material-colors.css">
+    <link rel="stylesheet" href="styles/material-components.css">
+    <link rel="stylesheet" href="styles/options-material.css">
     <title>The One Suspender Settings</title>
 </head>
 
-<body>
-    <div class="main-layout">
-        <!-- Main container -->
-        <div class="container">
-            <h1>The One Suspender – Settings</h1>
+<body class="md-surface">
+    <div class="md-container options-container">
+        <!-- Header -->
+        <header class="options-header">
+            <h1 class="md-typescale-headline-medium">The One Suspender – Settings</h1>
+        </header>
 
-            <div class="tab-content">
-                <form id="settings-form">
-                    <!-- Tab 1: Settings - Combined main and advanced functionality -->
-                    <div class="tab-panel active" id="tab-settings">
-                        <!-- Suspension Section -->
-                        <section class="settings-section">
-                            <h2>⏰ Automatic Suspension</h2>
-                            <div class="form-group">
-                                <label><input type="checkbox" id="autoSuspendEnabled" name="autoSuspendEnabled" checked>
-                                    Enable
-                                    automatic tab suspension</label>
-                            </div>
-                            <div class="form-group">
-                                <label for="inactivityMinutes">Suspend tabs after (minutes):</label>
-                                <input type="number" id="inactivityMinutes" name="inactivityMinutes" min="1" step="1"
-                                    required>
-                                <span class="description">Inactive time before a tab is suspended (Minimum 1
-                                    min).</span>
-                            </div>
-                        </section>
-
-                        <!-- Exclusions Section -->
-                        <section class="settings-section">
-                            <h2>🚫 Exclusions (Never Suspend)</h2>
-                            <div class="form-group checkbox-group">
-                                <label><input type="checkbox" id="neverSuspendPinned" name="neverSuspendPinned"> Pinned
-                                    Tabs</label>
-                                <label><input type="checkbox" id="neverSuspendAudio" name="neverSuspendAudio"> Tabs
-                                    Playing
-                                    Audio</label>
-                                <label><input type="checkbox" id="neverSuspendActive" name="neverSuspendActive"> Never
-                                    Suspend The
-                                    Active Tab in Each Window</label>
-                                <label><input type="checkbox" id="neverSuspendLastWindow" name="neverSuspendLastWindow">
-                                    Never
-                                    Suspend The Active Tab Only in the Last-Focused Window</label>
-                                <label><input type="checkbox" id="neverSuspendOffline" name="neverSuspendOffline"> When
-                                    Browser Is
-                                    Offline</label>
-                            </div>
-                        </section>
-
-                        <!-- Form Handling Section -->
-                        <section class="settings-section">
-                            <h2>📝 Unsaved Form Handling</h2>
-                            <div class="form-group">
-                                <p>How to handle tabs with unsaved form input:</p>
-                                <label class="radio-label">
-                                    <input type="radio" name="unsavedFormHandling" value="normal" checked>
-                                    Suspend Normally (potential data loss)
-                                </label>
-                                <label class="radio-label">
-                                    <input type="radio" name="unsavedFormHandling" value="never">
-                                    Never Suspend
-                                </label>
-                                <label class="radio-label">
-                                    <input type="radio" name="unsavedFormHandling" value="ask">
-                                    Ask Before Suspending (using a dialog)
-                                </label>
-                            </div>
-                        </section>
-
-                        <!-- Whitelist Section -->
-                        <section class="settings-section">
-                            <h2>📋 URL Whitelist</h2>
-                            <div class="form-group">
-                                <label for="whitelist">Never suspend URLs matching:</label>
-                                <textarea id="whitelist" name="whitelist" rows="8"
-                                    placeholder="One URL or domain per line. E.g., google.com or https://mail.google.com/"></textarea>
-                                <span class="description">Matches either full URLs or domains (`example.com` matches
-                                    `www.example.com`).</span>
-                            </div>
-                        </section>
-
-                        <!-- Appearance Section -->
-                        <section class="settings-section">
-                            <h2>🎨 Appearance</h2>
-                            <div class="form-group">
-                                <label for="theme">Theme:</label>
-                                <select id="theme" name="theme" class="theme-select">
-                                    <option value="light">Light</option>
-                                    <option value="dark">Dark</option>
-                                </select>
-                                <span class="description">Choose between light and dark theme for all extension
-                                    pages.</span>
-                            </div>
-                        </section>
-
-                        <!-- Advanced Section -->
-                        <section class="settings-section">
-                            <h2>⚙️ Advanced Settings</h2>
-                            <div class="form-group">
-                                <h4>Suspension Mode:</h4>
-                                <label><input type="checkbox" id="preserveHistory" name="preserveHistory">Preserve page
-                                    history when
-                                    suspending <span class="tooltip-icon" tabindex="0" role="button"
-                                        aria-label="More information"><span class="help-icon">?</span>
-                                        <span class="tooltip-text">
-                                            <b>Preserve History (default):</b>
-                                            Uses regular suspension, keeping tab history and state.
-                                            <br><br>
-                                            <b>Close & Reopen:</b>
-                                            Experimental! Might free more RAM when preserve history does not help but
-                                            loses tab
-                                            history. Might consume more CPU.
-                                        </span>
-                                    </span>
-                                </label>
-                            </div>
-                        </section>
-
-                        <!-- Save button for settings tab -->
-                        <div class="form-actions">
-                            <button type="submit" id="save-settings" aria-label="Save Settings">Save Settings</button>
-                            <div id="save-status"></div>
-                        </div>
-                    </div>
-
-                    <!-- Tab 2: Tools (merged Data + Tools) -->
-                    <div class="tab-panel" id="tab-tools">
-                        <h2>Tools & Data Management</h2>
-
-                        <div class="form-group">
-                            <h3>Export/Import Suspended Tabs</h3>
-                            <p>Backup and restore your suspended tabs data.</p>
-                            <div class="form-group export-group">
-                                <label>Export Format:</label>
-                                <select id="export-format" aria-label="Export format">
-                                    <option value="json">JSON</option>
-                                    <option value="txt">TXT</option>
-                                </select>
-                                <button type="button" id="export-suspended-tabs">Export</button>
-                            </div>
-                            <div class="form-group import-group">
-                                <label>Import File:</label>
-                                <input type="file" id="import-file" accept=".json,.txt">
-                                <button type="button" id="import-suspended-tabs">Import</button>
-                            </div>
-                            <div id="export-import-status" class="status-message"></div>
-                        </div>
-
-                        <div class="form-group">
-                            <h3>Keyboard Shortcuts</h3>
-                            <p>Configure keyboard shortcuts for quick access to suspension actions.</p>
-                            <a href="shortcuts.html" class="action-button primary">⌨️ Configure Keyboard Shortcuts</a>
-                        </div>
-
-                        <div class="form-group">
-                            <h3>Migration</h3>
-                            <p>Migrate your settings and suspended tabs from The Marvelous Suspender.</p>
-                            <a href="migrate.html" class="action-button primary">Migrate from Marvelous Suspender</a>
-                        </div>
-                    </div>
-
-                    <!-- Tab 3: About -->
-                    <div class="tab-panel" id="tab-about">
-                        <h2>About The One Suspender</h2>
-
-                        <div class="form-group">
-                            <h3>Version Information</h3>
-                            <p>Version: <span id="extension-version">Loading...</span></p>
-                            <p>You are using The One Suspender extension for Chrome.</p>
-                            <p>This extension helps manage browser memory by automatically suspending inactive tabs
-                                while preserving their state for quick restoration.</p>
-                        </div>
-
-                        <div class="form-group">
-                            <h3>Support & Information</h3>
-                            <p>Get help and learn more about The One Suspender.</p>
-                            <div class="links-grid">
-                                <a href="https://github.com/enderunal/TheOneSuspender/issues" target="_blank"
-                                    rel="noopener" class="action-button">Report an Issue</a>
-                                <a href="privacy.html" target="_blank" rel="noopener" class="action-button">Privacy
-                                    Policy</a>
-                                <a href="license.html" target="_blank" rel="noopener" class="action-button">License</a>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Version at bottom -->
-            <div class="version-footer">
-                The One Suspender v<span id="footer-version">Loading...</span>
-            </div>
+        <!-- Navigation Tabs -->
+        <div class="tab-navigation">
+            <button type="button" class="tab-button active" data-tab="settings">Settings</button>
+            <button type="button" class="tab-button" data-tab="appearance">Appearance</button>
+            <button type="button" class="tab-button" data-tab="tools">Tools</button>
+            <button type="button" class="tab-button" data-tab="about">About</button>
         </div>
 
-        <!-- Vertical tabs navigation next to container -->
-        <nav class="tab-nav">
-            <button class="tab-button active" data-tab="tab-settings">
-                <span class="tab-text">Settings</span>
-            </button>
-            <button class="tab-button" data-tab="tab-tools">
-                <span class="tab-text">Tools</span>
-            </button>
-            <button class="tab-button" data-tab="tab-about">
-                <span class="tab-text">About</span>
-            </button>
-        </nav>
+        <form id="settings-form">
+            <!-- Settings Tab -->
+            <div class="tab-content active" id="tab-settings">
+                <!-- Automatic Suspension Section -->
+                <div class="md-card settings-section">
+                    <h2 class="md-typescale-title-large section-title">Automatic Suspension</h2>
+
+                    <div class="md-checkbox">
+                        <input type="checkbox" id="autoSuspendEnabled" name="autoSuspendEnabled" checked>
+                        <label for="autoSuspendEnabled" class="md-typescale-body-medium">
+                            Enable automatic tab suspension
+                        </label>
+                    </div>
+
+                    <div class="md-text-field">
+                        <input type="number" id="inactivityMinutes" name="inactivityMinutes" min="1" step="1" required>
+                        <label for="inactivityMinutes">Suspend tabs after (minutes)</label>
+                    </div>
+                    <p class="md-typescale-body-small field-description">
+                        Inactive time before a tab is suspended (Minimum 1 min).
+                    </p>
+                </div>
+
+                <!-- Exclusions Section -->
+                <div class="md-card settings-section">
+                    <h2 class="md-typescale-title-large section-title">Exclusions (Never Suspend)</h2>
+
+                    <div class="checkbox-group">
+                        <div class="md-checkbox">
+                            <input type="checkbox" id="neverSuspendPinned" name="neverSuspendPinned">
+                            <label for="neverSuspendPinned" class="md-typescale-body-medium">Pinned Tabs</label>
+                        </div>
+                        <div class="md-checkbox">
+                            <input type="checkbox" id="neverSuspendAudio" name="neverSuspendAudio">
+                            <label for="neverSuspendAudio" class="md-typescale-body-medium">Tabs Playing Audio</label>
+                        </div>
+                        <div class="md-checkbox">
+                            <input type="checkbox" id="neverSuspendActive" name="neverSuspendActive">
+                            <label for="neverSuspendActive" class="md-typescale-body-medium">Never Suspend The Active
+                                Tab in Each Window</label>
+                        </div>
+                        <div class="md-checkbox">
+                            <input type="checkbox" id="neverSuspendLastWindow" name="neverSuspendLastWindow">
+                            <label for="neverSuspendLastWindow" class="md-typescale-body-medium">Never Suspend The
+                                Active Tab Only in the Last-Focused Window</label>
+                        </div>
+                        <div class="md-checkbox">
+                            <input type="checkbox" id="neverSuspendOffline" name="neverSuspendOffline">
+                            <label for="neverSuspendOffline" class="md-typescale-body-medium">When Browser Is
+                                Offline</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Handling Section -->
+                <div class="md-card settings-section">
+                    <h2 class="md-typescale-title-large section-title">Unsaved Form Handling</h2>
+                    <p class="md-typescale-body-medium section-description">How to handle tabs with unsaved form input:
+                    </p>
+
+                    <div class="radio-group">
+                        <div class="md-radio">
+                            <input type="radio" id="unsavedNormal" name="unsavedFormHandling" value="normal" checked>
+                            <label for="unsavedNormal" class="md-typescale-body-medium">
+                                Suspend Normally (potential data loss)
+                            </label>
+                        </div>
+                        <div class="md-radio">
+                            <input type="radio" id="unsavedNever" name="unsavedFormHandling" value="never">
+                            <label for="unsavedNever" class="md-typescale-body-medium">
+                                Never Suspend
+                            </label>
+                        </div>
+                        <div class="md-radio">
+                            <input type="radio" id="unsavedAsk" name="unsavedFormHandling" value="ask">
+                            <label for="unsavedAsk" class="md-typescale-body-medium">
+                                Ask Before Suspending (using a dialog)
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Whitelist Section -->
+                <div class="md-card settings-section">
+                    <h2 class="md-typescale-title-large section-title">URL Whitelist</h2>
+                    <div class="md-text-field">
+                        <textarea id="whitelist" name="whitelist" rows="8"></textarea>
+                        <label for="whitelist">Never suspend URLs matching</label>
+                    </div>
+                    <p class="md-typescale-body-small field-description">
+                        One URL or domain per line. E.g., google.com or https://mail.google.com/<br>
+                        Matches either full URLs or domains (`example.com` matches `www.example.com`).
+                    </p>
+                </div>
+
+                <!-- Advanced Settings Section -->
+                <div class="md-card settings-section">
+                    <h2 class="md-typescale-title-large section-title">Advanced Settings</h2>
+                    <h3 class="md-typescale-title-medium subsection-title">Suspension Mode:</h3>
+
+                    <div class="md-checkbox advanced-checkbox">
+                        <input type="checkbox" id="preserveHistory" name="preserveHistory">
+                        <label for="preserveHistory" class="md-typescale-body-medium">
+                            Preserve page history when suspending
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger md-button text compact" tabindex="0"
+                                    aria-label="More information">
+                                    Help
+                                </button>
+                                <div class="tooltip-content md-card elevated">
+                                    <strong>Preserve History (default):</strong>
+                                    Uses regular suspension, keeping tab history and state.
+                                    <br><br>
+                                    <strong>Close & Reopen:</strong>
+                                    Experimental! Might free more RAM when preserve history does not help but
+                                    loses tab history. Might consume more CPU.
+                                </div>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Save Button -->
+                <div class="form-actions">
+                    <button type="submit" id="save-settings" class="md-button filled">Save Settings</button>
+                    <div id="save-status" class="md-feedback"></div>
+                </div>
+            </div>
+
+            <!-- Appearance Tab -->
+            <div class="tab-content" id="tab-appearance">
+                <!-- Color Themes Section -->
+                <div class="md-card settings-section">
+                    <h2 class="md-typescale-title-large section-title">Color Themes</h2>
+                    <p class="md-typescale-body-medium section-description">
+                        Choose your preferred color scheme. Changes are applied immediately.
+                    </p>
+
+                    <div class="theme-preview-container">
+                        <!-- Light Themes -->
+                        <div class="theme-preview" data-theme="gold">
+                            <div class="theme-color-swatch">
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                            </div>
+                            <span class="theme-name">Gold (Default)</span>
+                        </div>
+
+
+
+                        <div class="theme-preview" data-theme="platinum">
+                            <div class="theme-color-swatch">
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                            </div>
+                            <span class="theme-name">Platinum</span>
+                        </div>
+
+                        <div class="theme-preview" data-theme="emerald">
+                            <div class="theme-color-swatch">
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                            </div>
+                            <span class="theme-name">Emerald</span>
+                        </div>
+
+                        <div class="theme-preview" data-theme="sapphire">
+                            <div class="theme-color-swatch">
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                            </div>
+                            <span class="theme-name">Sapphire</span>
+                        </div>
+
+                        <div class="theme-preview" data-theme="ruby">
+                            <div class="theme-color-swatch">
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                            </div>
+                            <span class="theme-name">Ruby</span>
+                        </div>
+
+                        <div class="theme-preview" data-theme="amethyst">
+                            <div class="theme-color-swatch">
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                            </div>
+                            <span class="theme-name">Amethyst</span>
+                        </div>
+
+                        <div class="theme-preview" data-theme="copper">
+                            <div class="theme-color-swatch">
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                            </div>
+                            <span class="theme-name">Copper</span>
+                        </div>
+
+                        <div class="theme-preview" data-theme="obsidian">
+                            <div class="theme-color-swatch">
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                            </div>
+                            <span class="theme-name">Obsidian</span>
+                        </div>
+
+                        <!-- Dark Theme Variants -->
+                        <div class="theme-preview" data-theme="gold-dark">
+                            <div class="theme-color-swatch">
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                            </div>
+                            <span class="theme-name">Gold Dark</span>
+                        </div>
+
+
+
+                        <div class="theme-preview" data-theme="platinum-dark">
+                            <div class="theme-color-swatch">
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                            </div>
+                            <span class="theme-name">Platinum Dark</span>
+                        </div>
+
+                        <div class="theme-preview" data-theme="emerald-dark">
+                            <div class="theme-color-swatch">
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                            </div>
+                            <span class="theme-name">Emerald Dark</span>
+                        </div>
+
+                        <div class="theme-preview" data-theme="sapphire-dark">
+                            <div class="theme-color-swatch">
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                            </div>
+                            <span class="theme-name">Sapphire Dark</span>
+                        </div>
+
+                        <div class="theme-preview" data-theme="ruby-dark">
+                            <div class="theme-color-swatch">
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                            </div>
+                            <span class="theme-name">Ruby Dark</span>
+                        </div>
+
+                        <div class="theme-preview" data-theme="amethyst-dark">
+                            <div class="theme-color-swatch">
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                            </div>
+                            <span class="theme-name">Amethyst Dark</span>
+                        </div>
+
+                        <div class="theme-preview" data-theme="copper-dark">
+                            <div class="theme-color-swatch">
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                            </div>
+                            <span class="theme-name">Copper Dark</span>
+                        </div>
+
+                        <div class="theme-preview" data-theme="obsidian-dark">
+                            <div class="theme-color-swatch">
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                                <div class="color-dot"></div>
+                            </div>
+                            <span class="theme-name">Obsidian Dark</span>
+                        </div>
+
+
+
+                    </div>
+
+
+
+                    <!-- Hidden select for form submission -->
+                    <input type="hidden" id="theme" name="theme" value="gold">
+                </div>
+
+                <!-- Save Button -->
+                <div class="form-actions">
+                    <button type="submit" class="md-button filled">Save Settings</button>
+                    <div id="save-status-appearance" class="md-feedback"></div>
+                </div>
+            </div>
+
+            <!-- Tools Tab -->
+            <div class="tab-content" id="tab-tools">
+                <div class="md-card settings-section">
+                    <h2 class="md-typescale-title-large section-title">Tools & Data Management</h2>
+
+                    <div class="tool-section">
+                        <h3 class="md-typescale-title-medium subsection-title">Export/Import Suspended Tabs</h3>
+                        <p class="md-typescale-body-medium section-description">
+                            Backup and restore your suspended tabs data.
+                        </p>
+
+                        <div class="export-import-controls">
+                            <div class="export-group">
+                                <div class="md-text-field compact">
+                                    <select id="export-format" aria-label="Export format">
+                                        <option value="json">JSON</option>
+                                        <option value="txt">TXT</option>
+                                    </select>
+                                    <label for="export-format">Export Format</label>
+                                </div>
+                                <button type="button" id="export-suspended-tabs" class="md-button outlined">
+                                    Export
+                                </button>
+                            </div>
+
+                            <div class="import-group">
+                                <div class="file-input-container">
+                                    <input type="file" id="import-file" accept=".json,.txt" class="file-input">
+                                    <label for="import-file" class="file-input-label md-button outlined">
+                                        Choose File
+                                    </label>
+                                </div>
+                                <button type="button" id="import-suspended-tabs" class="md-button outlined">
+                                    Import
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="export-import-status" class="md-feedback"></div>
+                    </div>
+
+                    <div class="md-divider"></div>
+
+                    <div class="tool-section">
+                        <h3 class="md-typescale-title-medium subsection-title">Keyboard Shortcuts</h3>
+                        <p class="md-typescale-body-medium section-description">
+                            Configure keyboard shortcuts for quick access to suspension actions.
+                        </p>
+                        <a href="shortcuts.html" class="md-button filled tool-link">
+                            Configure Keyboard Shortcuts
+                        </a>
+                    </div>
+
+                    <div class="md-divider"></div>
+
+                    <div class="tool-section">
+                        <h3 class="md-typescale-title-medium subsection-title">Migration</h3>
+                        <p class="md-typescale-body-medium section-description">
+                            Migrate your settings and suspended tabs from The Marvelous Suspender.
+                        </p>
+                        <a href="migrate.html" class="md-button filled tool-link">
+                            Migrate from Marvelous Suspender
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- About Tab -->
+            <div class="tab-content" id="tab-about">
+                <div class="md-card settings-section">
+                    <h2 class="md-typescale-title-large section-title">About The One Suspender</h2>
+
+                    <div class="about-section">
+                        <h3 class="md-typescale-title-medium subsection-title">Version Information</h3>
+                        <p class="md-typescale-body-large">
+                            Version: <span id="extension-version" class="version-text">Loading...</span>
+                        </p>
+                        <p class="md-typescale-body-medium section-description">
+                            You are using The One Suspender extension for Chrome.
+                        </p>
+                        <p class="md-typescale-body-medium section-description">
+                            This extension helps manage browser memory by automatically suspending inactive tabs
+                            while preserving their state for quick restoration.
+                        </p>
+                    </div>
+
+                    <div class="md-divider"></div>
+
+                    <div class="about-section">
+                        <h3 class="md-typescale-title-medium subsection-title">Support & Information</h3>
+                        <p class="md-typescale-body-medium section-description">
+                            Get help and learn more about The One Suspender.
+                        </p>
+
+                        <div class="links-grid">
+                            <a href="https://github.com/enderunal/TheOneSuspender/issues" target="_blank" rel="noopener"
+                                class="md-button outlined">
+                                Report an Issue
+                            </a>
+                            <a href="privacy.html" target="_blank" rel="noopener" class="md-button outlined">
+                                Privacy Policy
+                            </a>
+                            <a href="license.html" target="_blank" rel="noopener" class="md-button outlined">
+                                License
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <!-- Footer -->
+        <footer class="options-footer">
+            <p class="md-typescale-body-small">
+                The One Suspender v<span id="footer-version">Loading...</span>
+            </p>
+        </footer>
     </div>
 
     <script src="src/ui/options.js" type="module"></script>

@@ -3,49 +3,90 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Immediate theme injection - MUST be first -->
+    <script src="src/common/theme-injector.js"></script>
+
     <title>The One Suspender</title>
-    <link rel="stylesheet" href="styles/popup.css">
+    <link rel="stylesheet" href="styles/material-colors.css">
+    <link rel="stylesheet" href="styles/material-components.css">
+    <link rel="stylesheet" href="styles/popup-material.css">
 </head>
 
-<body>
-    <div class="container">
-        <h2>The One Suspender</h2>
-
-        <div class="status" id="status-section">
-            <div>Auto Suspension Status: <span id="auto-suspend-indicator"></span></div>
-            <div>Tab Status: <span id="tab-status">Loading...</span></div>
-            <span id="tab-url"></span>
+<body class="md-surface">
+    <div class="popup-container">
+        <!-- Header -->
+        <div class="popup-header">
+            <h1 class="popup-title">The One Suspender</h1>
         </div>
-        <!-- Action feedback div WITHOUT inline styles -->
-        <div class="action-feedback" id="action-feedback-message"></div>
 
-        <div class="actions">
-            <button id="suspend-restore" class="action-button primary" disabled
-                aria-label="Suspend or Restore Tab">Loading...</button>
-            <button id="whitelist-url" class="action-button" disabled aria-label="Never Suspend URL">Never Suspend
-                URL</button>
-            <button id="whitelist-domain" class="action-button" disabled aria-label="Never Suspend Domain">Never Suspend
-                Domain</button>
-            <hr>
-            <button id="suspend-selected-tabs" class="action-button hidden" aria-label="Suspend Selected Tabs">Suspend
-                Selected Tabs</button>
-            <button id="unsuspend-selected-tabs" class="action-button hidden"
-                aria-label="Unsuspend Selected Tabs">Unsuspend Selected Tabs</button>
-            <hr id="selected-tabs-hr" class="hidden">
-            <button id="suspend-others-window" class="action-button" aria-label="Suspend All Tabs in Window">Suspend
-                (Window)</button>
-            <button id="suspend-others-all" class="action-button" aria-label="Suspend All Tabs in All Windows">Suspend
-                (All)</button>
-            <hr>
-            <button id="unsuspend-all-window" class="action-button" aria-label="Unsuspend All Tabs in Window">Unsuspend
-                (Window)</button>
-            <button id="unsuspend-all-all" class="action-button"
-                aria-label="Unsuspend All Tabs in All Windows">Unsuspend (All)</button>
-            <hr>
-            <button id="open-settings" class="action-button settings-button"
-                aria-label="Open Settings">Settings</button>
+        <!-- Action feedback -->
+        <div id="action-feedback-message" class="feedback-message"></div>
+
+        <!-- Main Action -->
+        <div class="main-action">
+            <button id="suspend-restore" class="primary-button" disabled>
+                Loading...
+            </button>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <button id="whitelist-url" class="quick-button" disabled>
+                <span class="button-icon">🔗</span>
+                <span class="button-text">Never Suspend URL</span>
+            </button>
+            <button id="whitelist-domain" class="quick-button" disabled>
+                <span class="button-icon">🌐</span>
+                <span class="button-text">Never Suspend Domain</span>
+            </button>
+        </div>
+
+        <!-- Selected Tabs (Hidden by default) -->
+        <div class="selected-tabs-section hidden" id="selected-tabs-section">
+            <div class="section-divider"></div>
+            <div class="section-header">Selected Tabs</div>
+            <div class="button-row">
+                <button id="suspend-selected-tabs" class="secondary-button">
+                    Suspend Selected
+                </button>
+                <button id="unsuspend-selected-tabs" class="secondary-button">
+                    Unsuspend Selected
+                </button>
+            </div>
+        </div>
+
+        <!-- Bulk Actions -->
+        <div class="bulk-actions">
+            <div class="section-divider"></div>
+            <div class="section-header">Bulk Actions</div>
+            <div class="button-grid">
+                <button id="suspend-others-window" class="grid-button">
+                    <span class="grid-button-text">Suspend Window</span>
+                </button>
+                <button id="suspend-others-all" class="grid-button">
+                    <span class="grid-button-text">Suspend All</span>
+                </button>
+                <button id="unsuspend-all-window" class="grid-button">
+                    <span class="grid-button-text">Unsuspend Window</span>
+                </button>
+                <button id="unsuspend-all-all" class="grid-button">
+                    <span class="grid-button-text">Unsuspend All</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Settings -->
+        <div class="settings-section">
+            <div class="section-divider"></div>
+            <button id="open-settings" class="settings-button">
+                <span class="settings-icon">⚙️</span>
+                <span class="settings-text">Settings</span>
+            </button>
         </div>
     </div>
+
     <script src="src/ui/popup.js" type="module"></script>
 </body>
 

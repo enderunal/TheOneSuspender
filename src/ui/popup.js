@@ -9,8 +9,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 	// Consolidated UI elements reference
 	const elements = {
-		status: document.getElementById("tab-status"),
-		url: document.getElementById("tab-url"),
 		suspendRestore: document.getElementById("suspend-restore"),
 		whitelistUrl: document.getElementById("whitelist-url"),
 		whitelistDomain: document.getElementById("whitelist-domain"),
@@ -19,8 +17,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 		unsuspendAllWindow: document.getElementById("unsuspend-all-window"),
 		unsuspendAllAll: document.getElementById("unsuspend-all-all"),
 		openSettings: document.getElementById("open-settings"),
-		actionFeedback: document.getElementById("action-feedback-message"),
-		autoSuspendIndicator: document.getElementById("auto-suspend-indicator")
+		actionFeedback: document.getElementById("action-feedback-message")
 	};
 
 	// Consolidated state variables
@@ -94,26 +91,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 		Object.values(elements).forEach(el => {
 			if (el && typeof el.disabled !== 'undefined') el.disabled = true;
 		});
-		if (elements.status) elements.status.textContent = "Error";
 		if (elements.openSettings) elements.openSettings.disabled = false; // Settings should always be accessible
 	}
 
 	// --- UI Update Logic ---
 	function updateUI() {
-		if (!currentTab || !elements.status || Object.keys(currentPrefs).length === 0) {
-			if (elements.status) elements.status.textContent = "Loading...";
+		if (!currentTab || Object.keys(currentPrefs).length === 0) {
 			return;
-		}
-
-		// Auto suspension indicator
-		if (elements.autoSuspendIndicator) {
-			if (currentPrefs.autoSuspendEnabled !== false) {
-				elements.autoSuspendIndicator.innerHTML = '<span class="auto-suspend-enabled">&#10003; Enabled</span>';
-				elements.autoSuspendIndicator.title = 'Tabs will be auto-suspended after the configured inactivity period.';
-			} else {
-				elements.autoSuspendIndicator.innerHTML = '<span class="auto-suspend-disabled">&#10007; Disabled</span>';
-				elements.autoSuspendIndicator.title = 'Tabs will NOT be auto-suspended until you re-enable this in settings.';
-			}
 		}
 
 		const isSuspendedPage = currentTab.url && currentTab.url.startsWith(chrome.runtime.getURL("suspended.html"));
@@ -123,21 +107,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 				currentTab.url.startsWith('file://') ||
 				!currentTab.url.match(/^https?:\/\//)); // Also consider non http/https as special for suspension
 
-		elements.url.textContent = currentTab.title || currentTab.url;
-		elements.url.title = currentTab.url;
-
 		if (isSuspendedPage) {
-			elements.status.textContent = "Suspended";
 			elements.suspendRestore.textContent = "Restore Tab";
 			elements.suspendRestore.disabled = false;
 			disableWhitelistControls(true, "Tab is suspended");
 		} else if (isSpecialPage) {
-			elements.status.textContent = "Special Page";
 			elements.suspendRestore.textContent = "Suspend Tab";
 			elements.suspendRestore.disabled = true;
 			disableWhitelistControls(true, "Cannot whitelist special pages");
 		} else {
-			elements.status.textContent = "Active";
 			elements.suspendRestore.textContent = "Suspend Tab";
 			elements.suspendRestore.disabled = false;
 			updateWhitelistControls();
@@ -358,24 +336,30 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 	const suspendSelectedBtn = document.getElementById('suspend-selected-tabs');
 	const unsuspendSelectedBtn = document.getElementById('unsuspend-selected-tabs');
-	const selectedTabsHr = document.getElementById('selected-tabs-hr');
+	const selectedTabsSection = document.getElementById('selected-tabs-section');
 
 	chrome.tabs.query({ currentWindow: true, highlighted: true }, function (tabs) {
 		const show = tabs.length > 1;
-		setElementsVisibility([suspendSelectedBtn, unsuspendSelectedBtn, selectedTabsHr], show);
+		setElementsVisibility([selectedTabsSection], show);
 
 		if (show) {
 			const tabIds = tabs.map(tab => tab.id);
-			suspendSelectedBtn.onclick = function () {
-				tabIds.forEach(tabId => {
-					chrome.runtime.sendMessage({ type: Const.MSG_SUSPEND_TAB, tabId, isManual: true });
-				});
-			};
-			unsuspendSelectedBtn.onclick = function () {
-				tabIds.forEach(tabId => {
-					chrome.runtime.sendMessage({ type: Const.MSG_UNSUSPEND_TAB, tabId });
-				});
-			};
+			if (suspendSelectedBtn) {
+				suspendSelectedBtn.onclick = function () {
+					tabIds.forEach(tabId => {
+						chrome.runtime.sendMessage({ type: Const.MSG_SUSPEND_TAB, tabId, isManual: true });
+					});
+					showFeedback("Suspending selected tabs...");
+				};
+			}
+			if (unsuspendSelectedBtn) {
+				unsuspendSelectedBtn.onclick = function () {
+					tabIds.forEach(tabId => {
+						chrome.runtime.sendMessage({ type: Const.MSG_UNSUSPEND_TAB, tabId });
+					});
+					showFeedback("Unsuspending selected tabs...");
+				};
+			}
 		}
 	});
 

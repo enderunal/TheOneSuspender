@@ -4,13 +4,14 @@ import * as Logger from '../common/logger.js';
 import * as Const from '../common/constants.js';
 import * as WhitelistUtils from '../common/whitelist-utils.js';
 import * as Theme from '../common/theme.js';
+import { initializeTabNavigation } from './tab-navigation.js';
 
 document.addEventListener("DOMContentLoaded", async () => {
 	// Initialize theme using common method
 	await Theme.initializeThemeForPage();
 
-	// Initialize tabs functionality
-	initializeTabs();
+	// Initialize Material Design tabs functionality
+	initializeTabNavigation();
 
 	const form = document.getElementById("settings-form");
 	const inactivityMinutesInput = document.getElementById("inactivityMinutes");
@@ -31,7 +32,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 	const neverSuspendOfflineInput = document.getElementById("neverSuspendOffline");
 	const whitelistTextarea = document.getElementById("whitelist");
 	const saveStatus = document.getElementById("save-status");
-	const themeSelect = document.getElementById("theme");
+	const saveStatusAppearance = document.getElementById("save-status-appearance");
+	const themeInput = document.getElementById("theme");
+	const themePreviews = document.querySelectorAll('.theme-preview');
 
 	const unsavedFormHandlingRadios = document.querySelectorAll('input[name="unsavedFormHandling"]');
 	const saveButton = document.getElementById("save-settings");
@@ -46,7 +49,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 	function setExportImportStatus(msg, type = "info") {
 		exportImportStatus.textContent = msg;
-		exportImportStatus.className = `status-message ${type}`;
+		exportImportStatus.className = `md-feedback visible ${type}`;
+		if (msg) {
+			exportImportStatus.classList.add('visible');
+		} else {
+			exportImportStatus.classList.remove('visible');
+		}
+	}
+
+	function setSaveStatus(msg, type = "info") {
+		// Update both save status elements
+		[saveStatus, saveStatusAppearance].forEach(element => {
+			if (element) {
+				element.textContent = msg;
+				element.className = msg ? `md-feedback visible ${type}` : 'md-feedback';
+			}
+		});
 	}
 
 	function validateInactivityMinutes() {
@@ -70,17 +88,18 @@ document.addEventListener("DOMContentLoaded", async () => {
 		inactivityMinutesInput.disabled = !autoSuspendEnabledInput.checked;
 	});
 
-	// Apply theme immediately when changed
-	themeSelect.addEventListener('change', () => {
-		Theme.applyTheme(themeSelect.value);
+	// Set up theme preview click handlers
+	themePreviews.forEach(preview => {
+		preview.addEventListener('click', () => {
+			const selectedTheme = preview.getAttribute('data-theme');
+			selectTheme(selectedTheme);
+			Theme.applyTheme(selectedTheme);
+		});
 	});
 
-	// Listen for theme changes from other pages
-	Theme.onThemeChange((newTheme) => {
-		if (themeSelect.value !== newTheme) {
-			themeSelect.value = newTheme;
-		}
-	});
+
+	// Add event listeners for Material Design text field label positioning
+	setupTextFieldListeners();
 
 	// --- Load Settings ---
 	function loadSettings() {
@@ -111,10 +130,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 		whitelistTextarea.value = (Array.isArray(whitelistItems) ? whitelistItems : []).join("\n");
 		autoSuspendEnabledInput.checked = settings.autoSuspendEnabled !== false; // Default to true if not set
 		inactivityMinutesInput.disabled = !autoSuspendEnabledInput.checked;
-		themeSelect.value = settings.theme || 'light';
+		selectTheme(settings.theme || 'gold');
 
 		// Apply theme on load
-		Theme.applyTheme(settings.theme || 'light');
+		Theme.applyTheme(settings.theme || 'gold');
 
 		// Set unsaved form handling radio
 		let foundRadio = false;
@@ -128,7 +147,89 @@ document.addEventListener("DOMContentLoaded", async () => {
 			const defaultRadio = document.querySelector('input[name="unsavedFormHandling"][value="normal"]');
 			if (defaultRadio) defaultRadio.checked = true;
 		}
+
+		// Update Material Design text field labels after values are loaded
+		updateTextFieldLabels();
 	}
+
+	// Function to update Material Design text field labels
+	function updateTextFieldLabels() {
+		const textFields = document.querySelectorAll('.md-text-field');
+		textFields.forEach(field => {
+			const input = field.querySelector('input, textarea, select');
+			const label = field.querySelector('label');
+
+			if (input && label) {
+				// Force label positioning based on input state
+				if (input.value && input.value.trim() !== '') {
+					label.style.top = '-8px';
+					label.style.fontSize = '12px';
+					label.style.color = 'var(--md-sys-color-primary)';
+				} else {
+					label.style.top = '16px';
+					label.style.fontSize = '16px';
+					label.style.color = 'var(--md-sys-color-on-surface-variant)';
+				}
+			}
+		});
+	}
+
+	// Function to select a theme and update the UI
+	function selectTheme(themeName) {
+		// Update hidden input
+		themeInput.value = themeName;
+
+		// Update visual selection
+		themePreviews.forEach(preview => {
+			if (preview.getAttribute('data-theme') === themeName) {
+				preview.classList.add('selected');
+			} else {
+				preview.classList.remove('selected');
+			}
+		});
+	}
+
+	// Function to setup event listeners for text field label positioning
+	function setupTextFieldListeners() {
+		const textFields = document.querySelectorAll('.md-text-field');
+		textFields.forEach(field => {
+			const input = field.querySelector('input, textarea, select');
+			const label = field.querySelector('label');
+
+			if (input && label) {
+				// Handle focus events
+				input.addEventListener('focus', () => {
+					label.style.top = '-8px';
+					label.style.fontSize = '12px';
+					label.style.color = 'var(--md-sys-color-primary)';
+				});
+
+				// Handle blur events
+				input.addEventListener('blur', () => {
+					if (!input.value || input.value.trim() === '') {
+						label.style.top = '16px';
+						label.style.fontSize = '16px';
+						label.style.color = 'var(--md-sys-color-on-surface-variant)';
+					}
+				});
+
+				// Handle input events for real-time updates
+				input.addEventListener('input', () => {
+					if (input.value && input.value.trim() !== '') {
+						label.style.top = '-8px';
+						label.style.fontSize = '12px';
+						label.style.color = 'var(--md-sys-color-primary)';
+					} else {
+						label.style.top = '16px';
+						label.style.fontSize = '16px';
+						label.style.color = 'var(--md-sys-color-on-surface-variant)';
+					}
+				});
+			}
+		});
+	}
+
+
 
 	// --- Save Settings ---
 	form.addEventListener("submit", (event) => {
@@ -137,8 +238,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 			return; // Don't submit if invalid
 		}
 
-		saveStatus.textContent = "Saving...";
-		saveStatus.className = 'status-message info';
+		setSaveStatus("Saving...", "info");
 
 		const selectedUnsavedHandling = document.querySelector('input[name="unsavedFormHandling"]:checked');
 		let suspendAfterValue = parseInt(inactivityMinutesInput.value, 10);
@@ -156,14 +256,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 			neverSuspendOffline: neverSuspendOfflineInput.checked,
 			unsavedFormHandling: selectedUnsavedHandling ? selectedUnsavedHandling.value : 'normal',
 			autoSuspendEnabled: autoSuspendEnabledInput.checked,
-			theme: themeSelect.value,
+			theme: themeInput.value,
 		};
-
-		Object.keys(Prefs.defaultPrefs).forEach(key => {
-			if (newSettings[key] === undefined) {
-				newSettings[key] = Prefs.defaultPrefs[key];
-			}
-		});
 
 		Logger.log(`Value of whitelistTextarea.value before splitting: ${whitelistTextarea.value}`, Logger.LogComponent.OPTIONS);
 
@@ -172,21 +266,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 		chrome.runtime.sendMessage({ type: Const.MSG_SAVE_SETTINGS, settings: newSettings }, async (response) => {
 			if (chrome.runtime.lastError || !response?.success) {
-				saveStatus.textContent = "Error saving settings! " + (chrome.runtime.lastError?.message || response?.error || "");
-				saveStatus.className = 'status-message error';
+				setSaveStatus("Error saving settings! " + (chrome.runtime.lastError?.message || response?.error || ""), "error");
 			} else {
 				chrome.runtime.sendMessage({ type: Const.MSG_SAVE_WHITELIST, newWhitelist: newWhitelist }, (wlResponse) => {
 					if (chrome.runtime.lastError || !wlResponse?.success) {
-						saveStatus.textContent = "Settings saved, but error saving whitelist! " + (chrome.runtime.lastError?.message || wlResponse?.error || "");
-						saveStatus.className = 'status-message warning';
+						setSaveStatus("Settings saved, but error saving whitelist! " + (chrome.runtime.lastError?.message || wlResponse?.error || ""), "warning");
 					} else {
-						saveStatus.textContent = "Settings and whitelist saved!";
-						saveStatus.className = 'status-message success';
-						if (newSettings.suspendAfter > 0) {
-							// No direct access to prefs object here to update, background handles it.
-						}
+						setSaveStatus("Settings and whitelist saved!", "success");
 					}
-					setTimeout(() => { saveStatus.textContent = ""; saveStatus.className = 'status-message'; }, 3000);
+					setTimeout(() => { setSaveStatus(""); }, 3000);
 				});
 				await chrome.runtime.sendMessage({ type: Const.MSG_PREFS_CHANGED });
 			}
@@ -336,99 +424,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 	loadVersionInfo();
 });
 
-// ===================== Tab Functionality =====================
-
-/**
- * Initialize the tabs functionality
- */
-function initializeTabs() {
-	const tabButtons = document.querySelectorAll('.tab-button');
-	const tabPanels = document.querySelectorAll('.tab-panel');
-
-	// Add click listeners to tab buttons
-	tabButtons.forEach(button => {
-		button.addEventListener('click', () => {
-			const targetTabId = button.getAttribute('data-tab');
-			switchToTab(targetTabId);
-		});
-	});
-
-	// Set up keyboard navigation for tabs
-	document.addEventListener('keydown', (e) => {
-		if (e.ctrlKey && e.key >= '1' && e.key <= '3') {
-			e.preventDefault();
-			const tabIndex = parseInt(e.key) - 1;
-			const tabButton = tabButtons[tabIndex];
-			if (tabButton) {
-				const targetTabId = tabButton.getAttribute('data-tab');
-				switchToTab(targetTabId);
-			}
-		}
-	});
-
-	// Handle URL hash for direct tab access
-	handleTabFromHash();
-	window.addEventListener('hashchange', handleTabFromHash);
-
-	Logger.log("Tabs functionality initialized", Logger.LogComponent.OPTIONS);
-}
-
-/**
- * Switch to a specific tab
- * @param {string} tabId - The ID of the tab to switch to
- */
-function switchToTab(tabId) {
-	const tabButtons = document.querySelectorAll('.tab-button');
-	const tabPanels = document.querySelectorAll('.tab-panel');
-
-	// Remove active class from all buttons and panels
-	tabButtons.forEach(button => button.classList.remove('active'));
-	tabPanels.forEach(panel => panel.classList.remove('active'));
-
-	// Add active class to target button and panel
-	const targetButton = document.querySelector(`[data-tab="${tabId}"]`);
-	const targetPanel = document.getElementById(tabId);
-
-	if (targetButton && targetPanel) {
-		targetButton.classList.add('active');
-		targetPanel.classList.add('active');
-
-		// Update URL hash without triggering navigation
-		const newHash = `#${tabId}`;
-		if (window.location.hash !== newHash) {
-			history.replaceState(null, null, newHash);
-		}
-
-		// Focus the first input in the active tab for accessibility
-		setTimeout(() => {
-			const firstInput = targetPanel.querySelector('input, select, textarea, button');
-			if (firstInput && firstInput.focus) {
-				firstInput.focus();
-			}
-		}, 100);
-
-		Logger.detailedLog(`Switched to tab: ${tabId}`, Logger.LogComponent.OPTIONS);
-	} else {
-		Logger.logError(`Tab not found: ${tabId}`, Logger.LogComponent.OPTIONS);
-	}
-}
-
-/**
- * Handle tab switching from URL hash
- */
-function handleTabFromHash() {
-	const hash = window.location.hash.substring(1); // Remove the '#'
-	if (hash && document.getElementById(hash)) {
-		switchToTab(hash);
-	} else {
-		// Default to first tab if no valid hash
-		const firstTab = document.querySelector('.tab-button');
-		if (firstTab) {
-			const firstTabId = firstTab.getAttribute('data-tab');
-			switchToTab(firstTabId);
-		}
-	}
-}
+// ===================== Version Information =====================
 
 /**
  * Load and display version information

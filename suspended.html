@@ -10,28 +10,73 @@
       img-src       'self' data: blob: chrome-extension: http: https:;
       connect-src   'self' data: blob:;
   ">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link id="favicon" rel="icon" href="">
-  <link rel="stylesheet" href="styles/suspended.css">
+
+  <!-- Immediate theme injection - MUST be first -->
+  <script src="src/common/theme-injector.js"></script>
+
+  <link rel="stylesheet" href="styles/material-colors.css">
+  <link rel="stylesheet" href="styles/material-components.css">
+  <link rel="stylesheet" href="styles/suspended-material.css">
   <title>Tab Suspended</title>
 </head>
 
-<body>
-  <div class="container">
-    <p>
-      <img src="icons/icon128.png" class="icon" alt="Logo">
-    </p>
-    <p>
-    <h1 id="suspend-header">Tab Suspended</h1>
-    </p>
-    <p class="info">
-      <strong>Title:</strong> <span id="page-title"></span><br>
-      <strong>URL:</strong> <span id="page-url"></span><br>
-      <strong>Suspended:</strong> <span id="timestamp"></span>
-    </p>
-    <button id="restore-button">
-      Click here or anywhere to restore
-    </button>
+<body class="md-surface suspended-body">
+  <div class="suspended-container">
+    <!-- Header Section -->
+    <header class="suspended-header">
+      <div class="logo-container">
+        <img src="icons/icon128.png" class="logo-icon" alt="The One Suspender">
+      </div>
+      <h1 class="md-typescale-headline-medium suspended-title">Tab Suspended</h1>
+      <p class="md-typescale-body-medium suspended-subtitle">
+        This tab has been suspended to save memory
+      </p>
+    </header>
+
+    <!-- Tab Information Card -->
+    <div class="md-card elevated tab-info-card">
+      <div class="tab-info-section">
+        <h2 class="md-typescale-title-medium info-label">Page Title</h2>
+        <p id="page-title" class="md-typescale-body-large tab-title-text">Loading...</p>
+      </div>
+
+      <div class="md-divider"></div>
+
+      <div class="tab-info-section">
+        <h2 class="md-typescale-title-medium info-label">URL</h2>
+        <p id="page-url" class="md-typescale-body-medium tab-url-text">Loading...</p>
+      </div>
+
+      <div class="md-divider"></div>
+
+      <div class="tab-info-section">
+        <h2 class="md-typescale-title-medium info-label">Suspended</h2>
+        <p id="timestamp" class="md-typescale-body-medium timestamp-text">Loading...</p>
+      </div>
+    </div>
+
+    <!-- Restore Actions -->
+    <div class="restore-actions">
+      <button id="restore-button" class="md-button filled restore-primary">
+        <span class="restore-icon">↻</span>
+        Restore Tab
+      </button>
+
+      <p class="md-typescale-body-small restore-hint">
+        Click anywhere on this page to restore the tab
+      </p>
+    </div>
+
+    <!-- Footer -->
+    <footer class="suspended-footer">
+      <p class="md-typescale-body-small footer-text">
+        Powered by The One Suspender
+      </p>
+    </footer>
   </div>
+
   <script src="src/ui/suspended.js" type="module"></script>
 </body>
 

@@ -16,7 +16,7 @@ export const defaultPrefs = {
     unsavedFormHandling: 'ask', // Allowed: 'normal', 'never', 'ask'
     maxConcurrent: 5, // Default maximum concurrent operations
     autoSuspendEnabled: true, // New: allow user to disable auto suspension
-    theme: 'light' // Theme preference: 'light' or 'dark'
+    theme: 'gold' // default theme: sophisticated warm gold
 };
 
 /** @type {import('./types.js').Prefs} */
@@ -87,12 +87,12 @@ function validatePrefs(prefsToValidate) {
     if (typeof prefsToValidate.neverSuspendActive !== 'boolean') throw new Error('neverSuspendActive must be boolean');
     if (typeof prefsToValidate.neverSuspendLastWindow !== 'boolean') throw new Error('neverSuspendLastWindow must be boolean');
     if (typeof prefsToValidate.neverSuspendOffline !== 'boolean') throw new Error('neverSuspendOffline must be boolean');
+    // this is not used for now, but might be in the future
     if (typeof prefsToValidate.maxConcurrent !== 'number' || prefsToValidate.maxConcurrent < 1) throw new Error('maxConcurrent must be a number >= 1');
     if (!unsavedFormHandlingValues.includes(prefsToValidate.unsavedFormHandling)) {
         throw new Error('unsavedFormHandling must be one of: normal, never, ask');
     }
     if (typeof prefsToValidate.autoSuspendEnabled !== 'boolean') throw new Error('autoSuspendEnabled must be boolean');
-    if (!['light', 'dark'].includes(prefsToValidate.theme)) throw new Error('theme must be either "light" or "dark"');
 }
 
 /**

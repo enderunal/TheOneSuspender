@@ -1,0 +1,89 @@
+/* Migration Page - Material Design */
+
+.migration-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+.migration-header {
+    margin-bottom: 32px;
+    text-align: center;
+}
+
+.migration-header h1 {
+    color: var(--md-sys-color-on-surface);
+    margin: 0;
+}
+
+.migration-card {
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.migration-description {
+    color: var(--md-sys-color-on-surface-variant);
+    margin-bottom: 24px;
+    line-height: 1.5;
+}
+
+.migration-list {
+    list-style: none;
+    padding: 0;
+    margin: 24px 0;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.migration-list li {
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    background-color: var(--md-sys-color-surface-container-low);
+    border-radius: 8px;
+    color: var(--md-sys-color-on-surface);
+    font-size: 14px;
+    line-height: 1.4;
+    border-left: 4px solid var(--md-sys-color-primary);
+}
+
+.migration-list li:last-child {
+    margin-bottom: 0;
+}
+
+.migration-actions {
+    display: flex;
+    justify-content: center;
+    margin: 32px 0 24px 0;
+}
+
+.migration-status {
+    text-align: center;
+    color: var(--md-sys-color-on-surface-variant);
+    min-height: 20px;
+    margin-top: 16px;
+}
+
+.migration-status.success {
+    color: var(--md-sys-color-primary);
+}
+
+.migration-status.error {
+    color: var(--md-sys-color-error);
+}
+
+
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .migration-container {
+        padding: 16px;
+    }
+
+    .migration-card {
+        padding: 16px;
+    }
+
+    .migration-header {
+        margin-bottom: 24px;
+    }
+}

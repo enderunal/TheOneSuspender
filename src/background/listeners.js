@@ -587,6 +587,13 @@ export function handleCommand(command) {
                         Logger.log(`Unsuspended all tabs in all windows via keyboard shortcut`, Logger.LogComponent.BACKGROUND);
                         break;
 
+                    case 'open-settings':
+                        await chrome.tabs.create({
+                            url: chrome.runtime.getURL('options.html')
+                        });
+                        Logger.log(`Opened settings page via keyboard shortcut`, Logger.LogComponent.BACKGROUND);
+                        break;
+
                     default:
                         Logger.log(`Unknown command: ${command}`, Logger.LogComponent.BACKGROUND);
                         break;

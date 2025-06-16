@@ -3,21 +3,40 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Migrate Suspended Tabs</title>
-    <link rel="stylesheet" href="styles/migration.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Immediate theme injection - MUST be first -->
+    <script src="src/common/theme-injector.js"></script>
+
+    <title>The One Suspender - Migrate Suspended Tabs</title>
+    <link rel="stylesheet" href="styles/material-colors.css">
+    <link rel="stylesheet" href="styles/material-components.css">
+    <link rel="stylesheet" href="styles/migration-material.css">
 </head>
 
-<body>
-    <div class="container migration-container">
-        <h2>Migrate Suspended Tabs</h2>
-        <p class="description">This tool will convert all open Marvellous Suspender tabs to The One Suspender format,
-            preserving their suspended state.<br>
-        </p>
-        <ul id="migration-list" class="migration-list"></ul>
-        <button id="migrate-btn" class="action-button primary">Migrate</button>
-        <div id="migration-status" class="migration-status"></div>
-        <div class="links">
-            <a href="options.html">&#8592; Back to Settings</a>
+<body class="md-surface">
+    <div class="md-container migration-container">
+        <header class="migration-header">
+            <h1 class="md-typescale-headline-medium">Migrate Suspended Tabs</h1>
+        </header>
+
+        <div class="md-card migration-card">
+            <p class="md-typescale-body-medium migration-description">
+                This tool will convert all open Marvellous Suspender tabs to The One Suspender format,
+                preserving their suspended state.
+            </p>
+
+            <ul id="migration-list" class="migration-list"></ul>
+
+            <div class="migration-actions">
+                <button id="migrate-btn" class="md-button filled">Migrate Tabs</button>
+            </div>
+
+            <div id="migration-status" class="migration-status md-typescale-body-small"></div>
+        </div>
+
+        <div class="navigation-links">
+            <a href="options.html" class="md-button text">← Back to Settings</a>
         </div>
     </div>
     <script src="src/ui/migrate.js" type="module"></script>
