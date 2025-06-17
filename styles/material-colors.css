@@ -115,6 +115,32 @@ html[data-theme-loading="obsidian-dark"] {
     color: #FFFFFF !important;
 }
 
+/* Steel Theme - Modern gray/steel with blue accents */
+html.theme-steel,
+html[data-theme-loading="steel"] {
+    background-color: #F8FAFC !important;
+    color: #1E293B !important;
+}
+
+html.theme-steel-dark,
+html[data-theme-loading="steel-dark"] {
+    background-color: #0F172A !important;
+    color: #E2E8F0 !important;
+}
+
+/* Midnight Theme - Deep black with bright blue accents */
+html.theme-midnight,
+html[data-theme-loading="midnight"] {
+    background-color: #FAFBFF !important;
+    color: #0A0E1A !important;
+}
+
+html.theme-midnight-dark,
+html[data-theme-loading="midnight-dark"] {
+    background-color: #000510 !important;
+    color: #E6F0FF !important;
+}
+
 /* Custom Theme - User-defined colors */
 html.theme-custom,
 html[data-theme-loading="custom"] {
@@ -701,6 +727,136 @@ html[data-theme-loading="custom"] {
     --md-sys-color-surface-container-high: #171717;
     --md-sys-color-surface-container: #0A0A0A;
     --md-sys-color-surface-container-low: #050505;
+    --md-sys-color-surface-container-lowest: #000000;
+}
+
+/* Steel Theme - Modern gray/steel with blue accents */
+[data-theme="steel"] {
+    --md-sys-color-primary: #475569;
+    --md-sys-color-on-primary: #FFFFFF;
+    --md-sys-color-primary-container: #CBD5E1;
+    --md-sys-color-on-primary-container: #1E293B;
+
+    --md-sys-color-secondary: #1E40AF;
+    --md-sys-color-on-secondary: #FFFFFF;
+    --md-sys-color-secondary-container: #DBEAFE;
+    --md-sys-color-on-secondary-container: #1E3A8A;
+
+    --md-sys-color-tertiary: #0F766E;
+    --md-sys-color-on-tertiary: #FFFFFF;
+    --md-sys-color-tertiary-container: #CCFBF1;
+    --md-sys-color-on-tertiary-container: #134E4A;
+
+    --md-sys-color-background: #F8FAFC;
+    --md-sys-color-on-background: #1E293B;
+    --md-sys-color-surface: #F8FAFC;
+    --md-sys-color-on-surface: #1E293B;
+    --md-sys-color-surface-variant: #F1F5F9;
+    --md-sys-color-on-surface-variant: #475569;
+
+    --md-sys-color-outline: #64748B;
+    --md-sys-color-outline-variant: #CBD5E1;
+    --md-sys-color-surface-container-highest: #E2E8F0;
+    --md-sys-color-surface-container-high: #F1F5F9;
+    --md-sys-color-surface-container: #F8FAFC;
+    --md-sys-color-surface-container-low: #FEFEFE;
+    --md-sys-color-surface-container-lowest: #FFFFFF;
+}
+
+[data-theme="steel-dark"] {
+    --md-sys-color-primary: #94A3B8;
+    --md-sys-color-on-primary: #1E293B;
+    --md-sys-color-primary-container: #475569;
+    --md-sys-color-on-primary-container: #CBD5E1;
+
+    --md-sys-color-secondary: #60A5FA;
+    --md-sys-color-on-secondary: #1E3A8A;
+    --md-sys-color-secondary-container: #1E40AF;
+    --md-sys-color-on-secondary-container: #DBEAFE;
+
+    --md-sys-color-tertiary: #5EEAD4;
+    --md-sys-color-on-tertiary: #134E4A;
+    --md-sys-color-tertiary-container: #0F766E;
+    --md-sys-color-on-tertiary-container: #CCFBF1;
+
+    --md-sys-color-background: #0F172A;
+    --md-sys-color-on-background: #E2E8F0;
+    --md-sys-color-surface: #0F172A;
+    --md-sys-color-on-surface: #E2E8F0;
+    --md-sys-color-surface-variant: #334155;
+    --md-sys-color-on-surface-variant: #CBD5E1;
+
+    --md-sys-color-outline: #64748B;
+    --md-sys-color-outline-variant: #334155;
+    --md-sys-color-surface-container-highest: #475569;
+    --md-sys-color-surface-container-high: #334155;
+    --md-sys-color-surface-container: #1E293B;
+    --md-sys-color-surface-container-low: #0F172A;
+    --md-sys-color-surface-container-lowest: #020617;
+}
+
+/* Midnight Theme - Deep black with bright blue accents */
+[data-theme="midnight"] {
+    --md-sys-color-primary: #2563EB;
+    --md-sys-color-on-primary: #FFFFFF;
+    --md-sys-color-primary-container: #DBEAFE;
+    --md-sys-color-on-primary-container: #1E3A8A;
+
+    --md-sys-color-secondary: #1D4ED8;
+    --md-sys-color-on-secondary: #FFFFFF;
+    --md-sys-color-secondary-container: #EFF6FF;
+    --md-sys-color-on-secondary-container: #1E40AF;
+
+    --md-sys-color-tertiary: #0284C7;
+    --md-sys-color-on-tertiary: #FFFFFF;
+    --md-sys-color-tertiary-container: #E0F2FE;
+    --md-sys-color-on-tertiary-container: #0C4A6E;
+
+    --md-sys-color-background: #FAFBFF;
+    --md-sys-color-on-background: #0A0E1A;
+    --md-sys-color-surface: #FAFBFF;
+    --md-sys-color-on-surface: #0A0E1A;
+    --md-sys-color-surface-variant: #F0F4FF;
+    --md-sys-color-on-surface-variant: #1E3A8A;
+
+    --md-sys-color-outline: #3B82F6;
+    --md-sys-color-outline-variant: #BFDBFE;
+    --md-sys-color-surface-container-highest: #E0F2FE;
+    --md-sys-color-surface-container-high: #F0F9FF;
+    --md-sys-color-surface-container: #F8FAFC;
+    --md-sys-color-surface-container-low: #FAFBFF;
+    --md-sys-color-surface-container-lowest: #FFFFFF;
+}
+
+[data-theme="midnight-dark"] {
+    --md-sys-color-primary: #60A5FA;
+    --md-sys-color-on-primary: #1E3A8A;
+    --md-sys-color-primary-container: #2563EB;
+    --md-sys-color-on-primary-container: #DBEAFE;
+
+    --md-sys-color-secondary: #93C5FD;
+    --md-sys-color-on-secondary: #1E40AF;
+    --md-sys-color-secondary-container: #1D4ED8;
+    --md-sys-color-on-secondary-container: #EFF6FF;
+
+    --md-sys-color-tertiary: #38BDF8;
+    --md-sys-color-on-tertiary: #0C4A6E;
+    --md-sys-color-tertiary-container: #0284C7;
+    --md-sys-color-on-tertiary-container: #E0F2FE;
+
+    --md-sys-color-background: #000510;
+    --md-sys-color-on-background: #E6F0FF;
+    --md-sys-color-surface: #000510;
+    --md-sys-color-on-surface: #E6F0FF;
+    --md-sys-color-surface-variant: #1E3A8A;
+    --md-sys-color-on-surface-variant: #BFDBFE;
+
+    --md-sys-color-outline: #2563EB;
+    --md-sys-color-outline-variant: #1E3A8A;
+    --md-sys-color-surface-container-highest: #1E40AF;
+    --md-sys-color-surface-container-high: #1D4ED8;
+    --md-sys-color-surface-container: #0F1629;
+    --md-sys-color-surface-container-low: #000B1A;
     --md-sys-color-surface-container-lowest: #000000;
 }
 

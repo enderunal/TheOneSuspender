@@ -83,6 +83,7 @@ public
 # Temporary folders
 tmp/
 temp/
+.archive/
 
 # Editor directories and files
 .vscode/
@@ -117,3 +118,9 @@ out/
 web-ext-artifacts/
 
 .cursor/*
+
+#playwright specific
+playwright-report/
+test-results/
+
+

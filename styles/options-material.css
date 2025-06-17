@@ -316,6 +316,26 @@
     background-color: #000000 !important;
 }
 
+.theme-preview[data-theme="steel"] {
+    border-color: #475569 !important;
+    background-color: #FFFFFF !important;
+}
+
+.theme-preview[data-theme="steel-dark"] {
+    border-color: #94A3B8 !important;
+    background-color: #0F172A !important;
+}
+
+.theme-preview[data-theme="midnight"] {
+    border-color: #2563EB !important;
+    background-color: #FFFFFF !important;
+}
+
+.theme-preview[data-theme="midnight-dark"] {
+    border-color: #60A5FA !important;
+    background-color: #000510 !important;
+}
+
 .theme-preview[data-theme="custom"] {
     border-color: #B8860B !important;
     background-color: #FFFFFF !important;
@@ -527,9 +547,53 @@
     background-color: #000000 !important;
 }
 
+.theme-preview[data-theme="steel"] .color-dot:nth-child(1) {
+    background-color: #475569 !important;
+}
 
+.theme-preview[data-theme="steel"] .color-dot:nth-child(2) {
+    background-color: #CBD5E1 !important;
+}
 
+.theme-preview[data-theme="steel"] .color-dot:nth-child(3) {
+    background-color: #F8FAFC !important;
+}
 
+.theme-preview[data-theme="steel-dark"] .color-dot:nth-child(1) {
+    background-color: #94A3B8 !important;
+}
+
+.theme-preview[data-theme="steel-dark"] .color-dot:nth-child(2) {
+    background-color: #475569 !important;
+}
+
+.theme-preview[data-theme="steel-dark"] .color-dot:nth-child(3) {
+    background-color: #0F172A !important;
+}
+
+.theme-preview[data-theme="midnight"] .color-dot:nth-child(1) {
+    background-color: #2563EB !important;
+}
+
+.theme-preview[data-theme="midnight"] .color-dot:nth-child(2) {
+    background-color: #DBEAFE !important;
+}
+
+.theme-preview[data-theme="midnight"] .color-dot:nth-child(3) {
+    background-color: #FAFBFF !important;
+}
+
+.theme-preview[data-theme="midnight-dark"] .color-dot:nth-child(1) {
+    background-color: #60A5FA !important;
+}
+
+.theme-preview[data-theme="midnight-dark"] .color-dot:nth-child(2) {
+    background-color: #2563EB !important;
+}
+
+.theme-preview[data-theme="midnight-dark"] .color-dot:nth-child(3) {
+    background-color: #000510 !important;
+}
 
 .theme-name {
     font-size: 12px;
@@ -546,7 +610,9 @@
 .theme-preview[data-theme="ruby-dark"] .theme-name,
 .theme-preview[data-theme="amethyst-dark"] .theme-name,
 .theme-preview[data-theme="copper-dark"] .theme-name,
-.theme-preview[data-theme="obsidian-dark"] .theme-name {
+.theme-preview[data-theme="obsidian-dark"] .theme-name,
+.theme-preview[data-theme="steel-dark"] .theme-name,
+.theme-preview[data-theme="midnight-dark"] .theme-name {
     color: #FFFFFF !important;
 }
 
