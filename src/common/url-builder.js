@@ -10,11 +10,10 @@ export function buildSuspendedUrl(tab) {
     const suspendedUrlBase = chrome.runtime.getURL("suspended.html");
     const urlObj = new URL(suspendedUrlBase);
 
-    // Build hash with plain original URL and encoded title/fav only as needed
+    // Build hash with plain original URL and encoded title only
     let hash = "";
     if (tab.title) hash += `title=${encodeURIComponent(tab.title)}&`;
     hash += `timestamp=${Date.now()}`;
-    if (tab.favIconUrl) hash += `&fav=${encodeURIComponent(tab.favIconUrl)}`;
     hash += `&url=${tab.url}`;
     urlObj.hash = hash;
     Logger.detailedLog(`[TheOneSuspender] Built suspended URL with hash for tab ${tab.id}: ${urlObj.toString()}`);

@@ -1,6 +1,7 @@
 // suspended.js
 import * as Logger from '../common/logger.js';
 import * as Theme from '../common/theme.js';
+import * as FaviconUtils from '../common/favicon-utils.js';
 
 (async () => {
 	try {
@@ -17,7 +18,6 @@ import * as Theme from '../common/theme.js';
 		let originalUrl = params.url || "";
 		const pageTitle = params.title ? decodeURIComponent(params.title) : (originalUrl || "Tab Suspended");
 		const timestamp = params.timestamp ? parseInt(params.timestamp, 10) : 0;
-		const faviconUrl = params.fav ? decodeURIComponent(params.fav) : "";
 		Logger.log("Using search parameters.", Logger.LogComponent.SUSPENDED);
 
 		// 1) Title & header
@@ -105,7 +105,7 @@ import * as Theme from '../common/theme.js';
 			Logger.logError("Error setting up event listeners", eventError, Logger.LogComponent.SUSPENDED);
 		}
 
-		// 4) Favicon
+		// 4) Favicon - Now using dynamic discovery
 		try {
 			const faviconLink = document.getElementById("favicon");
 			const setFallbackIcon = () => {
@@ -186,18 +186,24 @@ import * as Theme from '../common/theme.js';
 
 			if (faviconLink) {
 				faviconLink.onerror = () => {
-					Logger.logWarning(`Failed to load favicon via <link> tag: ${faviconLink.href || faviconUrl}. Using fallback.`, Logger.LogComponent.SUSPENDED);
+					Logger.logWarning(`Failed to load favicon via <link> tag. Using fallback.`, Logger.LogComponent.SUSPENDED);
 					setFallbackIcon();
 				};
 
-				if (!faviconUrl) {
-					Logger.log("No favicon URL provided. Using fallback.", Logger.LogComponent.SUSPENDED);
-					setFallbackIcon();
-				} else if (faviconUrl.startsWith("data:") || faviconUrl.startsWith("http")) { // Process data URIs and http/s
-					Logger.log(`Processing favicon with canvas: ${faviconUrl.substring(0, 60)}`, Logger.LogComponent.SUSPENDED);
-					processFaviconWithCanvas(faviconUrl);
+				// Use dynamic favicon discovery instead of reading from URL parameter
+				if (originalUrl) {
+					Logger.log(`Attempting to discover favicon for: ${originalUrl.substring(0, 60)}`, Logger.LogComponent.SUSPENDED);
+					FaviconUtils.discoverFavicon(originalUrl, (discoveredFaviconUrl) => {
+						if (discoveredFaviconUrl) {
+							Logger.log(`Processing discovered favicon: ${discoveredFaviconUrl.substring(0, 60)}`, Logger.LogComponent.SUSPENDED);
+							processFaviconWithCanvas(discoveredFaviconUrl);
+						} else {
+							Logger.log("No favicon discovered. Using fallback.", Logger.LogComponent.SUSPENDED);
+							setFallbackIcon();
+						}
+					});
 				} else {
-					Logger.logWarning(`Disallowed/unknown favicon protocol (${faviconUrl.substring(0, 30)})... using fallback.`, Logger.LogComponent.SUSPENDED);
+					Logger.log("No original URL available for favicon discovery. Using fallback.", Logger.LogComponent.SUSPENDED);
 					setFallbackIcon();
 				}
 			} else {
@@ -216,7 +222,6 @@ import * as Theme from '../common/theme.js';
 			const params = new URLSearchParams(location.search);
 			const encodedUrlParam = params.get('url');
 			if (encodedUrlParam) {
-				const originalUrl = decodeURIComponent(encodedUrlParam);
 				// Add a simple way to restore the tab despite errors
 				document.body.innerHTML = `
 					<div style="text-align:center; padding:20px; font-family:system-ui;">
