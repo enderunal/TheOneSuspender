@@ -238,7 +238,8 @@
     background-color: var(--md-sys-color-surface-container-highest);
     border-radius: 8px;
     margin: 0 -8px;
-    padding: 16px 8px;
+    padding-left: 8px;
+    padding-right: 8px;
 }
 
 .shortcut-item:hover .key-display {
