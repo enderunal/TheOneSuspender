@@ -13,13 +13,21 @@ function cleanPackages() {
         let removedCount = 0;
 
         for (const file of files) {
-            // Remove any .zip files that match our naming pattern
-            if (file.match(/^TheOneSuspender.*\.zip$/)) {
+            // Remove any .zip or .crx files that match our naming pattern
+            if (file.match(/^TheOneSuspender.*\.(zip|crx)$/)) {
                 const filePath = path.join(projectRoot, file);
                 fs.unlinkSync(filePath);
                 console.log(chalk.yellow(`🗑️  Removed: ${file}`));
                 removedCount++;
             }
+        }
+
+        // Also clean temp directories
+        const tempDir = path.join(projectRoot, 'temp-extension');
+        if (fs.existsSync(tempDir)) {
+            fs.rmSync(tempDir, { recursive: true, force: true });
+            console.log(chalk.yellow('🗑️  Removed: temp-extension/'));
+            removedCount++;
         }
 
         if (removedCount === 0) {

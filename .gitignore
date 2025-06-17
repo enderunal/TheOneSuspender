@@ -117,6 +117,10 @@ out/
 *.crx
 *.pem
 web-ext-artifacts/
+temp-extension/
+
+# Packaging private keys (IMPORTANT: Never commit these!)
+packaging/extension-key.pem
 
 .cursor/*
 

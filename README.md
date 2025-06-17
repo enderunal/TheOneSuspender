@@ -117,13 +117,70 @@ The One Suspender has been completely redesigned with a beautiful, modern Materi
 2. Click "Add to Chrome"
 3. The extension icon will appear in your toolbar
 
-### Option 2: Manual Installation (Development)
+### Option 2: Direct CRX Installation
 
-1. Download or clone this repository.
-2. Go to `chrome://extensions` in Chrome.
-3. Enable "Developer mode" (top right).
-4. Click "Load unpacked" and select the project directory.
-5. The extension icon will appear in your toolbar.
+1. Download the latest `.crx` file from [Releases](https://github.com/enderunal/TheOneSuspender/releases)
+2. Go to `chrome://extensions` in Chrome
+3. Enable "Developer mode" (top right)
+4. Drag and drop the `.crx` file onto the extensions page
+5. Click "Add extension" when prompted
+
+### Option 3: Manual Installation (Development)
+
+1. Download or clone this repository
+2. Go to `chrome://extensions` in Chrome
+3. Enable "Developer mode" (top right)
+4. Click "Load unpacked" and select the project directory
+5. The extension icon will appear in your toolbar
+
+---
+
+## 🚀 Building from Source
+
+### Quick Start
+
+```bash
+# First time setup
+cd packaging && npm install
+
+# Build everything (recommended)
+cd packaging && npm run build
+```
+
+### Output Files
+
+After building, you'll get both:
+- `TheOneSuspender-v{version}.zip` - For Chrome Web Store upload
+- `TheOneSuspender-v{version}.crx` - For direct distribution and installation
+
+### Available Build Commands
+
+From the `packaging/` directory:
+
+```bash
+npm run build              # Create both ZIP and CRX (recommended)
+npm run build-zip-only     # Create only ZIP file
+npm run package            # Create ZIP file
+npm run package-crx        # Create CRX file
+npm run clean              # Remove old packages
+npm run verify             # Check package contents
+npm run generate-key       # Generate new private key for CRX signing
+```
+
+### Private Key Management
+
+- **Auto-generated** on first CRX build
+- Saved as `packaging/extension-key.pem`
+- **Keep this file safe** - needed for all future CRX updates
+- Already added to `.gitignore`
+
+### Build Requirements
+
+- Node.js 14+
+- Google Chrome (for CRX creation)
+- npm (comes with Node.js)
+
+For complete build documentation, see [`packaging/README.md`](packaging/README.md).
 
 ---
 
@@ -178,10 +235,31 @@ See [tab-scheduling-flow.md](docs/tab-scheduling-flow.md) and the diagrams above
 
 ---
 
+## 📦 Distribution & Releases
+
+### Chrome Web Store
+- Official releases are published to the [Chrome Web Store](https://chromewebstore.google.com/detail/unasuspender-theonesuspen/kbnejigpbcogccaakoafohhkpjpdnipo)
+- Automatic updates for all users
+- Full review and approval process
+
+### GitHub Releases
+- Direct CRX downloads available from [GitHub Releases](https://github.com/enderunal/TheOneSuspender/releases)
+- Both ZIP and CRX files provided
+- Manual installation for advanced users
+- Faster access to new features
+
+### File Types
+- **`.zip`** - For Chrome Web Store submission and development
+- **`.crx`** - For direct installation and enterprise distribution
+- **Private key** - Ensures consistent extension ID across updates
+
+---
+
 ## Contributing
 
 - PRs and issues are welcome! Please follow the code style and security guidelines.
 - See [docs/tab-scheduling-flow.md](docs/tab-scheduling-flow.md) and the diagrams for architecture details.
+- For build and packaging information, see the [Building from Source](#-building-from-source) section above.
 
 ---
 
