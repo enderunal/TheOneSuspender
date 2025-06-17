@@ -143,8 +143,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 			const urlWhitelisted = WhitelistUtils.isWhitelisted(currentWhitelist, fullUrl);
 			const domainWhitelisted = WhitelistUtils.isWhitelisted(currentWhitelist, domain);
 
-			elements.whitelistUrl.textContent = urlWhitelisted ? "URL Whitelisted ✓" : "Never Suspend URL";
-			elements.whitelistDomain.textContent = domainWhitelisted ? "Domain Whitelisted ✓" : "Never Suspend Domain";
+			// Update only the text span to preserve the icon structure
+			const urlTextSpan = elements.whitelistUrl.querySelector('.button-text');
+			const domainTextSpan = elements.whitelistDomain.querySelector('.button-text');
+
+			if (urlTextSpan) {
+				urlTextSpan.textContent = urlWhitelisted ? "URL Whitelisted ✓" : "Never Suspend URL";
+			}
+			if (domainTextSpan) {
+				domainTextSpan.textContent = domainWhitelisted ? "Domain Whitelisted ✓" : "Never Suspend Domain";
+			}
 
 			// Add visual indication (button style) for both URL and domain
 			if (urlWhitelisted) {
