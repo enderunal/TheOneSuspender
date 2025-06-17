@@ -4,57 +4,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privacy Policy - The One Suspender</title>
-    <link rel="stylesheet" href="styles/options.css">
+
+    <!-- Immediate theme injection - MUST be first -->
+    <script src="src/common/theme-injector.js"></script>
+
+    <title>The One Suspender - Privacy Policy</title>
+    <link rel="stylesheet" href="styles/material-colors.css">
+    <link rel="stylesheet" href="styles/material-components.css">
+    <link rel="stylesheet" href="styles/privacy-material.css">
 </head>
 
-<body>
-    <div class="container">
-        <h2>Privacy Policy for The One Suspender</h2>
+<body class="md-surface">
+    <div class="md-container privacy-container">
+        <header class="privacy-header">
+            <h1 class="md-typescale-headline-medium">Privacy Policy</h1>
+        </header>
 
-        <strong class="no-data">THIS EXTENSION COLLECTS ABSOLUTELY NO USER DATA. IT NEVER HAS, AND IT NEVER
-            WILL!</strong>
+        <div class="md-card privacy-card">
+            <div class="no-data-banner md-surface-container-high">
+                <strong class="md-typescale-title-medium">THIS EXTENSION COLLECTS ABSOLUTELY NO USER DATA. IT NEVER HAS,
+                    AND IT NEVER WILL!</strong>
+            </div>
 
-        <p>The One Suspender is built with your privacy as its highest priority. We believe you have the right to a
-            private
-            browsing experience, and this extension is designed to uphold that right.</p>
+            <p class="md-typescale-body-medium">
+                The One Suspender is built with your privacy as its highest priority. We believe you have the right to a
+                private browsing experience, and this extension is designed to uphold that right.
+            </p>
 
-        <h3>Data Collection and Usage: ZERO</h3>
-        <ul>
-            <li><strong>No Personal Information:</strong> We do not collect, store, transmit, or have access to any of
-                your
-                personal information, browsing history, or any other data related to your online activity.</li>
-            <li><strong>Local Operation:</strong> All functionalities of The One Suspender operate entirely on your
-                local
-                computer, within your browser.</li>
-            <li><strong>Local Storage Only:</strong> Any settings you configure for this extension (like suspension
-                times or
-                whitelisted sites) are stored <em>only</em> on your computer using your browser's local storage. This
-                data
-                is for your use only and is never sent to us or any third party.</li>
-        </ul>
+            <h2 class="md-typescale-title-large section-title">Data Collection and Usage: ZERO</h2>
+            <ul class="privacy-list">
+                <li class="md-typescale-body-medium">
+                    <strong>No Personal Information:</strong> We do not collect, store, transmit, or have access to any
+                    of
+                    your personal information, browsing history, or any other data related to your online activity.
+                </li>
+                <li class="md-typescale-body-medium">
+                    <strong>Local Operation:</strong> All functionalities of The One Suspender operate entirely on your
+                    local computer, within your browser.
+                </li>
+                <li class="md-typescale-body-medium">
+                    <strong>Local Storage Only:</strong> Any settings you configure for this extension (like suspension
+                    times or whitelisted sites) are stored <em>only</em> on your computer using your browser's local
+                    storage. This
+                    data is for your use only and is never sent to us or any third party.
+                </li>
+            </ul>
 
-        <h3>Why This Matters</h3>
-        <p>Many extensions collect data for various reasons. We want to be explicitly clear: The One Suspender is
-            <strong>not</strong> one of them. Your browsing habits are your own.
-        </p>
+            <h2 class="md-typescale-title-large section-title">Why This Matters</h2>
+            <p class="md-typescale-body-medium">
+                Many extensions collect data for various reasons. We want to be explicitly clear: The One Suspender is
+                <strong>not</strong> one of them. Your browsing habits are your own.
+            </p>
 
-        <h3>Permissions</h3>
-        <p>The extension requests a minimal set of permissions necessary for its core functionality (like managing tabs
-            and
-            storing your settings locally). These permissions are <strong>solely</strong> for the features described and
-            are
-            <strong>not</strong> used to access or collect any of your data. You can review the specific permissions
-            requested in the <code>manifest.json</code> file in our source code and during installation.
-        </p>
+            <h2 class="md-typescale-title-large section-title">Permissions</h2>
+            <p class="md-typescale-body-medium">
+                The extension requests a minimal set of permissions necessary for its core functionality (like managing
+                tabs
+                and storing your settings locally). These permissions are <strong>solely</strong> for the features
+                described and
+                are <strong>not</strong> used to access or collect any of your data. You can review the specific
+                permissions
+                requested in the <code class="inline-code">manifest.json</code> file in our source code and during
+                installation.
+            </p>
 
-        <h3>Questions?</h3>
-        <p>If you have any questions about our privacy practices, please feel free to open an issue on our <a
-                href="https://github.com/enderunal/TheOneSuspender/issues" target="_blank" rel="noopener">GitHub issues
-                page</a>.</p>
+            <h2 class="md-typescale-title-large section-title">Questions?</h2>
+            <p class="md-typescale-body-medium">
+                If you have any questions about our privacy practices, please feel free to open an issue on our
+                <a href="https://github.com/enderunal/TheOneSuspender/issues" target="_blank" rel="noopener"
+                    class="md-link">
+                    GitHub issues page
+                </a>.
+            </p>
+        </div>
 
-        <div class="links margin-top">
-            <a href="options.html">&#8592; Back to Settings</a>
+        <div class="navigation-links">
+            <a href="options.html" class="md-button text">← Back to Settings</a>
         </div>
     </div>
     <script src="src/ui/privacy.js" type="module"></script>

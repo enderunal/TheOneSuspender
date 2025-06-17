@@ -4,102 +4,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles/options.css">
+
+    <!-- Immediate theme injection - MUST be first -->
+    <script src="src/common/theme-injector.js"></script>
+
+    <link rel="stylesheet" href="styles/material-colors.css">
+    <link rel="stylesheet" href="styles/material-components.css">
+    <link rel="stylesheet" href="styles/shortcuts-material.css">
     <title>The One Suspender - Keyboard Shortcuts</title>
 </head>
 
-<body>
-    <div class="container">
-        <h1>The One Suspender – Keyboard Shortcuts</h1>
+<body class="md-surface">
+    <div class="md-container shortcuts-container">
+        <!-- Header -->
+        <header class="shortcuts-header">
+            <h1 class="md-typescale-headline-medium">Keyboard Shortcuts</h1>
+            <p class="md-typescale-body-medium header-description">
+                Configure keyboard shortcuts for quick access to suspension actions. Click on a shortcut field to change
+                it.
+            </p>
+        </header>
 
-        <section>
-            <h2>Configure Keyboard Shortcuts</h2>
-            <p>Configure keyboard shortcuts for quick access to suspension actions. Click on a shortcut field to change
-                it.</p>
+        <!-- Shortcuts Configuration -->
+        <div class="shortcuts-main">
+            <div class="md-card shortcuts-card">
+                <h2 class="md-typescale-title-large card-title">Configure Shortcuts</h2>
 
-            <div class="shortcuts-container">
-                <div class="shortcut-item">
-                    <div class="shortcut-description">
-                        <strong>Suspend current tab</strong>
-                        <span class="shortcut-help">Suspend the currently active tab</span>
+                <div class="shortcuts-list">
+                    <!-- Suspend Current Tab -->
+                    <div class="shortcut-item">
+                        <div class="shortcut-info">
+                            <h3 class="md-typescale-title-medium shortcut-title">Suspend current tab</h3>
+                            <p class="md-typescale-body-small shortcut-description">
+                                Suspend the currently active tab
+                            </p>
+                        </div>
+                        <div class="shortcut-control" data-command="suspend-current-tab">
+                            <div class="key-display md-typescale-label-large">Not set</div>
+                            <button class="md-button outlined compact change-shortcut-btn"
+                                aria-label="Change shortcut for suspend current tab">
+                                Change
+                            </button>
+                        </div>
                     </div>
-                    <div class="shortcut-key" data-command="suspend-current-tab">
-                        <span class="key-display">Not set</span>
-                        <button class="change-shortcut-btn" aria-label="Change shortcut">Change</button>
-                    </div>
-                </div>
 
-                <div class="shortcut-item">
-                    <div class="shortcut-description">
-                        <strong>Unsuspend current tab</strong>
-                        <span class="shortcut-help">Unsuspend the currently active tab</span>
-                    </div>
-                    <div class="shortcut-key" data-command="unsuspend-current-tab">
-                        <span class="key-display">Not set</span>
-                        <button class="change-shortcut-btn" aria-label="Change shortcut">Change</button>
-                    </div>
-                </div>
+                    <div class="md-divider"></div>
 
-                <div class="shortcut-item">
-                    <div class="shortcut-description">
-                        <strong>Suspend all tabs in current window</strong>
-                        <span class="shortcut-help">Suspend all tabs in the current window</span>
+                    <!-- Unsuspend Current Tab -->
+                    <div class="shortcut-item">
+                        <div class="shortcut-info">
+                            <h3 class="md-typescale-title-medium shortcut-title">Unsuspend current tab</h3>
+                            <p class="md-typescale-body-small shortcut-description">
+                                Unsuspend the currently active tab
+                            </p>
+                        </div>
+                        <div class="shortcut-control" data-command="unsuspend-current-tab">
+                            <div class="key-display md-typescale-label-large">Not set</div>
+                            <button class="md-button outlined compact change-shortcut-btn"
+                                aria-label="Change shortcut for unsuspend current tab">
+                                Change
+                            </button>
+                        </div>
                     </div>
-                    <div class="shortcut-key" data-command="suspend-all-window">
-                        <span class="key-display">Not set</span>
-                        <button class="change-shortcut-btn" aria-label="Change shortcut">Change</button>
-                    </div>
-                </div>
 
-                <div class="shortcut-item">
-                    <div class="shortcut-description">
-                        <strong>Unsuspend all tabs in current window</strong>
-                        <span class="shortcut-help">Unsuspend all tabs in the current window</span>
-                    </div>
-                    <div class="shortcut-key" data-command="unsuspend-all-window">
-                        <span class="key-display">Not set</span>
-                        <button class="change-shortcut-btn" aria-label="Change shortcut">Change</button>
-                    </div>
-                </div>
+                    <div class="md-divider"></div>
 
-                <div class="shortcut-item">
-                    <div class="shortcut-description">
-                        <strong>Suspend all tabs in all windows</strong>
-                        <span class="shortcut-help">Suspend all tabs across all windows</span>
+                    <!-- Suspend All Tabs in Window -->
+                    <div class="shortcut-item">
+                        <div class="shortcut-info">
+                            <h3 class="md-typescale-title-medium shortcut-title">Suspend all tabs in current window</h3>
+                            <p class="md-typescale-body-small shortcut-description">
+                                Suspend all tabs in the current window
+                            </p>
+                        </div>
+                        <div class="shortcut-control" data-command="suspend-all-window">
+                            <div class="key-display md-typescale-label-large">Not set</div>
+                            <button class="md-button outlined compact change-shortcut-btn"
+                                aria-label="Change shortcut for suspend all tabs in window">
+                                Change
+                            </button>
+                        </div>
                     </div>
-                    <div class="shortcut-key" data-command="suspend-all-tabs">
-                        <span class="key-display">Not set</span>
-                        <button class="change-shortcut-btn" aria-label="Change shortcut">Change</button>
-                    </div>
-                </div>
 
-                <div class="shortcut-item">
-                    <div class="shortcut-description">
-                        <strong>Unsuspend all tabs in all windows</strong>
-                        <span class="shortcut-help">Unsuspend all tabs across all windows</span>
+                    <div class="md-divider"></div>
+
+                    <!-- Unsuspend All Tabs in Window -->
+                    <div class="shortcut-item">
+                        <div class="shortcut-info">
+                            <h3 class="md-typescale-title-medium shortcut-title">Unsuspend all tabs in current window
+                            </h3>
+                            <p class="md-typescale-body-small shortcut-description">
+                                Unsuspend all tabs in the current window
+                            </p>
+                        </div>
+                        <div class="shortcut-control" data-command="unsuspend-all-window">
+                            <div class="key-display md-typescale-label-large">Not set</div>
+                            <button class="md-button outlined compact change-shortcut-btn"
+                                aria-label="Change shortcut for unsuspend all tabs in window">
+                                Change
+                            </button>
+                        </div>
                     </div>
-                    <div class="shortcut-key" data-command="unsuspend-all-tabs">
-                        <span class="key-display">Not set</span>
-                        <button class="change-shortcut-btn" aria-label="Change shortcut">Change</button>
+
+                    <div class="md-divider"></div>
+
+                    <!-- Suspend All Tabs -->
+                    <div class="shortcut-item">
+                        <div class="shortcut-info">
+                            <h3 class="md-typescale-title-medium shortcut-title">Suspend all tabs in all windows</h3>
+                            <p class="md-typescale-body-small shortcut-description">
+                                Suspend all tabs across all windows
+                            </p>
+                        </div>
+                        <div class="shortcut-control" data-command="suspend-all-tabs">
+                            <div class="key-display md-typescale-label-large">Not set</div>
+                            <button class="md-button outlined compact change-shortcut-btn"
+                                aria-label="Change shortcut for suspend all tabs">
+                                Change
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="md-divider"></div>
+
+                    <!-- Unsuspend All Tabs -->
+                    <div class="shortcut-item">
+                        <div class="shortcut-info">
+                            <h3 class="md-typescale-title-medium shortcut-title">Unsuspend all tabs in all windows</h3>
+                            <p class="md-typescale-body-small shortcut-description">
+                                Unsuspend all tabs across all windows
+                            </p>
+                        </div>
+                        <div class="shortcut-control" data-command="unsuspend-all-tabs">
+                            <div class="key-display md-typescale-label-large">Not set</div>
+                            <button class="md-button outlined compact change-shortcut-btn"
+                                aria-label="Change shortcut for unsuspend all tabs">
+                                Change
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="md-divider"></div>
+
+                    <!-- Open Settings -->
+                    <div class="shortcut-item">
+                        <div class="shortcut-info">
+                            <h3 class="md-typescale-title-medium shortcut-title">Open extension settings</h3>
+                            <p class="md-typescale-body-small shortcut-description">
+                                Open the settings/options page for the extension
+                            </p>
+                        </div>
+                        <div class="shortcut-control" data-command="open-settings">
+                            <div class="key-display md-typescale-label-large">Not set</div>
+                            <button class="md-button outlined compact change-shortcut-btn"
+                                aria-label="Change shortcut for open settings">
+                                Change
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="shortcut-help-section">
-                <h3>How to use keyboard shortcuts:</h3>
-                <ul>
-                    <li>Click the "Change" button next to any shortcut to configure it</li>
-                    <li>This will open Chrome's extensions keyboard shortcuts page</li>
-                    <li>Find "The One Suspender" in the list and set your preferred shortcuts</li>
-                    <li>Shortcuts typically use combinations like Ctrl+Shift+Letter</li>
-                    <li>Some shortcuts may not have default keys assigned - you can set them manually</li>
-                </ul>
-            </div>
-        </section>
+            <!-- Help Section -->
+            <div class="md-card help-card">
+                <h2 class="md-typescale-title-large card-title">How to use keyboard shortcuts</h2>
 
-        <div class="links">
-            <a href="options.html">&#8592; Back to Settings</a>
+                <div class="help-content">
+                    <ul class="help-list">
+                        <li class="md-typescale-body-medium">
+                            Click the "Change" button next to any shortcut to configure it
+                        </li>
+                        <li class="md-typescale-body-medium">
+                            This will open Chrome's extensions keyboard shortcuts page
+                        </li>
+                        <li class="md-typescale-body-medium">
+                            Find "The One Suspender" in the list and set your preferred shortcuts
+                        </li>
+                        <li class="md-typescale-body-medium">
+                            Shortcuts typically use combinations like Ctrl+Shift+Letter
+                        </li>
+                        <li class="md-typescale-body-medium">
+                            Some shortcuts may not have default keys assigned - you can set them manually
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
+
+        <!-- Navigation -->
+        <nav class="shortcuts-navigation">
+            <a href="options.html" class="md-button text navigation-link">
+                ← Back to Settings
+            </a>
+        </nav>
     </div>
 
     <script src="src/ui/shortcuts.js" type="module"></script>

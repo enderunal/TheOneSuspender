@@ -1,0 +1,312 @@
+/* Material Design Popup Styles for The One Suspender */
+
+/* Compact Professional Popup Design */
+
+.popup-container {
+    width: 280px;
+    padding: 16px;
+    margin: 0;
+    background: var(--md-sys-color-surface);
+    border-radius: 12px;
+    box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.1), 0px 2px 8px rgba(0, 0, 0, 0.06);
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+    animation: popupFadeIn 0.2s ease-out;
+}
+
+@keyframes popupFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Header */
+.popup-header {
+    text-align: center;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.popup-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--md-sys-color-primary);
+    letter-spacing: 0.2px;
+}
+
+/* Feedback Message */
+.feedback-message {
+    margin: 0 0 8px 0;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.feedback-message.visible {
+    opacity: 1;
+}
+
+.feedback-message.success {
+    background-color: var(--md-sys-color-success-container);
+    color: var(--md-sys-color-on-success-container);
+}
+
+.feedback-message.error {
+    background-color: var(--md-sys-color-error-container);
+    color: var(--md-sys-color-on-error-container);
+}
+
+/* Main Action Button */
+.main-action {
+    margin-bottom: 12px;
+}
+
+.primary-button {
+    width: 100%;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 8px;
+    background-color: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.primary-button:hover:not(:disabled) {
+    background-color: var(--md-sys-color-primary);
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.primary-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Quick Actions */
+.quick-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.quick-button {
+    flex: 1;
+    padding: 8px 6px;
+    border: 1px solid var(--md-sys-color-outline);
+    border-radius: 6px;
+    background-color: var(--md-sys-color-surface);
+    color: var(--md-sys-color-on-surface);
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-height: 44px;
+}
+
+.quick-button:hover:not(:disabled) {
+    background-color: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+    border-color: var(--md-sys-color-primary);
+    transform: translateY(-1px);
+}
+
+.quick-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.quick-button.whitelisted {
+    background-color: var(--md-sys-color-success-container);
+    color: var(--md-sys-color-on-success-container);
+    border-color: var(--md-sys-color-success);
+}
+
+.button-icon {
+    font-size: 14px;
+    line-height: 1;
+}
+
+.button-text {
+    font-size: 10px;
+    line-height: 1.2;
+    text-align: center;
+}
+
+/* Section Styling */
+.section-divider {
+    height: 1px;
+    background-color: var(--md-sys-color-outline-variant);
+    margin: 12px 0 8px 0;
+}
+
+.section-header {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--md-sys-color-on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+/* Selected Tabs Section */
+.selected-tabs-section {
+    margin-bottom: 12px;
+}
+
+.selected-tabs-section.hidden {
+    display: none;
+}
+
+.button-row {
+    display: flex;
+    gap: 6px;
+}
+
+.secondary-button {
+    flex: 1;
+    padding: 6px 8px;
+    border: none;
+    border-radius: 5px;
+    background-color: var(--md-sys-color-secondary-container);
+    color: var(--md-sys-color-on-secondary-container);
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.secondary-button:hover {
+    background-color: var(--md-sys-color-secondary);
+    color: var(--md-sys-color-on-secondary);
+    transform: translateY(-1px);
+}
+
+/* Bulk Actions */
+.bulk-actions {
+    margin-bottom: 12px;
+}
+
+.button-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
+.grid-button {
+    padding: 8px 4px;
+    border: none;
+    border-radius: 5px;
+    background-color: var(--md-sys-color-surface-container);
+    color: var(--md-sys-color-on-surface);
+    font-size: 10px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.grid-button:hover {
+    background-color: var(--md-sys-color-surface-container-high);
+    transform: translateY(-1px);
+}
+
+.grid-button-text {
+    line-height: 1.2;
+}
+
+/* Settings Section */
+.settings-section {
+    margin-bottom: 0;
+}
+
+.settings-button {
+    width: 100%;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    background-color: var(--md-sys-color-tertiary-container);
+    color: var(--md-sys-color-on-tertiary-container);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.settings-button:hover {
+    background-color: var(--md-sys-color-tertiary);
+    color: var(--md-sys-color-on-tertiary);
+    transform: translateY(-1px);
+}
+
+.settings-icon {
+    font-size: 14px;
+}
+
+.settings-text {
+    font-size: 12px;
+}
+
+/* Responsive Design */
+@media (max-width: 320px) {
+    .popup-container {
+        width: 260px;
+        padding: 12px;
+    }
+
+    .quick-actions {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .quick-button {
+        flex-direction: row;
+        gap: 6px;
+        min-height: 36px;
+    }
+
+    .button-text {
+        font-size: 11px;
+    }
+}
+
+/* Focus States */
+button:focus-visible {
+    outline: 2px solid var(--md-sys-color-primary);
+    outline-offset: 1px;
+}
+
+/* Loading State */
+.primary-button:disabled {
+    background-color: var(--md-sys-color-surface-container);
+    color: var(--md-sys-color-on-surface-variant);
+}

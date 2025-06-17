@@ -3,15 +3,25 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>The One Suspender – License</title>
-    <link rel="stylesheet" href="styles/options.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Immediate theme injection - MUST be first -->
+    <script src="src/common/theme-injector.js"></script>
+
+    <title>The One Suspender - License</title>
+    <link rel="stylesheet" href="styles/material-colors.css">
+    <link rel="stylesheet" href="styles/material-components.css">
+    <link rel="stylesheet" href="styles/license-material.css">
 </head>
 
-<body>
-    <div class="container">
-        <h2>License</h2>
-        <pre class="license-pre">
-MIT License
+<body class="md-surface">
+    <div class="md-container license-container">
+        <header class="license-header">
+            <h1 class="md-typescale-headline-medium">License</h1>
+        </header>
+
+        <div class="md-card license-card">
+            <pre class="license-text md-typescale-body-small">MIT License
 
 Copyright (c) [2025] [enderunal]
 
@@ -31,10 +41,11 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-        </pre>
-        <div class="links margin-top">
-            <a href="options.html">&#8592; Back to Settings</a>
+SOFTWARE.</pre>
+        </div>
+
+        <div class="navigation-links">
+            <a href="options.html" class="md-button text">← Back to Settings</a>
         </div>
     </div>
     <script src="src/ui/license.js" type="module"></script>

@@ -1,0 +1,345 @@
+/* Material Design Suspended Page Styles for The One Suspender */
+
+.suspended-body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: linear-gradient(135deg,
+            var(--md-sys-color-surface-container-lowest) 0%,
+            var(--md-sys-color-surface-container-low) 100%);
+    cursor: pointer;
+}
+
+.suspended-container {
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+    animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Header Styles */
+.suspended-header {
+    margin-bottom: 32px;
+}
+
+.logo-container {
+    margin-bottom: 24px;
+    animation: logoFloat 0.8s ease-out;
+}
+
+@keyframes logoFloat {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.logo-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    box-shadow: var(--md-sys-elevation-level2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.logo-icon:hover {
+    transform: scale(1.05);
+    box-shadow: var(--md-sys-elevation-level3);
+}
+
+.suspended-title {
+    margin: 0 0 8px 0;
+    color: var(--md-sys-color-primary);
+    font-weight: 500;
+    animation: slideIn 0.6s ease-out 0.2s both;
+}
+
+.suspended-subtitle {
+    margin: 0;
+    color: var(--md-sys-color-on-surface-variant);
+    animation: slideIn 0.6s ease-out 0.3s both;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Tab Information Card */
+.tab-info-card {
+    margin-bottom: 32px;
+    padding: 24px;
+    text-align: left;
+    animation: slideIn 0.6s ease-out 0.4s both;
+}
+
+.tab-info-section {
+    margin: 16px 0;
+}
+
+.tab-info-section:first-child {
+    margin-top: 0;
+}
+
+.tab-info-section:last-child {
+    margin-bottom: 0;
+}
+
+.info-label {
+    margin: 0 0 8px 0;
+    color: var(--md-sys-color-on-surface-variant);
+    font-weight: 500;
+}
+
+.tab-title-text {
+    margin: 0;
+    color: var(--md-sys-color-on-surface);
+    word-wrap: break-word;
+    line-height: 1.4;
+}
+
+.tab-url-text {
+    margin: 0;
+    color: var(--md-sys-color-on-surface-variant);
+    word-wrap: break-word;
+    font-family: 'Roboto Mono', monospace;
+    background-color: var(--md-sys-color-surface-container-highest);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.timestamp-text {
+    margin: 0;
+    color: var(--md-sys-color-on-surface-variant);
+    font-style: italic;
+}
+
+/* Restore Actions */
+.restore-actions {
+    text-align: center;
+    animation: slideIn 0.6s ease-out 0.5s both;
+}
+
+.restore-primary {
+    font-size: 16px;
+    padding: 16px 32px;
+    min-height: 48px;
+    margin-bottom: 16px;
+    box-shadow: var(--md-sys-elevation-level2);
+    transition: all 0.3s ease;
+}
+
+.restore-primary:hover {
+    box-shadow: var(--md-sys-elevation-level3);
+    transform: translateY(-1px);
+}
+
+.restore-primary:active {
+    transform: translateY(0);
+    box-shadow: var(--md-sys-elevation-level1);
+}
+
+.restore-icon {
+    display: inline-block;
+    margin-right: 8px;
+    font-size: 18px;
+    transition: transform 0.3s ease;
+}
+
+.restore-primary:hover .restore-icon {
+    transform: rotate(180deg);
+}
+
+.restore-hint {
+    margin: 0;
+    color: var(--md-sys-color-on-surface-variant);
+    opacity: 0.7;
+}
+
+/* Footer */
+.suspended-footer {
+    margin-top: 48px;
+    animation: slideIn 0.6s ease-out 0.6s both;
+}
+
+.footer-text {
+    margin: 0;
+    color: var(--md-sys-color-on-surface-variant);
+    opacity: 0.6;
+}
+
+/* Hover Effects for Entire Page */
+.suspended-body:hover .tab-info-card {
+    box-shadow: var(--md-sys-elevation-level3);
+    transform: translateY(-2px);
+}
+
+.suspended-body:hover .logo-icon {
+    transform: scale(1.02);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .suspended-body {
+        padding: 16px;
+    }
+
+    .suspended-container {
+        max-width: 100%;
+    }
+
+    .logo-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 16px;
+    }
+
+    .suspended-title {
+        font-size: 24px;
+        line-height: 32px;
+    }
+
+    .tab-info-card {
+        padding: 20px;
+        margin-bottom: 24px;
+    }
+
+    .restore-primary {
+        width: 100%;
+        max-width: 280px;
+    }
+}
+
+@media (max-width: 480px) {
+    .suspended-body {
+        padding: 12px;
+    }
+
+    .suspended-header {
+        margin-bottom: 24px;
+    }
+
+    .logo-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+    }
+
+    .suspended-title {
+        font-size: 20px;
+        line-height: 28px;
+    }
+
+    .tab-info-card {
+        padding: 16px;
+        margin-bottom: 20px;
+    }
+
+    .tab-url-text {
+        font-size: 12px;
+        padding: 6px 8px;
+    }
+
+    .restore-primary {
+        padding: 14px 24px;
+        font-size: 14px;
+    }
+
+    .suspended-footer {
+        margin-top: 32px;
+    }
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .suspended-body {
+    background: linear-gradient(135deg,
+            var(--md-sys-color-surface-container-lowest) 0%,
+            var(--md-sys-color-surface-container-low) 100%);
+}
+
+
+
+[data-theme="dark"] .logo-icon {
+    filter: brightness(0.9);
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+
+    .suspended-container,
+    .logo-container,
+    .suspended-title,
+    .suspended-subtitle,
+    .tab-info-card,
+    .restore-actions,
+    .suspended-footer {
+        animation: none;
+    }
+
+    .logo-icon,
+    .restore-primary,
+    .restore-icon {
+        transition: none;
+    }
+}
+
+/* Focus states */
+.restore-primary:focus-visible {
+    outline: 3px solid var(--md-sys-color-primary);
+    outline-offset: 3px;
+}
+
+/* Loading states */
+.tab-title-text:empty::after,
+.tab-url-text:empty::after,
+.timestamp-text:empty::after {
+    content: "Loading...";
+    color: var(--md-sys-color-on-surface-variant);
+    opacity: 0.6;
+    font-style: italic;
+}
+
+/* Special effects for click hint */
+.restore-hint {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 0.7;
+    }
+
+    50% {
+        opacity: 0.9;
+    }
+}

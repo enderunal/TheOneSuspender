@@ -1,0 +1,123 @@
+/* Privacy Page - Material Design */
+
+.privacy-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+.privacy-header {
+    margin-bottom: 32px;
+    text-align: center;
+}
+
+.privacy-header h1 {
+    color: var(--md-sys-color-on-surface);
+    margin: 0;
+}
+
+.privacy-card {
+    padding: 32px;
+    margin-bottom: 24px;
+}
+
+.no-data-banner {
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 32px;
+    text-align: center;
+    border: 2px solid var(--md-sys-color-primary);
+}
+
+.no-data-banner strong {
+    color: var(--md-sys-color-primary);
+    display: block;
+    line-height: 1.4;
+}
+
+.privacy-card p {
+    color: var(--md-sys-color-on-surface);
+    margin-bottom: 24px;
+    line-height: 1.6;
+}
+
+.section-title {
+    color: var(--md-sys-color-on-surface);
+    margin: 32px 0 16px 0;
+    border-bottom: 2px solid var(--md-sys-color-outline-variant);
+    padding-bottom: 8px;
+}
+
+.section-title:first-of-type {
+    margin-top: 24px;
+}
+
+.privacy-list {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0 24px 0;
+}
+
+.privacy-list li {
+    padding: 16px;
+    margin-bottom: 12px;
+    background-color: var(--md-sys-color-surface-container-low);
+    border-radius: 12px;
+    color: var(--md-sys-color-on-surface);
+    line-height: 1.5;
+    border-left: 4px solid var(--md-sys-color-primary);
+}
+
+.privacy-list li:last-child {
+    margin-bottom: 0;
+}
+
+.privacy-list li strong {
+    color: var(--md-sys-color-primary);
+    font-weight: 600;
+}
+
+.inline-code {
+    background-color: var(--md-sys-color-surface-container-high);
+    color: var(--md-sys-color-on-surface);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.9em;
+}
+
+.md-link {
+    color: var(--md-sys-color-primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.md-link:hover {
+    text-decoration: underline;
+}
+
+
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .privacy-container {
+        padding: 16px;
+    }
+
+    .privacy-card {
+        padding: 20px;
+    }
+
+    .privacy-header {
+        margin-bottom: 24px;
+    }
+
+    .no-data-banner {
+        padding: 16px;
+        margin-bottom: 24px;
+    }
+
+    .privacy-list li {
+        padding: 12px;
+    }
+}

@@ -1,0 +1,869 @@
+/* Material Design 3 Color System for The One Suspender - Premium Edition */
+
+/* Import Roboto font locally */
+@import url('../vendor/fonts/roboto-local.css');
+
+/* Immediate theme loading - prevents flash using CSS selectors */
+html {
+    background-color: #FFFDF7;
+    color: #1F1B13;
+}
+
+/* Premium Immediate Theme Colors - Applied via CSS classes */
+
+/* Gold Theme (Default) - Warm, sophisticated gold */
+html.theme-gold,
+html[data-theme-loading="gold"] {
+    background-color: #FFFDF7 !important;
+    color: #1F1B13 !important;
+}
+
+html.theme-gold-dark,
+html[data-theme-loading="gold-dark"] {
+    background-color: #1A1611 !important;
+    color: #E8E2D4 !important;
+}
+
+/* Platinum Theme - Elegant silver/gray */
+html.theme-platinum,
+html[data-theme-loading="platinum"] {
+    background-color: #FEFEFE !important;
+    color: #1A1A1A !important;
+}
+
+html.theme-platinum-dark,
+html[data-theme-loading="platinum-dark"] {
+    background-color: #121212 !important;
+    color: #E8E8E8 !important;
+}
+
+/* Emerald Theme - Rich, sophisticated green */
+html.theme-emerald,
+html[data-theme-loading="emerald"] {
+    background-color: #F8FDF9 !important;
+    color: #0F1B11 !important;
+}
+
+html.theme-emerald-dark,
+html[data-theme-loading="emerald-dark"] {
+    background-color: #0A1A0C !important;
+    color: #D4E8D6 !important;
+}
+
+/* Sapphire Theme - Deep, royal blue */
+html.theme-sapphire,
+html[data-theme-loading="sapphire"] {
+    background-color: #F8FBFF !important;
+    color: #0F1419 !important;
+}
+
+html.theme-sapphire-dark,
+html[data-theme-loading="sapphire-dark"] {
+    background-color: #0A1318 !important;
+    color: #D4E2F0 !important;
+}
+
+/* Ruby Theme - Rich, deep red */
+html.theme-ruby,
+html[data-theme-loading="ruby"] {
+    background-color: #FFFBFB !important;
+    color: #1B0F0F !important;
+}
+
+html.theme-ruby-dark,
+html[data-theme-loading="ruby-dark"] {
+    background-color: #1A0A0A !important;
+    color: #E8D4D4 !important;
+}
+
+/* Amethyst Theme - Sophisticated purple */
+html.theme-amethyst,
+html[data-theme-loading="amethyst"] {
+    background-color: #FDFBFF !important;
+    color: #1A0F1B !important;
+}
+
+html.theme-amethyst-dark,
+html[data-theme-loading="amethyst-dark"] {
+    background-color: #1A0A1A !important;
+    color: #E8D4E8 !important;
+}
+
+/* Copper Theme - Warm, earthy brown */
+html.theme-copper,
+html[data-theme-loading="copper"] {
+    background-color: #FFFCF9 !important;
+    color: #1B1611 !important;
+}
+
+html.theme-copper-dark,
+html[data-theme-loading="copper-dark"] {
+    background-color: #1A1510 !important;
+    color: #E8E0D4 !important;
+}
+
+/* Obsidian Theme - Pure black and white */
+html.theme-obsidian,
+html[data-theme-loading="obsidian"] {
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+}
+
+html.theme-obsidian-dark,
+html[data-theme-loading="obsidian-dark"] {
+    background-color: #000000 !important;
+    color: #FFFFFF !important;
+}
+
+/* Custom Theme - User-defined colors */
+html.theme-custom,
+html[data-theme-loading="custom"] {
+    background-color: var(--custom-surface, #FFFDF7) !important;
+    color: var(--custom-on-surface, #1F1B13) !important;
+}
+
+
+
+/* Default theme colors (Gold) - Premium default */
+:root {
+    /* Gold Theme (Default) - Sophisticated warm gold */
+    --md-sys-color-primary: #B8860B;
+    --md-sys-color-on-primary: #FFFFFF;
+    --md-sys-color-primary-container: #F5E6A3;
+    --md-sys-color-on-primary-container: #2D1B00;
+
+    --md-sys-color-secondary: #6B5B39;
+    --md-sys-color-on-secondary: #FFFFFF;
+    --md-sys-color-secondary-container: #F3E5B4;
+    --md-sys-color-on-secondary-container: #231B00;
+
+    --md-sys-color-tertiary: #8B6914;
+    --md-sys-color-on-tertiary: #FFFFFF;
+    --md-sys-color-tertiary-container: #FFDF9C;
+    --md-sys-color-on-tertiary-container: #2A1F00;
+
+    --md-sys-color-error: #BA1A1A;
+    --md-sys-color-on-error: #FFFFFF;
+    --md-sys-color-error-container: #FFDAD6;
+    --md-sys-color-on-error-container: #410002;
+
+    --md-sys-color-background: #FFFDF7;
+    --md-sys-color-on-background: #1F1B13;
+    --md-sys-color-surface: #FFFDF7;
+    --md-sys-color-on-surface: #1F1B13;
+    --md-sys-color-surface-variant: #EDE1CF;
+    --md-sys-color-on-surface-variant: #4C4639;
+
+    --md-sys-color-outline: #7D7667;
+    --md-sys-color-outline-variant: #D0C4B4;
+    --md-sys-color-surface-container-highest: #E8DCC8;
+    --md-sys-color-surface-container-high: #EEE2CE;
+    --md-sys-color-surface-container: #F4E8D4;
+    --md-sys-color-surface-container-low: #FAF0DC;
+    --md-sys-color-surface-container-lowest: #FFFFFF;
+
+    /* Success colors */
+    --md-sys-color-success: #2E7D32;
+    --md-sys-color-on-success: #FFFFFF;
+    --md-sys-color-success-container: #C8E6C9;
+    --md-sys-color-on-success-container: #1B5E20;
+
+    /* Warning colors */
+    --md-sys-color-warning: #F57C00;
+    --md-sys-color-on-warning: #FFFFFF;
+    --md-sys-color-warning-container: #FFE0B2;
+    --md-sys-color-on-warning-container: #E65100;
+
+    /* Elevation shadows */
+    --md-sys-elevation-level0: none;
+    --md-sys-elevation-level1: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+    --md-sys-elevation-level2: 0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+    --md-sys-elevation-level3: 0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px 0px rgba(0, 0, 0, 0.30);
+    --md-sys-elevation-level4: 0px 6px 10px 4px rgba(0, 0, 0, 0.15), 0px 2px 3px 0px rgba(0, 0, 0, 0.30);
+    --md-sys-elevation-level5: 0px 8px 12px 6px rgba(0, 0, 0, 0.15), 0px 4px 4px 0px rgba(0, 0, 0, 0.30);
+}
+
+/* Gold Theme - Sophisticated warm gold */
+[data-theme="gold"] {
+    --md-sys-color-primary: #B8860B;
+    --md-sys-color-on-primary: #FFFFFF;
+    --md-sys-color-primary-container: #F5E6A3;
+    --md-sys-color-on-primary-container: #2D1B00;
+
+    --md-sys-color-secondary: #6B5B39;
+    --md-sys-color-on-secondary: #FFFFFF;
+    --md-sys-color-secondary-container: #F3E5B4;
+    --md-sys-color-on-secondary-container: #231B00;
+
+    --md-sys-color-tertiary: #8B6914;
+    --md-sys-color-on-tertiary: #FFFFFF;
+    --md-sys-color-tertiary-container: #FFDF9C;
+    --md-sys-color-on-tertiary-container: #2A1F00;
+
+    --md-sys-color-background: #FFFDF7;
+    --md-sys-color-on-background: #1F1B13;
+    --md-sys-color-surface: #FFFDF7;
+    --md-sys-color-on-surface: #1F1B13;
+    --md-sys-color-surface-variant: #EDE1CF;
+    --md-sys-color-on-surface-variant: #4C4639;
+
+    --md-sys-color-outline: #7D7667;
+    --md-sys-color-outline-variant: #D0C4B4;
+    --md-sys-color-surface-container-highest: #E8DCC8;
+    --md-sys-color-surface-container-high: #EEE2CE;
+    --md-sys-color-surface-container: #F4E8D4;
+    --md-sys-color-surface-container-low: #FAF0DC;
+    --md-sys-color-surface-container-lowest: #FFFFFF;
+}
+
+/* Gold Dark Theme - Rich, warm dark gold */
+[data-theme="gold-dark"] {
+    --md-sys-color-primary: #D4AF37;
+    --md-sys-color-on-primary: #2D1B00;
+    --md-sys-color-primary-container: #8B6914;
+    --md-sys-color-on-primary-container: #F5E6A3;
+
+    --md-sys-color-secondary: #C7B882;
+    --md-sys-color-on-secondary: #231B00;
+    --md-sys-color-secondary-container: #6B5B39;
+    --md-sys-color-on-secondary-container: #F3E5B4;
+
+    --md-sys-color-tertiary: #E6C547;
+    --md-sys-color-on-tertiary: #2A1F00;
+    --md-sys-color-tertiary-container: #8B6914;
+    --md-sys-color-on-tertiary-container: #FFDF9C;
+
+    --md-sys-color-background: #1A1611;
+    --md-sys-color-on-background: #E8E2D4;
+    --md-sys-color-surface: #1A1611;
+    --md-sys-color-on-surface: #E8E2D4;
+    --md-sys-color-surface-variant: #4C4639;
+    --md-sys-color-on-surface-variant: #D0C4B4;
+
+    --md-sys-color-outline: #9A8E7F;
+    --md-sys-color-outline-variant: #4C4639;
+    --md-sys-color-surface-container-highest: #2F2A1F;
+    --md-sys-color-surface-container-high: #2A251C;
+    --md-sys-color-surface-container: #252018;
+    --md-sys-color-surface-container-low: #1F1B13;
+    --md-sys-color-surface-container-lowest: #0F0D0A;
+}
+
+/* Platinum Theme - Elegant silver/gray */
+[data-theme="platinum"] {
+    --md-sys-color-primary: #6B7280;
+    --md-sys-color-on-primary: #FFFFFF;
+    --md-sys-color-primary-container: #E5E7EB;
+    --md-sys-color-on-primary-container: #374151;
+
+    --md-sys-color-secondary: #9CA3AF;
+    --md-sys-color-on-secondary: #FFFFFF;
+    --md-sys-color-secondary-container: #F3F4F6;
+    --md-sys-color-on-secondary-container: #4B5563;
+
+    --md-sys-color-tertiary: #8B8B8B;
+    --md-sys-color-on-tertiary: #FFFFFF;
+    --md-sys-color-tertiary-container: #E8E8E8;
+    --md-sys-color-on-tertiary-container: #3A3A3A;
+
+    --md-sys-color-background: #FEFEFE;
+    --md-sys-color-on-background: #1A1A1A;
+    --md-sys-color-surface: #FEFEFE;
+    --md-sys-color-on-surface: #1A1A1A;
+    --md-sys-color-surface-variant: #F1F5F9;
+    --md-sys-color-on-surface-variant: #64748B;
+
+    --md-sys-color-outline: #94A3B8;
+    --md-sys-color-outline-variant: #CBD5E1;
+    --md-sys-color-surface-container-highest: #E2E8F0;
+    --md-sys-color-surface-container-high: #F1F5F9;
+    --md-sys-color-surface-container: #F8FAFC;
+    --md-sys-color-surface-container-low: #FCFCFC;
+    --md-sys-color-surface-container-lowest: #FFFFFF;
+}
+
+[data-theme="platinum-dark"] {
+    --md-sys-color-primary: #D1D5DB;
+    --md-sys-color-on-primary: #374151;
+    --md-sys-color-primary-container: #6B7280;
+    --md-sys-color-on-primary-container: #E5E7EB;
+
+    --md-sys-color-secondary: #9CA3AF;
+    --md-sys-color-on-secondary: #4B5563;
+    --md-sys-color-secondary-container: #6B7280;
+    --md-sys-color-on-secondary-container: #F3F4F6;
+
+    --md-sys-color-tertiary: #D4D4D4;
+    --md-sys-color-on-tertiary: #3A3A3A;
+    --md-sys-color-tertiary-container: #8B8B8B;
+    --md-sys-color-on-tertiary-container: #E8E8E8;
+
+    --md-sys-color-background: #121212;
+    --md-sys-color-on-background: #E8E8E8;
+    --md-sys-color-surface: #121212;
+    --md-sys-color-on-surface: #E8E8E8;
+    --md-sys-color-surface-variant: #374151;
+    --md-sys-color-on-surface-variant: #D1D5DB;
+
+    --md-sys-color-outline: #6B7280;
+    --md-sys-color-outline-variant: #374151;
+    --md-sys-color-surface-container-highest: #2D3748;
+    --md-sys-color-surface-container-high: #1F2937;
+    --md-sys-color-surface-container: #1A202C;
+    --md-sys-color-surface-container-low: #171923;
+    --md-sys-color-surface-container-lowest: #0F0F0F;
+}
+
+/* Emerald Theme - Rich, sophisticated green */
+[data-theme="emerald"] {
+    --md-sys-color-primary: #059669;
+    --md-sys-color-on-primary: #FFFFFF;
+    --md-sys-color-primary-container: #A7F3D0;
+    --md-sys-color-on-primary-container: #064E3B;
+
+    --md-sys-color-secondary: #047857;
+    --md-sys-color-on-secondary: #FFFFFF;
+    --md-sys-color-secondary-container: #CCFBF1;
+    --md-sys-color-on-secondary-container: #134E4A;
+
+    --md-sys-color-tertiary: #0D9488;
+    --md-sys-color-on-tertiary: #FFFFFF;
+    --md-sys-color-tertiary-container: #99F6E4;
+    --md-sys-color-on-tertiary-container: #042F2E;
+
+    --md-sys-color-background: #F8FDF9;
+    --md-sys-color-on-background: #0F1B11;
+    --md-sys-color-surface: #F8FDF9;
+    --md-sys-color-on-surface: #0F1B11;
+    --md-sys-color-surface-variant: #ECFDF5;
+    --md-sys-color-on-surface-variant: #166534;
+
+    --md-sys-color-outline: #22C55E;
+    --md-sys-color-outline-variant: #BBF7D0;
+    --md-sys-color-surface-container-highest: #F0FDF4;
+    --md-sys-color-surface-container-high: #DCFCE7;
+    --md-sys-color-surface-container: #ECFDF5;
+    --md-sys-color-surface-container-low: #F0FDF4;
+    --md-sys-color-surface-container-lowest: #FFFFFF;
+}
+
+[data-theme="emerald-dark"] {
+    --md-sys-color-primary: #34D399;
+    --md-sys-color-on-primary: #064E3B;
+    --md-sys-color-primary-container: #059669;
+    --md-sys-color-on-primary-container: #A7F3D0;
+
+    --md-sys-color-secondary: #6EE7B7;
+    --md-sys-color-on-secondary: #134E4A;
+    --md-sys-color-secondary-container: #047857;
+    --md-sys-color-on-secondary-container: #CCFBF1;
+
+    --md-sys-color-tertiary: #5EEAD4;
+    --md-sys-color-on-tertiary: #042F2E;
+    --md-sys-color-tertiary-container: #0D9488;
+    --md-sys-color-on-tertiary-container: #99F6E4;
+
+    --md-sys-color-background: #0A1A0C;
+    --md-sys-color-on-background: #D4E8D6;
+    --md-sys-color-surface: #0A1A0C;
+    --md-sys-color-on-surface: #D4E8D6;
+    --md-sys-color-surface-variant: #166534;
+    --md-sys-color-on-surface-variant: #BBF7D0;
+
+    --md-sys-color-outline: #16A34A;
+    --md-sys-color-outline-variant: #166534;
+    --md-sys-color-surface-container-highest: #1F2937;
+    --md-sys-color-surface-container-high: #1A2E1A;
+    --md-sys-color-surface-container: #152B15;
+    --md-sys-color-surface-container-low: #0F1B11;
+    --md-sys-color-surface-container-lowest: #0A0F0A;
+}
+
+/* Sapphire Theme - Deep, royal blue */
+[data-theme="sapphire"] {
+    --md-sys-color-primary: #1E40AF;
+    --md-sys-color-on-primary: #FFFFFF;
+    --md-sys-color-primary-container: #BFDBFE;
+    --md-sys-color-on-primary-container: #1E3A8A;
+
+    --md-sys-color-secondary: #3B82F6;
+    --md-sys-color-on-secondary: #FFFFFF;
+    --md-sys-color-secondary-container: #DBEAFE;
+    --md-sys-color-on-secondary-container: #1E40AF;
+
+    --md-sys-color-tertiary: #0EA5E9;
+    --md-sys-color-on-tertiary: #FFFFFF;
+    --md-sys-color-tertiary-container: #BAE6FD;
+    --md-sys-color-on-tertiary-container: #0C4A6E;
+
+    --md-sys-color-background: #F8FBFF;
+    --md-sys-color-on-background: #0F1419;
+    --md-sys-color-surface: #F8FBFF;
+    --md-sys-color-on-surface: #0F1419;
+    --md-sys-color-surface-variant: #EFF6FF;
+    --md-sys-color-on-surface-variant: #1E40AF;
+
+    --md-sys-color-outline: #3B82F6;
+    --md-sys-color-outline-variant: #BFDBFE;
+    --md-sys-color-surface-container-highest: #F8FAFC;
+    --md-sys-color-surface-container-high: #EFF6FF;
+    --md-sys-color-surface-container: #F0F9FF;
+    --md-sys-color-surface-container-low: #F8FAFC;
+    --md-sys-color-surface-container-lowest: #FFFFFF;
+}
+
+[data-theme="sapphire-dark"] {
+    --md-sys-color-primary: #60A5FA;
+    --md-sys-color-on-primary: #1E3A8A;
+    --md-sys-color-primary-container: #1E40AF;
+    --md-sys-color-on-primary-container: #BFDBFE;
+
+    --md-sys-color-secondary: #93C5FD;
+    --md-sys-color-on-secondary: #1E40AF;
+    --md-sys-color-secondary-container: #3B82F6;
+    --md-sys-color-on-secondary-container: #DBEAFE;
+
+    --md-sys-color-tertiary: #7DD3FC;
+    --md-sys-color-on-tertiary: #0C4A6E;
+    --md-sys-color-tertiary-container: #0EA5E9;
+    --md-sys-color-on-tertiary-container: #BAE6FD;
+
+    --md-sys-color-background: #0A1318;
+    --md-sys-color-on-background: #D4E2F0;
+    --md-sys-color-surface: #0A1318;
+    --md-sys-color-on-surface: #D4E2F0;
+    --md-sys-color-surface-variant: #1E40AF;
+    --md-sys-color-on-surface-variant: #BFDBFE;
+
+    --md-sys-color-outline: #2563EB;
+    --md-sys-color-outline-variant: #1E40AF;
+    --md-sys-color-surface-container-highest: #1E3A8A;
+    --md-sys-color-surface-container-high: #1A2E42;
+    --md-sys-color-surface-container: #152B3D;
+    --md-sys-color-surface-container-low: #0F1419;
+    --md-sys-color-surface-container-lowest: #0A0F14;
+}
+
+/* Ruby Theme - Rich, deep red */
+[data-theme="ruby"] {
+    --md-sys-color-primary: #DC2626;
+    --md-sys-color-on-primary: #FFFFFF;
+    --md-sys-color-primary-container: #FECACA;
+    --md-sys-color-on-primary-container: #991B1B;
+
+    --md-sys-color-secondary: #EF4444;
+    --md-sys-color-on-secondary: #FFFFFF;
+    --md-sys-color-secondary-container: #FEE2E2;
+    --md-sys-color-on-secondary-container: #DC2626;
+
+    --md-sys-color-tertiary: #F59E0B;
+    --md-sys-color-on-tertiary: #FFFFFF;
+    --md-sys-color-tertiary-container: #FEF3C7;
+    --md-sys-color-on-tertiary-container: #92400E;
+
+    --md-sys-color-background: #FFFBFB;
+    --md-sys-color-on-background: #1B0F0F;
+    --md-sys-color-surface: #FFFBFB;
+    --md-sys-color-on-surface: #1B0F0F;
+    --md-sys-color-surface-variant: #FEF2F2;
+    --md-sys-color-on-surface-variant: #991B1B;
+
+    --md-sys-color-outline: #EF4444;
+    --md-sys-color-outline-variant: #FECACA;
+    --md-sys-color-surface-container-highest: #FFFCFC;
+    --md-sys-color-surface-container-high: #FEF2F2;
+    --md-sys-color-surface-container: #FFFBFB;
+    --md-sys-color-surface-container-low: #FFFCFC;
+    --md-sys-color-surface-container-lowest: #FFFFFF;
+}
+
+[data-theme="ruby-dark"] {
+    --md-sys-color-primary: #F87171;
+    --md-sys-color-on-primary: #991B1B;
+    --md-sys-color-primary-container: #DC2626;
+    --md-sys-color-on-primary-container: #FECACA;
+
+    --md-sys-color-secondary: #FCA5A5;
+    --md-sys-color-on-secondary: #DC2626;
+    --md-sys-color-secondary-container: #EF4444;
+    --md-sys-color-on-secondary-container: #FEE2E2;
+
+    --md-sys-color-tertiary: #FCD34D;
+    --md-sys-color-on-tertiary: #92400E;
+    --md-sys-color-tertiary-container: #F59E0B;
+    --md-sys-color-on-tertiary-container: #FEF3C7;
+
+    --md-sys-color-background: #1A0A0A;
+    --md-sys-color-on-background: #E8D4D4;
+    --md-sys-color-surface: #1A0A0A;
+    --md-sys-color-on-surface: #E8D4D4;
+    --md-sys-color-surface-variant: #991B1B;
+    --md-sys-color-on-surface-variant: #FECACA;
+
+    --md-sys-color-outline: #DC2626;
+    --md-sys-color-outline-variant: #991B1B;
+    --md-sys-color-surface-container-highest: #2D1B1B;
+    --md-sys-color-surface-container-high: #251515;
+    --md-sys-color-surface-container: #201212;
+    --md-sys-color-surface-container-low: #1B0F0F;
+    --md-sys-color-surface-container-lowest: #0F0808;
+}
+
+/* Amethyst Theme - Sophisticated purple */
+[data-theme="amethyst"] {
+    --md-sys-color-primary: #7C3AED;
+    --md-sys-color-on-primary: #FFFFFF;
+    --md-sys-color-primary-container: #DDD6FE;
+    --md-sys-color-on-primary-container: #5B21B6;
+
+    --md-sys-color-secondary: #8B5CF6;
+    --md-sys-color-on-secondary: #FFFFFF;
+    --md-sys-color-secondary-container: #EDE9FE;
+    --md-sys-color-on-secondary-container: #7C3AED;
+
+    --md-sys-color-tertiary: #A855F7;
+    --md-sys-color-on-tertiary: #FFFFFF;
+    --md-sys-color-tertiary-container: #F3E8FF;
+    --md-sys-color-on-tertiary-container: #6B21A8;
+
+    --md-sys-color-background: #FDFBFF;
+    --md-sys-color-on-background: #1A0F1B;
+    --md-sys-color-surface: #FDFBFF;
+    --md-sys-color-on-surface: #1A0F1B;
+    --md-sys-color-surface-variant: #FAF5FF;
+    --md-sys-color-on-surface-variant: #5B21B6;
+
+    --md-sys-color-outline: #8B5CF6;
+    --md-sys-color-outline-variant: #DDD6FE;
+    --md-sys-color-surface-container-highest: #FAFAFA;
+    --md-sys-color-surface-container-high: #F3E8FF;
+    --md-sys-color-surface-container: #FAF5FF;
+    --md-sys-color-surface-container-low: #FDFBFF;
+    --md-sys-color-surface-container-lowest: #FFFFFF;
+}
+
+[data-theme="amethyst-dark"] {
+    --md-sys-color-primary: #A78BFA;
+    --md-sys-color-on-primary: #5B21B6;
+    --md-sys-color-primary-container: #7C3AED;
+    --md-sys-color-on-primary-container: #DDD6FE;
+
+    --md-sys-color-secondary: #C4B5FD;
+    --md-sys-color-on-secondary: #7C3AED;
+    --md-sys-color-secondary-container: #8B5CF6;
+    --md-sys-color-on-secondary-container: #EDE9FE;
+
+    --md-sys-color-tertiary: #D8B4FE;
+    --md-sys-color-on-tertiary: #6B21A8;
+    --md-sys-color-tertiary-container: #A855F7;
+    --md-sys-color-on-tertiary-container: #F3E8FF;
+
+    --md-sys-color-background: #1A0A1A;
+    --md-sys-color-on-background: #E8D4E8;
+    --md-sys-color-surface: #1A0A1A;
+    --md-sys-color-on-surface: #E8D4E8;
+    --md-sys-color-surface-variant: #5B21B6;
+    --md-sys-color-on-surface-variant: #DDD6FE;
+
+    --md-sys-color-outline: #7C3AED;
+    --md-sys-color-outline-variant: #5B21B6;
+    --md-sys-color-surface-container-highest: #2D1B2D;
+    --md-sys-color-surface-container-high: #251525;
+    --md-sys-color-surface-container: #201220;
+    --md-sys-color-surface-container-low: #1A0F1B;
+    --md-sys-color-surface-container-lowest: #0F080F;
+}
+
+/* Copper Theme - Warm, earthy brown */
+[data-theme="copper"] {
+    --md-sys-color-primary: #D97706;
+    --md-sys-color-on-primary: #FFFFFF;
+    --md-sys-color-primary-container: #FED7AA;
+    --md-sys-color-on-primary-container: #92400E;
+
+    --md-sys-color-secondary: #F59E0B;
+    --md-sys-color-on-secondary: #FFFFFF;
+    --md-sys-color-secondary-container: #FEF3C7;
+    --md-sys-color-on-secondary-container: #78350F;
+
+    --md-sys-color-tertiary: #A16207;
+    --md-sys-color-on-tertiary: #FFFFFF;
+    --md-sys-color-tertiary-container: #FEF08A;
+    --md-sys-color-on-tertiary-container: #713F12;
+
+    --md-sys-color-background: #FFFCF9;
+    --md-sys-color-on-background: #1B1611;
+    --md-sys-color-surface: #FFFCF9;
+    --md-sys-color-on-surface: #1B1611;
+    --md-sys-color-surface-variant: #FFF7ED;
+    --md-sys-color-on-surface-variant: #92400E;
+
+    --md-sys-color-outline: #F59E0B;
+    --md-sys-color-outline-variant: #FED7AA;
+    --md-sys-color-surface-container-highest: #FFFCF9;
+    --md-sys-color-surface-container-high: #FFF7ED;
+    --md-sys-color-surface-container: #FFFBF5;
+    --md-sys-color-surface-container-low: #FFFCF9;
+    --md-sys-color-surface-container-lowest: #FFFFFF;
+}
+
+[data-theme="copper-dark"] {
+    --md-sys-color-primary: #FBBF24;
+    --md-sys-color-on-primary: #92400E;
+    --md-sys-color-primary-container: #D97706;
+    --md-sys-color-on-primary-container: #FED7AA;
+
+    --md-sys-color-secondary: #FCD34D;
+    --md-sys-color-on-secondary: #78350F;
+    --md-sys-color-secondary-container: #F59E0B;
+    --md-sys-color-on-secondary-container: #FEF3C7;
+
+    --md-sys-color-tertiary: #FDE047;
+    --md-sys-color-on-tertiary: #713F12;
+    --md-sys-color-tertiary-container: #A16207;
+    --md-sys-color-on-tertiary-container: #FEF08A;
+
+    --md-sys-color-background: #1A1510;
+    --md-sys-color-on-background: #E8E0D4;
+    --md-sys-color-surface: #1A1510;
+    --md-sys-color-on-surface: #E8E0D4;
+    --md-sys-color-surface-variant: #92400E;
+    --md-sys-color-on-surface-variant: #FED7AA;
+
+    --md-sys-color-outline: #D97706;
+    --md-sys-color-outline-variant: #92400E;
+    --md-sys-color-surface-container-highest: #2D251A;
+    --md-sys-color-surface-container-high: #251F15;
+    --md-sys-color-surface-container: #201A12;
+    --md-sys-color-surface-container-low: #1B1611;
+    --md-sys-color-surface-container-lowest: #0F0D0A;
+}
+
+/* Obsidian Theme - Pure contrast */
+[data-theme="obsidian"] {
+    --md-sys-color-primary: #000000;
+    --md-sys-color-on-primary: #FFFFFF;
+    --md-sys-color-primary-container: #F5F5F5;
+    --md-sys-color-on-primary-container: #000000;
+
+    --md-sys-color-secondary: #404040;
+    --md-sys-color-on-secondary: #FFFFFF;
+    --md-sys-color-secondary-container: #E5E5E5;
+    --md-sys-color-on-secondary-container: #262626;
+
+    --md-sys-color-tertiary: #737373;
+    --md-sys-color-on-tertiary: #FFFFFF;
+    --md-sys-color-tertiary-container: #D4D4D4;
+    --md-sys-color-on-tertiary-container: #525252;
+
+    --md-sys-color-background: #FFFFFF;
+    --md-sys-color-on-background: #000000;
+    --md-sys-color-surface: #FFFFFF;
+    --md-sys-color-on-surface: #000000;
+    --md-sys-color-surface-variant: #FAFAFA;
+    --md-sys-color-on-surface-variant: #404040;
+
+    --md-sys-color-outline: #737373;
+    --md-sys-color-outline-variant: #D4D4D4;
+    --md-sys-color-surface-container-highest: #E5E5E5;
+    --md-sys-color-surface-container-high: #F5F5F5;
+    --md-sys-color-surface-container: #FAFAFA;
+    --md-sys-color-surface-container-low: #FCFCFC;
+    --md-sys-color-surface-container-lowest: #FFFFFF;
+}
+
+[data-theme="obsidian-dark"] {
+    --md-sys-color-primary: #FFFFFF;
+    --md-sys-color-on-primary: #000000;
+    --md-sys-color-primary-container: #262626;
+    --md-sys-color-on-primary-container: #FFFFFF;
+
+    --md-sys-color-secondary: #D4D4D4;
+    --md-sys-color-on-secondary: #262626;
+    --md-sys-color-secondary-container: #404040;
+    --md-sys-color-on-secondary-container: #E5E5E5;
+
+    --md-sys-color-tertiary: #A3A3A3;
+    --md-sys-color-on-tertiary: #525252;
+    --md-sys-color-tertiary-container: #737373;
+    --md-sys-color-on-tertiary-container: #D4D4D4;
+
+    --md-sys-color-background: #000000;
+    --md-sys-color-on-background: #FFFFFF;
+    --md-sys-color-surface: #000000;
+    --md-sys-color-on-surface: #FFFFFF;
+    --md-sys-color-surface-variant: #171717;
+    --md-sys-color-on-surface-variant: #D4D4D4;
+
+    --md-sys-color-outline: #737373;
+    --md-sys-color-outline-variant: #404040;
+    --md-sys-color-surface-container-highest: #262626;
+    --md-sys-color-surface-container-high: #171717;
+    --md-sys-color-surface-container: #0A0A0A;
+    --md-sys-color-surface-container-low: #050505;
+    --md-sys-color-surface-container-lowest: #000000;
+}
+
+/* Custom Theme - User-defined colors */
+[data-theme="custom"] {
+    --md-sys-color-primary: var(--custom-primary, #B8860B);
+    --md-sys-color-on-primary: var(--custom-on-primary, #FFFFFF);
+    --md-sys-color-primary-container: var(--custom-primary-container, #F5E6A3);
+    --md-sys-color-on-primary-container: var(--custom-on-primary-container, #2D1B00);
+
+    --md-sys-color-secondary: var(--custom-secondary, #6B5B39);
+    --md-sys-color-on-secondary: var(--custom-on-secondary, #FFFFFF);
+    --md-sys-color-secondary-container: var(--custom-secondary-container, #F3E5B4);
+    --md-sys-color-on-secondary-container: var(--custom-on-secondary-container, #231B00);
+
+    --md-sys-color-tertiary: var(--custom-tertiary, #8B6914);
+    --md-sys-color-on-tertiary: var(--custom-on-tertiary, #FFFFFF);
+    --md-sys-color-tertiary-container: var(--custom-tertiary-container, #FFDF9C);
+    --md-sys-color-on-tertiary-container: var(--custom-on-tertiary-container, #2A1F00);
+
+    --md-sys-color-background: var(--custom-background, #FFFDF7);
+    --md-sys-color-on-background: var(--custom-on-background, #1F1B13);
+    --md-sys-color-surface: var(--custom-surface, #FFFDF7);
+    --md-sys-color-on-surface: var(--custom-on-surface, #1F1B13);
+    --md-sys-color-surface-variant: var(--custom-surface-variant, #EDE1CF);
+    --md-sys-color-on-surface-variant: var(--custom-on-surface-variant, #4C4639);
+
+    --md-sys-color-outline: var(--custom-outline, #7D7667);
+    --md-sys-color-outline-variant: var(--custom-outline-variant, #D0C4B4);
+    --md-sys-color-surface-container-highest: var(--custom-surface-container-highest, #E8DCC8);
+    --md-sys-color-surface-container-high: var(--custom-surface-container-high, #EEE2CE);
+    --md-sys-color-surface-container: var(--custom-surface-container, #F4E8D4);
+    --md-sys-color-surface-container-low: var(--custom-surface-container-low, #FAF0DC);
+    --md-sys-color-surface-container-lowest: var(--custom-surface-container-lowest, #FFFFFF);
+}
+
+/* Basic Theme Definitions */
+
+
+
+
+
+
+
+
+
+/* Typography scale */
+.md-typescale-display-large {
+    font-family: 'Roboto', sans-serif;
+    font-size: 57px;
+    font-weight: 400;
+    line-height: 64px;
+    letter-spacing: -0.25px;
+}
+
+.md-typescale-display-medium {
+    font-family: 'Roboto', sans-serif;
+    font-size: 45px;
+    font-weight: 400;
+    line-height: 52px;
+    letter-spacing: 0px;
+}
+
+.md-typescale-display-small {
+    font-family: 'Roboto', sans-serif;
+    font-size: 36px;
+    font-weight: 400;
+    line-height: 44px;
+    letter-spacing: 0px;
+}
+
+.md-typescale-headline-large {
+    font-family: 'Roboto', sans-serif;
+    font-size: 32px;
+    font-weight: 400;
+    line-height: 40px;
+    letter-spacing: 0px;
+}
+
+.md-typescale-headline-medium {
+    font-family: 'Roboto', sans-serif;
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 36px;
+    letter-spacing: 0px;
+}
+
+.md-typescale-headline-small {
+    font-family: 'Roboto', sans-serif;
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 32px;
+    letter-spacing: 0px;
+}
+
+.md-typescale-title-large {
+    font-family: 'Roboto', sans-serif;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 28px;
+    letter-spacing: 0px;
+}
+
+.md-typescale-title-medium {
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 24px;
+    letter-spacing: 0.15px;
+}
+
+.md-typescale-title-small {
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    letter-spacing: 0.1px;
+}
+
+.md-typescale-label-large {
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    letter-spacing: 0.1px;
+}
+
+.md-typescale-label-medium {
+    font-family: 'Roboto', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 16px;
+    letter-spacing: 0.5px;
+}
+
+.md-typescale-label-small {
+    font-family: 'Roboto', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 16px;
+    letter-spacing: 0.5px;
+}
+
+.md-typescale-body-large {
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+    letter-spacing: 0.5px;
+}
+
+.md-typescale-body-medium {
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+    letter-spacing: 0.25px;
+}
+
+.md-typescale-body-small {
+    font-family: 'Roboto', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 16px;
+    letter-spacing: 0.4px;
+}
