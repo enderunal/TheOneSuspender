@@ -1,0 +1,24 @@
+{
+    "name": "theone-suspender",
+    "version": "1.0.91",
+    "description": "Auto-suspend inactive tabs with full manual controls and preferences.",
+    "scripts": {
+        "package": "node package.js",
+        "clean": "node clean.js",
+        "build": "npm run clean && npm run package",
+        "verify": "node verify-package.js"
+    },
+    "devDependencies": {
+        "archiver": "^6.0.1",
+        "chalk": "^4.1.2",
+        "adm-zip": "^0.5.10"
+    },
+    "private": true,
+    "keywords": [
+        "chrome-extension",
+        "tab-suspender",
+        "memory-saver"
+    ],
+    "author": "enderunal",
+    "license": "MIT"
+}

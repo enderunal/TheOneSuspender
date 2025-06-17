@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "UnaSuspender - TheOneSuspender",
-	"version": "1.0.90",
+	"version": "1.0.91",
 	"description": "Auto-suspend inactive tabs with full manual controls and preferences.",
 	"incognito": "split",
 	"permissions": [

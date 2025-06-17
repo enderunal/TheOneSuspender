@@ -21,28 +21,51 @@ Auto-suspend inactive tabs with full manual controls, robust scheduling, advance
 
 ## Screenshots
 
-Here's a glimpse of The One Suspender in action:
+Here's a glimpse of The One Suspender's beautiful new Material Design interface:
 
-**Migration Tool:**
-![Migration Tool](docs/screenshots/ss_migration.png)
+**🎨 New Material Design UI with Multiple Color Palettes**
 
-**Suspended Page (Light & Dark Theme):**
+The One Suspender now features a completely redesigned interface with **12 stunning color themes** to match your personal style. Choose from elegant light and dark variants of Gold, Platinum, Emerald, Sapphire, Ruby, Amethyst, Copper, Obsidian, Steel, and Midnight themes.
 
-![Suspended Page Light](docs/screenshots/ss_suspended_page.png)
-![Suspended Page Dark](docs/screenshots/ss_dark_suspended_page.png)
+*Screenshots generated at 1280x800 resolution for Chrome Web Store display, showcasing the extension's authentic interface and functionality.*
 
-**Popup Menu (Light & Dark Theme):**
+**Options Page - Settings, Appearance & Tools:**
 
-![Popup Menu Light](docs/screenshots/ss_popup.png)
-![Popup Menu Dark](docs/screenshots/ss_dark_popup.png)
+![Options Settings Gold](tests/screenshots/options-gold.png)
+![Options Appearance Gold Dark](tests/screenshots/appearance-gold-dark.png)
+![Options Tools Gold](tests/screenshots/tools-gold.png)
 
-**Options Page (Light & Dark Theme):**
+**Extension Popup (Interactive Browser Context):**
 
-![Options Page Light](docs/screenshots/ss_options.png)
-![Options Page Dark](docs/screenshots/ss_dark_options.png)
+![Popup Gold](tests/screenshots/popup-gold.png)
+![Popup Gold Dark](tests/screenshots/popup-gold-dark.png)
 
-**Dimmed Icon for Suspended Tabs:**
-![Dimmed Icon](docs/screenshots/ss_icon_dim.png)
+**Suspended Page (Centered & Elegant):**
+
+![Suspended Page Gold](tests/screenshots/suspended-gold.png)
+![Suspended Page Gold Dark](tests/screenshots/suspended-gold-dark.png)
+
+---
+
+## ✨ New Material Design Interface
+
+The One Suspender has been completely redesigned with a beautiful, modern Material Design interface that provides:
+
+### 🎨 **12 Stunning Color Themes**
+- **Light Themes**: Gold, Platinum, Emerald, Sapphire, Ruby, Amethyst, Copper, Obsidian, Steel, Midnight
+- **Dark Themes**: All themes include elegant dark variants with carefully balanced contrast and readability
+- **Instant Switching**: Theme changes apply immediately across all extension pages without restart
+
+### 🧩 **Clean, Intuitive Interface**
+- **Tabbed Navigation**: Organized settings with dedicated tabs for Settings, Appearance, Tools, and About
+- **Material Components**: Modern buttons, cards, text fields, and interactive elements
+- **Responsive Design**: Optimized for different screen sizes and resolutions
+- **Consistent Typography**: Clean, readable fonts with proper hierarchy and spacing
+
+### 🎯 **Enhanced User Experience**
+- **Visual Feedback**: Clear status indicators, smooth transitions, and hover effects
+- **Accessibility**: Proper focus management, keyboard navigation, and screen reader support
+- **Contextual Help**: Descriptive labels and helpful tooltips throughout the interface
 
 ---
 
@@ -58,9 +81,11 @@ Here's a glimpse of The One Suspender in action:
 - **Conditional Exceptions**: Never suspend pinned tabs, tabs playing audio, active tabs, tabs with unsaved form data, etc.
 - **Ask Before Suspending**: Prompts user if unsaved form data is detected (see below).
 - **Visual Indicators**: Grayed-out favicon for suspended tabs, with robust CORS/SVG handling.
-- **Customizable Settings**: All options available in a modern, responsive Options page with theme selection.
+- **🎨 Beautiful Material Design UI**: Completely redesigned interface with clean, modern aesthetics inspired by Google's Material Design principles.
+- **12 Stunning Color Themes**: Choose from an extensive palette of light and dark themes including Gold, Platinum, Emerald, Sapphire, Ruby, Amethyst, Copper, Obsidian, Steel, and Midnight. Each theme features carefully crafted color combinations for optimal readability and visual appeal.
+- **Customizable Settings**: All options available in a modern, responsive Options page with intuitive tabbed navigation (Settings, Appearance, Tools, About).
 - **⌨️ Keyboard Shortcuts**: Configurable keyboard shortcuts for all suspend/unsuspend actions. Set custom shortcuts via the dedicated shortcuts configuration page.
-- **🌙 Dark Mode**: Beautiful Material UI-inspired dark theme that applies across all extension pages (options, popup, suspended pages). Toggle between light and dark themes in settings.
+- **Instant Theme Switching**: Switch between any of the 12 color themes instantly - changes apply immediately across all extension pages without requiring a restart.
 - **Security-First**: Strict CSP, minimal permissions, secure messaging, and no user-supplied DOM injection.
 
 ---
@@ -110,7 +135,7 @@ Here's a glimpse of The One Suspender in action:
   - Suspend/unsuspend current tab
   - Suspend/unsuspend all tabs in current window  
   - Suspend/unsuspend all tabs in all windows
-- **Theme Selection**: Switch between light and dark themes in the Appearance section of the Options page. The theme applies instantly across all extension pages.
+- **Theme Customization**: Choose from 12 beautiful color themes in the Appearance tab of the Options page. Each theme includes both light and dark variants with carefully designed color palettes. Theme changes apply instantly across all extension pages (popup, options, suspended pages) for a cohesive visual experience.
 - Suspended tabs can be restored with a single click.
 
 ---
