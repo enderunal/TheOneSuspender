@@ -10,7 +10,7 @@ module.exports = defineConfig({
     /* Retry on CI only */
     retries: process.env.CI ? 2 : 0,
     /* Opt out of parallel tests on CI. */
-    workers: process.env.CI ? 1 : 1, // Use 1 worker for extension tests
+    workers: process.env.CI ? 5 : 5, // Use 1 worker for extension tests
     /* Reporter to use. See https://playwright.dev/docs/test-reporters */
     reporter: 'html',
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -33,8 +33,8 @@ module.exports = defineConfig({
                 // Launch browser with extension loaded
                 launchOptions: {
                     args: [
-                        `--disable-extensions-except=${path.resolve(__dirname)}`,
-                        `--load-extension=${path.resolve(__dirname)}`,
+                        `--disable-extensions-except=${path.resolve(__dirname, '../..')}`,
+                        `--load-extension=${path.resolve(__dirname, '../..')}`,
                         '--no-first-run',
                         '--disable-default-apps',
                         '--disable-popup-blocking',

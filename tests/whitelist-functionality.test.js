@@ -1,4 +1,4 @@
-const { test, expect } = require('@playwright/test');
+const { test, expect } = require('./config/node_modules/@playwright/test');
 
 test.describe('Whitelist Functionality Tests', () => {
     test('whitelist supports basic URL and domain formats', async () => {

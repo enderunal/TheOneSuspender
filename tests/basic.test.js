@@ -1,4 +1,4 @@
-const { test, expect } = require('@playwright/test');
+const { test, expect } = require('./config/node_modules/@playwright/test');
 const fs = require('fs');
 const path = require('path');
 

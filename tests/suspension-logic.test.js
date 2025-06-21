@@ -1,4 +1,4 @@
-const { test, expect } = require('@playwright/test');
+const { test, expect } = require('./config/node_modules/@playwright/test');
 
 test.describe('Tab Suspension Logic Tests', () => {
     test('tab suspension respects conditional exceptions', async () => {

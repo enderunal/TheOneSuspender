@@ -4,7 +4,7 @@
  * Supports both headless and headed modes
  */
 
-const { test, expect } = require('@playwright/test');
+const { test, expect } = require('./config/node_modules/@playwright/test');
 const path = require('path');
 const fs = require('fs').promises;
 
