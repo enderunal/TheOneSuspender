@@ -2,43 +2,52 @@ const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
 
-// Clean up old packages
+// Get version from manifest.json
+function getVersionFromManifest() {
+    try {
+        const manifestPath = path.join(__dirname, '..', 'manifest.json');
+        const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+        return manifest.version;
+    } catch (error) {
+        console.error(chalk.red('Error reading manifest.json:'), error.message);
+        return 'unknown';
+    }
+}
+
+// Clean up only the current version's packages
 function cleanPackages() {
     const projectRoot = path.join(__dirname, '..');
+    const version = getVersionFromManifest();
+    let removedCount = 0;
 
-    console.log(chalk.blue('🧹 Cleaning old packages...'));
+    console.log(chalk.blue('🧹 Cleaning current version package files...'));
 
-    try {
-        const files = fs.readdirSync(projectRoot);
-        let removedCount = 0;
-
-        for (const file of files) {
-            // Remove any .zip or .crx files that match our naming pattern
-            if (file.match(/^TheOneSuspender.*\.(zip|crx)$/)) {
-                const filePath = path.join(projectRoot, file);
-                fs.unlinkSync(filePath);
-                console.log(chalk.yellow(`🗑️  Removed: ${file}`));
-                removedCount++;
-            }
-        }
-
-        // Also clean temp directories
-        const tempDir = path.join(projectRoot, 'temp-extension');
-        if (fs.existsSync(tempDir)) {
-            fs.rmSync(tempDir, { recursive: true, force: true });
-            console.log(chalk.yellow('🗑️  Removed: temp-extension/'));
+    // Only remove the current version's .zip and .crx
+    const targets = [
+        `TheOneSuspender-v${version}.zip`,
+        `TheOneSuspender-v${version}.crx`
+    ];
+    for (const file of targets) {
+        const filePath = path.join(projectRoot, file);
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+            console.log(chalk.yellow(`🗑️  Removed: ${file}`));
             removedCount++;
         }
+    }
 
-        if (removedCount === 0) {
-            console.log(chalk.gray('✨ No old packages found'));
-        } else {
-            console.log(chalk.green(`✅ Cleaned ${removedCount} old package(s)`));
-        }
+    // Also clean temp directories
+    const tempDir = path.join(projectRoot, 'temp-extension');
+    if (fs.existsSync(tempDir)) {
+        fs.rmSync(tempDir, { recursive: true, force: true });
+        console.log(chalk.yellow('🗑️  Removed: temp-extension/'));
+        removedCount++;
+    }
 
-    } catch (error) {
-        console.error(chalk.red('❌ Clean failed:'), error.message);
-        process.exit(1);
+    if (removedCount === 0) {
+        console.log(chalk.gray('✨ No current version package files found'));
+    } else {
+        console.log(chalk.green(`✅ Cleaned ${removedCount} item(s)`));
     }
 }
 
