@@ -9,7 +9,8 @@
         "build": "npm run clean && npm run package && npm run package-crx",
         "build-zip-only": "npm run clean && npm run package",
         "verify": "node verify-package.js",
-        "generate-key": "node generate-key.js"
+        "generate-key": "node generate-key.js",
+        "tag": "node -e \"const v=require('../manifest.json').version; require('child_process').execSync('git tag v'+v, {stdio:'inherit'})\""
     },
     "devDependencies": {
         "archiver": "^6.0.1",
