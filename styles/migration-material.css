@@ -71,7 +71,9 @@
     color: var(--md-sys-color-error);
 }
 
-
+.mb-half-em {
+    margin-bottom: 0.5em;
+}
 
 /* Responsive Design */
 @media (max-width: 600px) {
