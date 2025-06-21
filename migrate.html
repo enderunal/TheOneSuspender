@@ -22,11 +22,16 @@
 
         <div class="md-card migration-card">
             <p class="md-typescale-body-medium migration-description">
-                This tool will convert all open Marvellous Suspender tabs to The One Suspender format,
-                preserving their suspended state.
+                This tool will convert all open suspended tabs from other extensions (Marvellous Suspender, The Great-er
+                Tab Discarder, Tab Suspender, and more) to The One Suspender format, preserving their suspended state.
             </p>
 
             <ul id="migration-list" class="migration-list"></ul>
+
+            <div class="migration-actions">
+                <button id="copy-urls-btn" class="md-button outlined" style="margin-bottom: 0.5em;">Copy All
+                    URLs</button>
+            </div>
 
             <div class="migration-actions">
                 <button id="migrate-btn" class="md-button filled">Migrate Tabs</button>
