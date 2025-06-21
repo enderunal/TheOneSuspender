@@ -1,121 +1,66 @@
 /**
- * Favicon discovery utility for dynamically finding favicons
- * without needing to store them in URLs
+ * Favicon utility for TheOneSuspender
  */
 import * as Logger from './logger.js';
 
 /**
- * Gets the possible favicon URLs for a given domain/URL
- * @param {string} originalUrl - The original URL of the page
- * @returns {string[]} Array of possible favicon URLs to try
+ * Constructs a favicon URL
+ * @param {string} pageUrl - The URL of the page whose favicon we want
+ * @param {number} [size=16] - The size of the favicon (16, 32, etc.)
+ * @returns {string} The Chrome favicon API URL
  */
-export function getFaviconUrls(originalUrl) {
-    if (!originalUrl) return [];
+export function buildFaviconUrl(pageUrl, size = 16) {
+    if (!pageUrl) return null;
 
     try {
-        const url = new URL(originalUrl);
-        const baseUrl = `${url.protocol}//${url.hostname}`;
-
-        // Common favicon locations in order of preference
-        const faviconUrls = [
-            `${baseUrl}/favicon.ico`,
-            `${baseUrl}/favicon.png`,
-            `${baseUrl}/apple-touch-icon.png`,
-            `${baseUrl}/apple-touch-icon-precomposed.png`,
-            `${baseUrl}/assets/favicon.ico`,
-            `${baseUrl}/assets/favicon.png`,
-            `${baseUrl}/assets/img/favicon.ico`,
-            `${baseUrl}/assets/img/favicon.png`,
-            `${baseUrl}/img/favicon.ico`,
-            `${baseUrl}/img/favicon.png`,
-            `${baseUrl}/images/favicon.ico`,
-            `${baseUrl}/images/favicon.png`,
-            `${baseUrl}/static/favicon.ico`,
-            `${baseUrl}/static/favicon.png`,
-            `${baseUrl}/public/favicon.ico`,
-            `${baseUrl}/public/favicon.png`
-        ];
-
-        return faviconUrls;
+        const url = new URL(chrome.runtime.getURL("/_favicon/"));
+        url.searchParams.set("pageUrl", pageUrl);
+        url.searchParams.set("size", size.toString());
+        return url.toString();
     } catch (error) {
-        Logger.logError('Error generating favicon URLs', error, Logger.LogComponent.SUSPENDED);
-        return [];
+        Logger.logError('Error building favicon URL', error, Logger.LogComponent.SUSPENDED);
+        return null;
     }
 }
 
 /**
- * Attempts to find a working favicon URL by testing multiple possibilities
+ * Gets a favicon URL for the given page URL
  * @param {string} originalUrl - The original URL of the page
  * @param {function} callback - Callback function with (faviconUrl) or (null) if none found
+ * @param {number} [size=16] - The size of the favicon to retrieve
  */
-export function discoverFavicon(originalUrl, callback) {
-    const faviconUrls = getFaviconUrls(originalUrl);
-
-    if (faviconUrls.length === 0) {
+export function discoverFavicon(originalUrl, callback, size = 16) {
+    if (!originalUrl) {
         callback(null);
         return;
     }
 
-    let currentIndex = 0;
+    try {
+        const faviconUrl = buildFaviconUrl(originalUrl, size);
 
-    const tryNext = () => {
-        if (currentIndex >= faviconUrls.length) {
+        if (!faviconUrl) {
+            Logger.logWarning(`Failed to build favicon URL for: ${originalUrl}`, Logger.LogComponent.SUSPENDED);
             callback(null);
             return;
         }
 
-        const testUrl = faviconUrls[currentIndex];
+        // Test if the favicon loads successfully
         const img = new Image();
 
         img.onload = () => {
-            // Successfully loaded favicon
-            Logger.log(`Found favicon at: ${testUrl}`, Logger.LogComponent.SUSPENDED);
-            callback(testUrl);
+            Logger.log(`Successfully loaded favicon via Chrome API for: ${originalUrl.substring(0, 60)}`, Logger.LogComponent.SUSPENDED);
+            callback(faviconUrl);
         };
 
         img.onerror = () => {
-            // Try next URL
-            currentIndex++;
-            tryNext();
+            Logger.logWarning(`Failed to load favicon via Chrome API for: ${originalUrl.substring(0, 60)}`, Logger.LogComponent.SUSPENDED);
+            callback(null);
         };
 
-        // Set crossOrigin to handle CORS issues
-        img.crossOrigin = 'anonymous';
-        img.src = testUrl;
-    };
+        img.src = faviconUrl;
 
-    tryNext();
-}
-
-/**
- * Extracts favicon URL from HTML content (for future use if needed)
- * @param {string} htmlContent - HTML content to parse
- * @returns {string|null} Favicon URL if found
- */
-export function extractFaviconFromHtml(htmlContent) {
-    try {
-        // Create a temporary DOM element to parse HTML
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(htmlContent, 'text/html');
-
-        // Try different favicon selectors in order of preference
-        const selectors = [
-            'link[rel="icon"]',
-            'link[rel="shortcut icon"]',
-            'link[rel="apple-touch-icon"]',
-            'link[rel="apple-touch-icon-precomposed"]'
-        ];
-
-        for (const selector of selectors) {
-            const element = doc.querySelector(selector);
-            if (element && element.href) {
-                return element.href;
-            }
-        }
-
-        return null;
     } catch (error) {
-        Logger.logError('Error extracting favicon from HTML', error, Logger.LogComponent.SUSPENDED);
-        return null;
+        Logger.logError('Error discovering favicon via Chrome API', error, Logger.LogComponent.SUSPENDED);
+        callback(null);
     }
-} 
+}
