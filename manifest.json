@@ -1,14 +1,15 @@
 {
 	"manifest_version": 3,
-	"name": "UnaSuspender - TheOneSuspender",
-	"version": "1.0.91",
+	"name": "UnaSuspender - The One Suspender",
+	"version": "1.0.92",
 	"description": "Auto-suspend inactive tabs with full manual controls and preferences.",
 	"incognito": "split",
 	"permissions": [
 		"tabs",
 		"storage",
 		"alarms",
-		"scripting"
+		"scripting",
+		"favicon"
 	],
 	"web_accessible_resources": [
 		{
@@ -35,7 +36,8 @@
 				"vendor/fonts/roboto-v30-latin-300.woff2",
 				"vendor/fonts/roboto-v30-latin-regular.woff2",
 				"vendor/fonts/roboto-v30-latin-500.woff2",
-				"vendor/fonts/roboto-v30-latin-700.woff2"
+				"vendor/fonts/roboto-v30-latin-700.woff2",
+				"_favicon/*"
 			],
 			"matches": [
 				"<all_urls>"

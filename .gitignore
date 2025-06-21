@@ -93,6 +93,7 @@ temp/
 *.swo
 *~
 .docs/
+.cursor/*
 
 # OS generated files
 .DS_Store
@@ -122,7 +123,6 @@ temp-extension/
 # Packaging private keys (IMPORTANT: Never commit these!)
 packaging/extension-key.pem
 
-.cursor/*
 
 #playwright specific
 playwright-report/
