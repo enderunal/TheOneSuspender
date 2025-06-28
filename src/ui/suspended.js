@@ -15,7 +15,7 @@ import * as FaviconUtils from '../common/favicon-utils.js';
 			const [key, ...rest] = part.split('=');
 			if (key) params[key] = rest.join('=');
 		}
-		let originalUrl = params.url || "";
+		let originalUrl = params.url ? decodeURIComponent(params.url) : "";
 		const pageTitle = params.title ? decodeURIComponent(params.title) : (originalUrl || "Tab Suspended");
 		const timestamp = params.timestamp ? parseInt(params.timestamp, 10) : 0;
 		Logger.log("Using search parameters.", Logger.LogComponent.SUSPENDED);
@@ -31,7 +31,32 @@ import * as FaviconUtils from '../common/favicon-utils.js';
 			if (pageTitleElement) pageTitleElement.textContent = pageTitle;
 
 			const pageUrlElement = document.getElementById("page-url");
-			if (pageUrlElement) pageUrlElement.textContent = originalUrl || "URL not available";
+			const urlLink = document.getElementById("url-link");
+			const copyNotif = document.getElementById("copy-notification");
+			if (pageUrlElement && urlLink && copyNotif && originalUrl && /^https?:\/\//.test(originalUrl)) {
+				urlLink.href = originalUrl;
+				urlLink.textContent = originalUrl;
+
+				function showCopyNotification(success) {
+					copyNotif.textContent = success ? "Copied!" : "Failed to copy";
+					copyNotif.classList.add("show");
+					setTimeout(() => {
+						copyNotif.classList.remove("show");
+					}, 1200);
+				}
+
+				pageUrlElement.addEventListener("click", function (e) {
+					if (e.button !== 0) return;
+					e.preventDefault();
+					e.stopPropagation();
+					navigator.clipboard.writeText(originalUrl)
+						.then(() => showCopyNotification(true))
+						.catch(() => showCopyNotification(false));
+				});
+			} else if (urlLink) {
+				urlLink.textContent = "URL not available";
+				urlLink.removeAttribute("href");
+			}
 
 			const timestampElement = document.getElementById("timestamp");
 			if (timestampElement) timestampElement.textContent = timestamp ? new Date(timestamp).toLocaleString() : 'N/A';

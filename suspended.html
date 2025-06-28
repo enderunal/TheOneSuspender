@@ -45,8 +45,18 @@
       <div class="md-divider"></div>
 
       <div class="tab-info-section">
-        <h2 class="md-typescale-title-medium info-label">URL</h2>
-        <p id="page-url" class="md-typescale-body-medium tab-url-text">Loading...</p>
+        <h2 class="md-typescale-title-medium info-label">URL <span id="copy-notification" class="copy-notification"
+            aria-live="polite"></span></h2>
+        <p id="page-url" class="md-typescale-body-medium tab-url-text">
+          <button id="copy-url-btn" class="copy-url-btn" title="Copy URL to clipboard"
+            aria-label="Copy URL to clipboard" tabindex="0">
+            <svg width='18' height='18' viewBox='0 0 24 24'>
+              <path fill='currentColor'
+                d='M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z' />
+            </svg>
+          </button>
+          <a id="url-link" class="url-link-text" href="#" target="_blank" rel="noopener noreferrer"></a>
+        </p>
       </div>
 
       <div class="md-divider"></div>
