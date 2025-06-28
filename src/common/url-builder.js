@@ -7,15 +7,14 @@
 import * as Logger from './logger.js';
 
 export function buildSuspendedUrl(tab) {
+    if (!tab.url || typeof tab.url !== 'string') throw new Error('Invalid tab.url');
     const suspendedUrlBase = chrome.runtime.getURL("suspended.html");
     const urlObj = new URL(suspendedUrlBase);
-
-    // Build hash with plain original URL and encoded title only
-    let hash = "";
-    if (tab.title) hash += `title=${encodeURIComponent(tab.title)}&`;
-    hash += `timestamp=${Date.now()}`;
-    hash += `&url=${tab.url}`;
-    urlObj.hash = hash;
+    const params = new URLSearchParams();
+    if (tab.title) params.set("title", tab.title);
+    params.set("timestamp", Date.now());
+    params.set("url", tab.url);
+    urlObj.hash = params.toString();
     Logger.detailedLog(`[TheOneSuspender] Built suspended URL with hash for tab ${tab.id}: ${urlObj.toString()}`);
     return urlObj.toString();
 } 
