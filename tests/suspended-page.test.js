@@ -22,7 +22,7 @@ test.describe('Suspended Page Functionality Tests', () => {
             const pageContent = await page.evaluate(() => {
                 const titleElement = document.querySelector('#page-title, .page-title, .tab-title');
                 const urlElement = document.querySelector('#page-url, .page-url, .tab-url');
-                const restoreButton = document.querySelector('#restore-btn, .restore-btn, button');
+                const restoreButton = document.querySelector('#restore-button, #restore-btn, .restore-btn, button[class*="restore"]');
                 const timestampElement = document.querySelector('#timestamp, .timestamp');
 
                 return {
@@ -135,6 +135,7 @@ test.describe('Suspended Page Functionality Tests', () => {
             const restoreButton = await page.evaluate(() => {
                 const buttons = document.querySelectorAll('button');
                 const restoreBtn = Array.from(buttons).find(btn =>
+                    btn.id === 'restore-button' ||
                     btn.textContent.toLowerCase().includes('restore') ||
                     btn.textContent.toLowerCase().includes('reload') ||
                     btn.textContent.toLowerCase().includes('unsuspend') ||
