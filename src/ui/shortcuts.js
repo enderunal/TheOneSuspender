@@ -1,14 +1,13 @@
 // shortcuts.js - Keyboard shortcuts configuration page
 import * as Logger from '../common/logger.js';
-import * as Prefs from '../common/prefs.js';
+import * as Theme from '../common/theme.js';
 
 document.addEventListener("DOMContentLoaded", async () => {
     Logger.log("Shortcuts page loaded", Logger.LogComponent.UI);
 
     try {
-        // Load preferences to apply theme
-        await Prefs.loadPrefs();
-        applyTheme();
+        // Initialize theme using common method
+        await Theme.initializeThemeForPage();
 
         // Load and display current shortcuts
         await loadCurrentShortcuts();
@@ -21,15 +20,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         showError("Failed to load shortcuts configuration");
     }
 });
-
-/**
- * Apply the current theme to the page
- */
-function applyTheme() {
-    const theme = Prefs.prefs.theme || 'gold';
-    document.documentElement.setAttribute('data-theme', theme);
-    Logger.detailedLog(`Applied theme: ${theme}`, Logger.LogComponent.UI);
-}
 
 /**
  * Load and display current keyboard shortcuts

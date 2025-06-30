@@ -16,7 +16,9 @@ export const defaultPrefs = {
     unsavedFormHandling: 'ask', // Allowed: 'normal', 'never', 'ask'
     maxConcurrent: 5, // Default maximum concurrent operations
     autoSuspendEnabled: true, // New: allow user to disable auto suspension
-    theme: 'gold' // default theme: sophisticated warm gold
+    theme: 'gold', // default theme: sophisticated warm gold
+    sessionMaxSessions: 50, // Maximum number of sessions to keep
+    sessionAutoSaveFrequency: 5 // Auto-save frequency in minutes
 };
 
 /** @type {import('./types.js').Prefs} */
@@ -93,6 +95,12 @@ function validatePrefs(prefsToValidate) {
         throw new Error('unsavedFormHandling must be one of: normal, never, ask');
     }
     if (typeof prefsToValidate.autoSuspendEnabled !== 'boolean') throw new Error('autoSuspendEnabled must be boolean');
+    if (typeof prefsToValidate.sessionMaxSessions !== 'number' || prefsToValidate.sessionMaxSessions < 1) {
+        throw new Error('sessionMaxSessions must be a number greater than 1');
+    }
+    if (typeof prefsToValidate.sessionAutoSaveFrequency !== 'number' || prefsToValidate.sessionAutoSaveFrequency < 1 || prefsToValidate.sessionAutoSaveFrequency > 1440) {
+        throw new Error('sessionAutoSaveFrequency must be a number between 1 and 1440 minutes (24 hours)');
+    }
 }
 
 /**

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="gold" data-theme-loading="gold" class="theme-gold">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -25,6 +25,7 @@
         <div class="tab-navigation">
             <button type="button" class="tab-button active" data-tab="settings">Settings</button>
             <button type="button" class="tab-button" data-tab="appearance">Appearance</button>
+            <button type="button" class="tab-button" data-tab="sessions">Sessions</button>
             <button type="button" class="tab-button" data-tab="tools">Tools</button>
             <button type="button" class="tab-button" data-tab="about">About</button>
         </div>
@@ -147,6 +148,39 @@
                                     loses tab history. Might consume more CPU.
                                 </div>
                             </span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Session Management Section -->
+                <div class="md-card settings-section">
+                    <h2 class="md-typescale-title-large section-title">Session Management</h2>
+                    <p class="md-typescale-body-medium section-description">
+                        Configure how browser sessions are automatically saved and managed.
+                    </p>
+
+                    <div class="md-text-field">
+                        <input type="number" id="sessionMaxSessions" name="sessionMaxSessions" min="1" max="200"
+                            value="50" required>
+                        <label for="sessionMaxSessions">Maximum Sessions to Keep</label>
+                    </div>
+                    <p class="md-typescale-body-small field-description">
+                        When this limit is reached, the oldest sessions are automatically removed (1-200 sessions).
+                    </p>
+
+                    <div class="md-text-field">
+                        <input type="number" id="sessionAutoSaveFrequency" name="sessionAutoSaveFrequency" min="1"
+                            max="1440" value="5" required>
+                        <label for="sessionAutoSaveFrequency">Auto-Save Frequency (minutes)</label>
+                    </div>
+                    <p class="md-typescale-body-small field-description">
+                        How often sessions are automatically backed up (1-1440 minutes).
+                    </p>
+
+                    <div class="md-checkbox">
+                        <input type="checkbox" id="sessionAutoSaveEnabled" name="sessionAutoSaveEnabled">
+                        <label for="sessionAutoSaveEnabled" class="md-typescale-body-medium">
+                            Enable Auto-Save
                         </label>
                     </div>
                 </div>
@@ -366,6 +400,65 @@
                 <div class="form-actions">
                     <button type="submit" class="md-button filled">Save Settings</button>
                     <div id="save-status-appearance" class="md-feedback"></div>
+                </div>
+            </div>
+
+            <!-- Sessions Tab -->
+            <div class="tab-content" id="tab-sessions">
+                <div class="md-card settings-section">
+                    <h2 class="md-typescale-title-large section-title">Session Manager</h2>
+                    <p class="md-typescale-body-medium section-description">
+                        Save and restore your browser sessions including suspended tabs, window layouts, and tab groups.
+                        Auto-save backs up your sessions at configurable intervals.
+                    </p>
+
+
+
+                    <!-- Session List Controls -->
+                    <div class="session-list-controls">
+                        <div class="session-list-header">
+                            <h3 class="subsection-title">Saved Sessions</h3>
+                            <div class="sessions-header-actions">
+                                <button type="button" id="save-current-session" class="md-button text">
+                                    Save Current Session
+                                </button>
+                                <button type="button" id="clear-all-sessions" class="md-button text danger">
+                                    Clear All Sessions
+                                </button>
+                                <div class="session-sort-container">
+                                    <label for="session-sort" class="sort-label">Sort by:</label>
+                                    <select id="session-sort" class="md-select compact" aria-label="Sort sessions">
+                                        <option value="newest">Newest First</option>
+                                        <option value="oldest">Oldest First</option>
+                                        <option value="name">By Name</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="session-status" class="md-feedback"></div>
+
+                    <!-- Sessions List -->
+                    <div class="sessions-container">
+                        <div id="sessions-loading" class="sessions-loading">
+                            <div class="loading-spinner"></div>
+                            <span>Loading sessions...</span>
+                        </div>
+
+                        <div id="sessions-empty" class="sessions-empty hidden">
+                            <div class="empty-icon">📁</div>
+                            <h3 class="md-typescale-title-medium">No Sessions Saved</h3>
+                            <p class="md-typescale-body-medium">
+                                Save your first session to get started. Sessions include all windows, tabs, and their
+                                state.
+                            </p>
+                        </div>
+
+                        <div id="sessions-list" class="sessions-list">
+                            <!-- Sessions will be dynamically inserted here -->
+                        </div>
+                    </div>
                 </div>
             </div>
 

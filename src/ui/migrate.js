@@ -59,13 +59,6 @@ function extractSuspendedTabData(tabUrl) {
             break;
         }
     }
-    // Some extensions double-encode URLs
-    if (originalUrl && /%[0-9a-f]{2}/i.test(originalUrl)) {
-        try { originalUrl = decodeURIComponent(originalUrl); } catch { }
-    }
-    if (title && /%[0-9a-f]{2}/i.test(title)) {
-        try { title = decodeURIComponent(title); } catch { }
-    }
     return { originalUrl, title };
 }
 

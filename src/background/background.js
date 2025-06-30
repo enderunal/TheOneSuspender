@@ -25,6 +25,20 @@ async function setupStatePersistence() {
     Logger.log(`Alarm cleanup routine scheduled for every ${Const.ALARM_CLEANUP_INTERVAL_MINUTES} minutes`, Logger.LogComponent.BACKGROUND);
     chrome.alarms.create(Const.TS_STATE_CLEANUP_NAME, { periodInMinutes: Const.ALARM_CLEANUP_INTERVAL_MINUTES / 2 });
     Logger.log(`State cleanup routine scheduled for every ${Const.ALARM_CLEANUP_INTERVAL_MINUTES / 2} minutes`, Logger.LogComponent.BACKGROUND);
+
+    // Set up frequent session backup with configurable frequency (only if not already exists)
+    const existingSessionAlarm = await chrome.alarms.get('TS_SESSION_FREQUENT_SAVE');
+    if (!existingSessionAlarm) {
+        // Read from storage to get the latest value
+        const result = await chrome.storage.local.get([Prefs.PREFS_KEY]);
+        const currentPrefs = { ...Prefs.defaultPrefs, ...(result[Prefs.PREFS_KEY] || {}) };
+        const saveFrequency = currentPrefs.sessionAutoSaveFrequency || 5;
+        chrome.alarms.create('TS_SESSION_FREQUENT_SAVE', { periodInMinutes: saveFrequency });
+        Logger.log(`Session auto-save scheduled for every ${saveFrequency} minutes`, Logger.LogComponent.BACKGROUND);
+    } else {
+        Logger.log(`Session auto-save alarm already exists, skipping creation`, Logger.LogComponent.BACKGROUND);
+    }
+
     try {
         if (State.prefs?.autoSuspendEnabled === false || (typeof State.prefs === 'undefined' && typeof prefs !== 'undefined' && prefs.autoSuspendEnabled === false)) {
             await chrome.alarms.clear(Const.TS_TAB_SCAN_ALARM_NAME);
@@ -224,9 +238,17 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
     // Listen for prefs changed and update scheduling if needed
     if (message?.type === Const.MSG_PREFS_CHANGED) {
-        Scheduling.scheduleAllTabs();
-        sendResponse?.({ success: true });
-        return true;
+        (async () => {
+            try {
+                Scheduling.scheduleAllTabs();
+                await rescheduleSessionAutoSave();
+                sendResponse?.({ success: true });
+            } catch (error) {
+                Logger.logError("Error handling prefs changed", error, Logger.LogComponent.BACKGROUND);
+                sendResponse?.({ success: false, error: error.message });
+            }
+        })();
+        return true; // async
     }
     // Handle suspendTab for import
     if (message?.type === Const.MSG_SUSPEND_TAB) {
@@ -258,11 +280,28 @@ chrome.runtime.onInstalled.addListener(async (details) => {
     }
 });
 
-//+reviewed
-chrome.runtime.onSuspend.addListener(() => {
-    Logger.log("Extension being suspended", Logger.LogComponent.BACKGROUND);
-    // No manual cleanup needed; Chrome manages service worker lifecycle and listener cleanup.
-});
+// ===================== Session Auto-Save Management =====================
+/**
+ * Reschedule the session auto-save alarm with updated frequency
+ * Called when session preferences are changed
+ */
+async function rescheduleSessionAutoSave() {
+    try {
+        // Clear existing alarm
+        await chrome.alarms.clear('TS_SESSION_FREQUENT_SAVE');
+
+        // Create new alarm with updated frequency
+        // Read from storage to get the latest value
+        const result = await chrome.storage.local.get([Prefs.PREFS_KEY]);
+        const currentPrefs = { ...Prefs.defaultPrefs, ...(result[Prefs.PREFS_KEY] || {}) };
+        const saveFrequency = currentPrefs.sessionAutoSaveFrequency || 5;
+        await chrome.alarms.create('TS_SESSION_FREQUENT_SAVE', { periodInMinutes: saveFrequency });
+
+        Logger.log(`Session auto-save rescheduled for every ${saveFrequency} minutes`, Logger.LogComponent.BACKGROUND);
+    } catch (error) {
+        Logger.logError("Error rescheduling session auto-save alarm", error, Logger.LogComponent.BACKGROUND);
+    }
+}
 
 // ===================== Startup Logic =====================
 //+reviewed

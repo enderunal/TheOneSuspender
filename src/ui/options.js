@@ -4,6 +4,7 @@ import * as Logger from '../common/logger.js';
 import * as Const from '../common/constants.js';
 import * as WhitelistUtils from '../common/whitelist-utils.js';
 import * as Theme from '../common/theme.js';
+import * as SessionManager from '../common/session-manager.js';
 import { initializeTabNavigation } from './tab-navigation.js';
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -47,6 +48,20 @@ document.addEventListener("DOMContentLoaded", async () => {
 	const importBtn = document.getElementById("import-suspended-tabs");
 	const exportImportStatus = document.getElementById("export-import-status");
 
+	// Session Manager elements
+	const saveCurrentSessionBtn = document.getElementById("save-current-session");
+	const sessionAutoSaveEnabledCheckbox = document.getElementById("sessionAutoSaveEnabled");
+	const clearAllSessionsBtn = document.getElementById("clear-all-sessions");
+	const sessionSortSelect = document.getElementById("session-sort");
+	const sessionStatus = document.getElementById("session-status");
+	const sessionsLoading = document.getElementById("sessions-loading");
+	const sessionsEmpty = document.getElementById("sessions-empty");
+	const sessionsList = document.getElementById("sessions-list");
+
+	// Session Configuration elements (now part of main form)
+	const sessionMaxSessionsInput = document.getElementById("sessionMaxSessions");
+	const sessionAutoSaveFrequencyInput = document.getElementById("sessionAutoSaveFrequency");
+
 	function setExportImportStatus(msg, type = "info") {
 		exportImportStatus.textContent = msg;
 		exportImportStatus.className = `md-feedback visible ${type}`;
@@ -80,6 +95,26 @@ document.addEventListener("DOMContentLoaded", async () => {
 			saveButton.disabled = false;
 			return true;
 		}
+	}
+
+	function validateSessionSettings() {
+		let isValid = true;
+
+		// Validate max sessions
+		const maxSessions = parseInt(sessionMaxSessionsInput.value, 10);
+		if (isNaN(maxSessions) || maxSessions < 1) {
+			// Could add error display here if needed
+			isValid = false;
+		}
+
+		// Validate auto-save frequency
+		const frequency = parseInt(sessionAutoSaveFrequencyInput.value, 10);
+		if (isNaN(frequency) || frequency < 1 || frequency > 1440) {
+			// Could add error display here if needed
+			isValid = false;
+		}
+
+		return isValid;
 	}
 
 	inactivityMinutesInput.addEventListener('input', validateInactivityMinutes);
@@ -130,10 +165,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 		whitelistTextarea.value = (Array.isArray(whitelistItems) ? whitelistItems : []).join("\n");
 		autoSuspendEnabledInput.checked = settings.autoSuspendEnabled !== false; // Default to true if not set
 		inactivityMinutesInput.disabled = !autoSuspendEnabledInput.checked;
+
+		// Update theme selection UI
 		selectTheme(settings.theme || 'gold');
 
-		// Apply theme on load
-		Theme.applyTheme(settings.theme || 'gold');
+		// Session configuration values
+		sessionMaxSessionsInput.value = settings.sessionMaxSessions || 50;
+		sessionAutoSaveFrequencyInput.value = settings.sessionAutoSaveFrequency || 5;
+
+		// Update session auto-save checkbox (load status from SessionManager)
+		updateAutoSaveStatus();
 
 		// Set unsaved form handling radio
 		let foundRadio = false;
@@ -232,9 +273,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
 	// --- Save Settings ---
-	form.addEventListener("submit", (event) => {
+	form.addEventListener("submit", async (event) => {
 		event.preventDefault();
-		if (!validateInactivityMinutes()) {
+		if (!validateInactivityMinutes() || !validateSessionSettings()) {
 			return; // Don't submit if invalid
 		}
 
@@ -257,6 +298,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 			unsavedFormHandling: selectedUnsavedHandling ? selectedUnsavedHandling.value : 'normal',
 			autoSuspendEnabled: autoSuspendEnabledInput.checked,
 			theme: themeInput.value,
+			sessionMaxSessions: parseInt(sessionMaxSessionsInput.value, 10),
+			sessionAutoSaveFrequency: parseInt(sessionAutoSaveFrequencyInput.value, 10),
 		};
 
 		Logger.log(`Value of whitelistTextarea.value before splitting: ${whitelistTextarea.value}`, Logger.LogComponent.OPTIONS);
@@ -264,21 +307,63 @@ document.addEventListener("DOMContentLoaded", async () => {
 		const newWhitelist = WhitelistUtils.parseWhitelistText(whitelistTextarea.value);
 		Logger.log(`Constructed newWhitelist array: ${newWhitelist}`, Logger.LogComponent.OPTIONS);
 
-		chrome.runtime.sendMessage({ type: Const.MSG_SAVE_SETTINGS, settings: newSettings }, async (response) => {
-			if (chrome.runtime.lastError || !response?.success) {
-				setSaveStatus("Error saving settings! " + (chrome.runtime.lastError?.message || response?.error || ""), "error");
-			} else {
-				chrome.runtime.sendMessage({ type: Const.MSG_SAVE_WHITELIST, newWhitelist: newWhitelist }, (wlResponse) => {
-					if (chrome.runtime.lastError || !wlResponse?.success) {
-						setSaveStatus("Settings saved, but error saving whitelist! " + (chrome.runtime.lastError?.message || wlResponse?.error || ""), "warning");
-					} else {
-						setSaveStatus("Settings and whitelist saved!", "success");
-					}
-					setTimeout(() => { setSaveStatus(""); }, 3000);
-				});
-				await chrome.runtime.sendMessage({ type: Const.MSG_PREFS_CHANGED });
+		// Save all settings using proper async/await pattern
+		try {
+			// 1. Save main settings
+			const settingsResponse = await new Promise((resolve) => {
+				chrome.runtime.sendMessage({ type: Const.MSG_SAVE_SETTINGS, settings: newSettings }, resolve);
+			});
+
+			if (chrome.runtime.lastError || !settingsResponse?.success) {
+				throw new Error(chrome.runtime.lastError?.message || settingsResponse?.error || "Failed to save settings");
 			}
-		});
+
+			// 2. Save session auto-save enabled state
+			await SessionManager.setAutoSaveEnabled(sessionAutoSaveEnabledCheckbox?.checked || false);
+
+			// 3. Trim sessions if max was reduced
+			const removedCount = await SessionManager.trimSessionsToLimit();
+
+			// 4. Save whitelist
+			const whitelistResponse = await new Promise((resolve) => {
+				chrome.runtime.sendMessage({ type: Const.MSG_SAVE_WHITELIST, newWhitelist: newWhitelist }, resolve);
+			});
+
+			if (chrome.runtime.lastError || !whitelistResponse?.success) {
+				throw new Error(chrome.runtime.lastError?.message || whitelistResponse?.error || "Failed to save whitelist");
+			}
+
+			// 5. Notify background script about preferences change (handles session auto-save rescheduling automatically)
+			const prefsResponse = await new Promise((resolve) => {
+				chrome.runtime.sendMessage({ type: Const.MSG_PREFS_CHANGED }, resolve);
+			});
+
+			if (chrome.runtime.lastError || !prefsResponse?.success) {
+				Logger.logWarning("Warning: Failed to notify background script of preference changes", Logger.LogComponent.OPTIONS);
+			}
+
+			// Success message
+			let message = "Settings and whitelist saved!";
+			if (removedCount > 0) {
+				message += ` (${removedCount} old sessions removed)`;
+			}
+			setSaveStatus(message, "success");
+
+			// Reload sessions list if any were removed and we're on the sessions tab
+			if (removedCount > 0) {
+				const activeTab = document.querySelector('.tab-content.active');
+				if (activeTab && activeTab.id === 'tab-sessions') {
+					await loadSessions();
+				}
+			}
+
+		} catch (error) {
+			Logger.logError("Error saving settings", error, Logger.LogComponent.OPTIONS);
+			setSaveStatus("Error saving settings: " + error.message, "error");
+		} finally {
+			// Clear status after 3 seconds
+			setTimeout(() => { setSaveStatus(""); }, 3000);
+		}
 	});
 
 	// --- Export/Import Suspended Tabs ---
@@ -419,9 +504,325 @@ document.addEventListener("DOMContentLoaded", async () => {
 		}
 	});
 
+	// ===================== Session Manager Functions =====================
+
+	function setSessionStatus(msg, type = "info") {
+		sessionStatus.textContent = msg;
+		sessionStatus.className = `md-feedback visible ${type}`;
+		if (msg) {
+			sessionStatus.classList.add('visible');
+		} else {
+			sessionStatus.classList.remove('visible');
+		}
+
+		// Clear status after delay
+		if (type !== "error") {
+			setTimeout(() => {
+				sessionStatus.classList.remove('visible');
+			}, 3000);
+		}
+	}
+
+	async function loadSessions() {
+		try {
+			sessionsLoading.classList.remove('hidden');
+			sessionsEmpty.classList.add('hidden');
+			sessionsList.innerHTML = '';
+
+			const sessions = await SessionManager.getSavedSessions();
+
+			if (sessions.length === 0) {
+				sessionsLoading.classList.add('hidden');
+				sessionsEmpty.classList.remove('hidden');
+				return;
+			}
+
+			// Sort sessions
+			const sortBy = sessionSortSelect.value;
+			sortSessions(sessions, sortBy);
+
+			// Create table structure
+			const table = document.createElement('table');
+			table.className = 'sessions-table';
+			table.innerHTML = `
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>Date</th>
+						<th>Windows</th>
+						<th>Tabs</th>
+						<th>Suspended</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody></tbody>
+			`;
+
+			const tbody = table.querySelector('tbody');
+
+			// Render sessions as table rows
+			sessions.forEach(session => {
+				const sessionFragment = createSessionRow(session);
+				tbody.appendChild(sessionFragment);
+			});
+
+			sessionsList.appendChild(table);
+			sessionsLoading.classList.add('hidden');
+		} catch (error) {
+			Logger.logError("Error loading sessions", error, Logger.LogComponent.OPTIONS);
+			setSessionStatus("Error loading sessions: " + error.message, "error");
+			sessionsLoading.classList.add('hidden');
+		}
+	}
+
+	function sortSessions(sessions, sortBy) {
+		switch (sortBy) {
+			case 'newest':
+				sessions.sort((a, b) => b.timestamp - a.timestamp);
+				break;
+			case 'oldest':
+				sessions.sort((a, b) => a.timestamp - b.timestamp);
+				break;
+			case 'name':
+				sessions.sort((a, b) => a.name.localeCompare(b.name));
+				break;
+		}
+	}
+
+	function createSessionRow(session) {
+		const row = document.createElement('tr');
+		row.className = 'session-row';
+		row.setAttribute('data-session-id', session.id);
+		row.innerHTML = `
+			<td class="session-name">
+				<div class="session-name-container">
+					<span class="session-name-text">${escapeHtml(session.name)} ${session.isAutoSave ? '<span class="session-auto-badge">Auto</span>' : ''}</span>
+					<button type="button" class="session-expand-btn" aria-label="Toggle session details">
+						<span class="expand-icon"></span>
+					</button>
+				</div>
+			</td>
+			<td class="session-date">${formatDate(session.timestamp)}</td>
+			<td class="session-windows">${session.stats.totalWindows}</td>
+			<td class="session-tabs">${session.stats.totalTabs}</td>
+			<td class="session-suspended">${session.stats.suspendedTabs}</td>
+			<td class="session-actions">
+				<button type="button" class="md-button text compact restore-session-btn" data-session-id="${session.id}">
+					Restore
+				</button>
+				<button type="button" class="md-button text compact delete-session-btn" data-session-id="${session.id}">
+					Delete
+				</button>
+			</td>
+		`;
+
+		// Create details row (hidden by default)
+		const detailsRow = document.createElement('tr');
+		detailsRow.className = 'session-details-row hidden';
+		detailsRow.innerHTML = `
+			<td colspan="6" class="session-details-content">
+				<div class="session-details-container">
+					<h4>Session Details</h4>
+					<div class="session-windows-details">
+						${session.data.windows.map((window, index) => createWindowDetails(window, index)).join('')}
+					</div>
+				</div>
+			</td>
+		`;
+
+		// Add event listeners
+		const restoreBtn = row.querySelector('.restore-session-btn');
+		const deleteBtn = row.querySelector('.delete-session-btn');
+		const expandBtn = row.querySelector('.session-expand-btn');
+
+		restoreBtn.addEventListener('click', () => restoreSession(session.id));
+		deleteBtn.addEventListener('click', () => deleteSession(session.id));
+		expandBtn.addEventListener('click', (e) => {
+			e.stopPropagation();
+			const isExpanded = !detailsRow.classList.contains('hidden');
+			detailsRow.classList.toggle('hidden');
+
+			// Update icon appearance
+			const icon = expandBtn.querySelector('.expand-icon');
+			icon.classList.toggle('expanded', !isExpanded);
+		});
+
+		// Return both rows as a DocumentFragment
+		const fragment = document.createDocumentFragment();
+		fragment.appendChild(row);
+		fragment.appendChild(detailsRow);
+
+		return fragment;
+	}
+
+	function createWindowDetails(windowData, windowIndex) {
+		const suspendedCount = windowData.tabs.filter(tab => tab.isSuspended).length;
+		return `
+			<div class="window-details">
+				<div class="window-header">
+					<h5>Window ${windowIndex + 1}</h5>
+					<span class="window-stats">${windowData.tabs.length} tabs (${suspendedCount} suspended)</span>
+				</div>
+				<div class="window-tabs-list">
+					${windowData.tabs.map((tab, tabIndex) => `
+						<div class="tab-item ${tab.isSuspended ? 'suspended' : ''}">
+							<span class="tab-index">${tabIndex + 1}.</span>
+							<span class="tab-title">${escapeHtml(tab.title || 'Untitled')}</span>
+							<span class="tab-url">${escapeHtml(tab.originalUrl || tab.url || '')}</span>
+							${tab.isSuspended ? '<span class="suspended-indicator">suspended</span>' : ''}
+						</div>
+					`).join('')}
+				</div>
+			</div>
+		`;
+	}
+
+	async function saveCurrentSession() {
+		try {
+			setSessionStatus("Saving current session...", "info");
+			const session = await SessionManager.saveCurrentSession();
+			setSessionStatus(`Session saved: ${session.name}`, "success");
+			await loadSessions();
+		} catch (error) {
+			Logger.logError("Error saving session", error, Logger.LogComponent.OPTIONS);
+			setSessionStatus("Error saving session: " + error.message, "error");
+		}
+	}
+
+	async function restoreSession(sessionId) {
+		if (!sessionId) return;
+
+		try {
+			setRestoreLoading(sessionId, true);
+
+			// Ask user whether to restore suspended tabs as suspended or active
+			const restoreSuspended = confirm(
+				'Do you want to restore suspended tabs in their suspended state?\n\n' +
+				'Click OK to keep them suspended (faster, preserves memory usage)\n' +
+				'Click Cancel to restore them as active tabs (may use more memory)'
+			);
+
+			const success = await SessionManager.restoreSession(sessionId, restoreSuspended);
+
+			if (success) {
+				showNotification('Session restored successfully!', 'success');
+			} else {
+				showNotification('Failed to restore session. Please try again.', 'error');
+			}
+		} catch (error) {
+			console.error('Error restoring session:', error);
+			showNotification('Error restoring session: ' + error.message, 'error');
+		} finally {
+			setRestoreLoading(sessionId, false);
+		}
+	}
+
+	async function deleteSession(sessionId) {
+		try {
+			if (!confirm("Are you sure you want to delete this session? This cannot be undone.")) {
+				return;
+			}
+
+			await SessionManager.deleteSession(sessionId);
+			setSessionStatus("Session deleted", "success");
+			await loadSessions();
+		} catch (error) {
+			Logger.logError("Error deleting session", error, Logger.LogComponent.OPTIONS);
+			setSessionStatus("Error deleting session: " + error.message, "error");
+		}
+	}
+
+	async function updateAutoSaveStatus() {
+		try {
+			const enabled = await SessionManager.getAutoSaveEnabled();
+			if (sessionAutoSaveEnabledCheckbox) {
+				sessionAutoSaveEnabledCheckbox.checked = enabled;
+			}
+		} catch (error) {
+			Logger.logError("Error updating auto-save status", error, Logger.LogComponent.OPTIONS);
+		}
+	}
+
+
+	async function clearAllSessions() {
+		try {
+			if (!confirm("This will delete ALL saved sessions. This action cannot be undone. Continue?")) {
+				return;
+			}
+
+			setSessionStatus("Clearing all sessions...", "info");
+			const success = await SessionManager.clearAllSessions();
+
+			if (success) {
+				setSessionStatus("All sessions cleared", "success");
+				await loadSessions();
+			} else {
+				setSessionStatus("Error clearing sessions", "error");
+			}
+		} catch (error) {
+			Logger.logError("Error clearing all sessions", error, Logger.LogComponent.OPTIONS);
+			setSessionStatus("Error clearing all sessions: " + error.message, "error");
+		}
+	}
+
+	function escapeHtml(text) {
+		const div = document.createElement('div');
+		div.textContent = text;
+		return div.innerHTML;
+	}
+
+	function formatDate(timestamp) {
+		const date = new Date(timestamp);
+		const now = new Date();
+		const diffMs = now - date;
+		const diffMins = Math.floor(diffMs / 60000);
+		const diffHours = Math.floor(diffMins / 60);
+		const diffDays = Math.floor(diffHours / 24);
+
+		if (diffMins < 60) {
+			return diffMins <= 1 ? 'Just now' : `${diffMins} minutes ago`;
+		} else if (diffHours < 24) {
+			return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+		} else if (diffDays < 7) {
+			return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+		} else {
+			return date.toLocaleDateString();
+		}
+	}
+
+	// Session Manager Event Listeners
+	if (saveCurrentSessionBtn) {
+		saveCurrentSessionBtn.addEventListener('click', saveCurrentSession);
+	}
+	if (clearAllSessionsBtn) {
+		clearAllSessionsBtn.addEventListener('click', clearAllSessions);
+	}
+	if (sessionSortSelect) {
+		sessionSortSelect.addEventListener('change', loadSessions);
+	}
+
+
 	// --- Initial Load ---
 	loadSettings();
 	loadVersionInfo();
+
+	// Check if sessions tab is currently active and load sessions
+	const activeTab = document.querySelector('.tab-content.active');
+	if (activeTab && activeTab.id === 'tab-sessions') {
+		updateAutoSaveStatus();
+		loadSessions();
+	}
+
+	// Load sessions when Sessions tab is active
+	const tabButtons = document.querySelectorAll('.tab-button');
+	tabButtons.forEach(button => {
+		button.addEventListener('click', async () => {
+			if (button.dataset.tab === 'sessions') {
+				await updateAutoSaveStatus();
+				await loadSessions();
+			}
+		});
+	});
 });
 
 // ===================== Version Information =====================
@@ -461,4 +862,36 @@ function loadVersionInfo() {
 			footerVersionSpan.textContent = 'Unknown';
 		}
 	}
+}
+
+function setRestoreLoading(sessionId, isLoading) {
+	const sessionRow = document.querySelector(`.session-row[data-session-id="${sessionId}"]`);
+	if (!sessionRow) return;
+
+	const restoreBtn = sessionRow.querySelector('.restore-session-btn');
+	if (restoreBtn) {
+		restoreBtn.disabled = isLoading;
+		restoreBtn.textContent = isLoading ? 'Restoring...' : 'Restore';
+	}
+}
+
+function showNotification(message, type = 'info') {
+	// Create or update notification element
+	let notification = document.getElementById('session-notification');
+	if (!notification) {
+		notification = document.createElement('div');
+		notification.id = 'session-notification';
+		notification.className = 'session-notification';
+		document.querySelector('.sessions-container').prepend(notification);
+	}
+
+	notification.textContent = message;
+	notification.className = `session-notification ${type} visible`;
+
+	// Auto-hide after 5 seconds
+	setTimeout(() => {
+		if (notification) {
+			notification.classList.remove('visible');
+		}
+	}, 5000);
 }

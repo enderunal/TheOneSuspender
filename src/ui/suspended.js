@@ -10,15 +10,13 @@ import * as FaviconUtils from '../common/favicon-utils.js';
 
 		// Parse parameters from the hash, not the query string
 		const hash = location.hash.startsWith('#') ? location.hash.slice(1) : location.hash;
-		const params = {};
-		for (const part of hash.split('&')) {
-			const [key, ...rest] = part.split('=');
-			if (key) params[key] = rest.join('=');
-		}
-		let originalUrl = params.url ? decodeURIComponent(params.url) : "";
-		const pageTitle = params.title ? decodeURIComponent(params.title) : (originalUrl || "Tab Suspended");
-		const timestamp = params.timestamp ? parseInt(params.timestamp, 10) : 0;
-		Logger.log("Using search parameters.", Logger.LogComponent.SUSPENDED);
+		const params = new URLSearchParams(hash);
+
+		let originalUrl = params.get('url') || "";
+		const pageTitle = params.get('title') || (originalUrl || "Tab Suspended");
+		const timestamp = params.has('timestamp') ? parseInt(params.get('timestamp'), 10) : 0;
+
+		Logger.log("Using hash parameters.", Logger.LogComponent.SUSPENDED);
 
 		// 1) Title & header
 		try {

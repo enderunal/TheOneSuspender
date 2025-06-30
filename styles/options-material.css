@@ -44,6 +44,10 @@
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    min-width: 0;
 }
 
 .tab-button:hover {
@@ -85,35 +89,35 @@
 
 /* Settings Sections */
 .settings-section {
-    margin-bottom: 12px;
-    padding: 12px;
+    margin-bottom: 20px;
+    padding: 16px;
 }
 
 .section-title {
-    margin: 0 0 8px 0;
+    margin: 0 0 12px 0;
     color: var(--md-sys-color-on-surface);
     font-weight: 500;
     font-size: 16px;
 }
 
 .subsection-title {
-    margin: 8px 0 6px 0;
+    margin: 16px 0 8px 0;
     color: var(--md-sys-color-on-surface-variant);
     font-weight: 500;
     font-size: 14px;
 }
 
 .section-description {
-    margin: 2px 0 8px 0;
+    margin: 4px 0 12px 0;
     color: var(--md-sys-color-on-surface-variant);
-    line-height: 1.3;
+    line-height: 1.4;
     font-size: 13px;
 }
 
 .field-description {
-    margin: 2px 0 8px 0;
+    margin: 4px 0 12px 0;
     color: var(--md-sys-color-on-surface-variant);
-    line-height: 1.3;
+    line-height: 1.4;
     text-align: center;
     font-style: italic;
     font-size: 12px;
@@ -123,15 +127,15 @@
 .checkbox-group {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    margin: 8px 0;
+    gap: 8px;
+    margin: 12px 0;
 }
 
 .radio-group {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    margin: 8px 0;
+    gap: 8px;
+    margin: 12px 0;
 }
 
 /* Advanced Settings */
@@ -189,9 +193,10 @@
 .form-actions {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    margin-top: 16px;
-    padding-top: 12px;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--md-sys-color-outline-variant);
 }
 
 .form-actions button {
@@ -746,10 +751,19 @@
     }
 
     .tab-navigation {
-        flex-direction: column;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .tab-navigation::-webkit-scrollbar {
+        display: none;
     }
 
     .tab-button {
+        flex: 0 0 auto;
+        min-width: 80px;
+        max-width: 120px;
         text-align: center;
     }
 
@@ -907,5 +921,547 @@
 
 .theme-performance-controls .md-feedback {
     font-size: 13px;
+    font-weight: 500;
+}
+
+/* Session Manager Styles */
+.session-config {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 12px 0 16px 0;
+}
+
+
+
+.md-divider {
+    height: 1px;
+    background-color: var(--md-sys-color-outline-variant);
+    margin: 16px 0;
+    border: none;
+}
+
+/* Checkbox field styling */
+.md-checkbox-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.md-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    cursor: pointer;
+    accent-color: var(--md-primary);
+}
+
+.md-checkbox-field label {
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: var(--md-on-surface);
+    user-select: none;
+}
+
+/* Sessions header with actions */
+.sessions-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.sessions-header-actions .md-button.text {
+    font-size: 0.875rem;
+    padding: 6px 12px;
+    min-height: auto;
+    text-transform: none;
+    font-weight: 500;
+    border: 1px solid var(--md-sys-color-outline);
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.sessions-header-actions .md-button.text:hover {
+    background-color: var(--md-sys-color-surface-variant);
+    border-color: var(--md-sys-color-primary);
+}
+
+.sessions-header-actions .md-button.text.danger {
+    color: var(--md-sys-color-error);
+    border-color: var(--md-sys-color-error);
+}
+
+.sessions-header-actions .md-button.text.danger:hover {
+    background-color: var(--md-sys-color-error-container);
+    color: var(--md-sys-color-on-error-container);
+}
+
+.sessions-header-actions .session-sort-container {
+    margin-left: auto;
+}
+
+.session-list-controls {
+    margin-bottom: 16px;
+}
+
+.session-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.session-list-header h3 {
+    margin: 0;
+    color: var(--md-sys-color-on-surface);
+}
+
+.session-sort-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sort-label {
+    font-size: 14px;
+    color: var(--md-sys-color-on-surface-variant);
+    font-weight: 500;
+}
+
+.md-select {
+    min-width: 150px;
+    padding: 8px 12px;
+    border: 1px solid var(--md-sys-color-outline);
+    border-radius: 4px;
+    background-color: var(--md-sys-color-surface);
+    color: var(--md-sys-color-on-surface);
+    font-size: 14px;
+}
+
+.md-select.compact {
+    min-width: 120px;
+    padding: 6px 10px;
+    font-size: 13px;
+}
+
+.sessions-container {
+    margin-top: 16px;
+}
+
+.sessions-loading,
+.sessions-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--md-sys-color-on-surface-variant);
+}
+
+.sessions-loading .loading-spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid var(--md-sys-color-outline);
+    border-top: 3px solid var(--md-sys-color-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 12px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.sessions-empty .empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.6;
+}
+
+.sessions-list {
+    display: block;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Sessions table */
+.sessions-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--md-sys-color-surface);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+.sessions-table thead {
+    background: var(--md-sys-color-surface-variant);
+}
+
+.sessions-table th {
+    padding: 16px 12px;
+    text-align: left;
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--md-sys-color-on-surface-variant);
+    border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.sessions-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--md-sys-color-outline-variant);
+    vertical-align: middle;
+}
+
+.session-row:hover {
+    background: var(--md-sys-color-surface-variant);
+}
+
+.session-row:last-child td {
+    border-bottom: none;
+}
+
+.session-name {
+    font-weight: 500;
+    color: var(--md-sys-color-on-surface);
+    max-width: 200px;
+    word-break: break-word;
+}
+
+.session-date {
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.session-windows,
+.session-tabs,
+.session-suspended {
+    text-align: right;
+    font-weight: 500;
+    color: var(--md-sys-color-on-surface);
+    width: 80px;
+}
+
+.session-actions {
+    text-align: right;
+    white-space: nowrap;
+    width: 140px;
+}
+
+.session-actions .md-button {
+    margin-left: 8px;
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+/* Danger button style */
+.md-button.danger {
+    color: var(--md-sys-color-error);
+    border-color: var(--md-sys-color-error);
+}
+
+.md-button.danger:hover {
+    background: var(--md-sys-color-error-container);
+    color: var(--md-sys-color-on-error-container);
+}
+
+/* Session notification with visibility toggle */
+.session-notification {
+    display: block;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.session-notification.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.session-notification.info {
+    background-color: var(--primary-color-light);
+    color: var(--primary-color-dark);
+    border-left: 4px solid var(--primary-color);
+}
+
+.session-notification.success {
+    background-color: #e8f5e8;
+    color: #2e7d32;
+    border-left: 4px solid #4caf50;
+}
+
+.session-notification.error {
+    background-color: #ffebee;
+    color: #c62828;
+    border-left: 4px solid #f44336;
+}
+
+.session-notification.warning {
+    background-color: #fff8e1;
+    color: #f57c00;
+    border-left: 4px solid #ff9800;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+    .sessions-table {
+        font-size: 12px;
+    }
+
+    .sessions-table th,
+    .sessions-table td {
+        padding: 8px 6px;
+    }
+
+    .session-name {
+        max-width: 120px;
+    }
+
+    .session-actions .md-button {
+        padding: 4px 8px;
+        font-size: 11px;
+        margin-left: 4px;
+    }
+
+    .session-windows,
+    .session-tabs,
+    .session-suspended {
+        width: 60px;
+    }
+
+    .session-actions {
+        width: 120px;
+    }
+
+    .sessions-header-actions {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .sessions-header-actions .session-sort-container {
+        margin-left: 0;
+    }
+
+    .session-list-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .session-sort-container {
+        justify-content: flex-start;
+    }
+
+    .session-config {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+
+
+    .session-actions-section {
+        margin: 12px 0 16px 0;
+    }
+}
+
+/* Session name with expand button */
+.session-name-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.session-name-text {
+    flex: 1;
+}
+
+.session-auto-badge {
+    display: inline-block;
+    background: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 500;
+    margin-left: 8px;
+    text-transform: uppercase;
+}
+
+.session-expand-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    color: var(--md-sys-color-on-surface-variant);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    min-height: 24px;
+}
+
+.session-expand-btn:hover {
+    background: var(--md-sys-color-surface-variant);
+    color: var(--md-sys-color-on-surface);
+}
+
+.expand-icon {
+    font-size: 12px;
+    transition: transform 0.2s ease;
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 8px solid currentColor;
+    transform: rotate(-90deg);
+}
+
+.expand-icon.expanded {
+    transform: rotate(0deg);
+}
+
+/* Session details rows */
+.session-details-row {
+    border-top: none !important;
+}
+
+.session-details-content {
+    padding: 0 !important;
+    background: var(--md-sys-color-surface-container);
+}
+
+.session-details-container {
+    padding: 10px 12px;
+    border-top: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.session-details-container h4 {
+    margin: 0 0 8px 0;
+    color: var(--md-sys-color-on-surface);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* Window details */
+.window-details {
+    margin-bottom: 8px;
+    padding: 8px;
+    background: var(--md-sys-color-surface);
+    border-radius: 6px;
+    border: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.window-details:last-child {
+    margin-bottom: 0;
+}
+
+.window-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.window-header h5 {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--md-sys-color-on-surface);
+}
+
+.window-stats {
+    font-size: 10px;
+    color: var(--md-sys-color-on-surface-variant);
+}
+
+/* Tab list */
+.window-tabs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: 200px;
+    overflow-y: auto;
+    font-size: 10px;
+}
+
+.tab-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 4px;
+    border-radius: 2px;
+}
+
+.tab-item:hover {
+    background: var(--md-sys-color-surface-variant);
+}
+
+.tab-item.suspended {
+    opacity: 0.7;
+}
+
+.tab-index {
+    color: var(--md-sys-color-on-surface-variant);
+    min-width: 20px;
+    font-size: 9px;
+}
+
+.tab-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--md-sys-color-on-surface);
+    font-weight: 500;
+    min-width: 0;
+    flex-shrink: 0;
+    max-width: 40%;
+}
+
+.tab-url {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: 9px;
+    opacity: 0.8;
+    margin-left: 4px;
+    min-width: 0;
+}
+
+.suspended-indicator {
+    font-size: 9px;
+    opacity: 0.7;
+    flex-shrink: 0;
+    color: var(--md-sys-color-on-surface-variant);
+    background: var(--md-sys-color-surface-variant);
+    padding: 1px 4px;
+    border-radius: 3px;
+    margin-left: 4px;
+    text-transform: uppercase;
     font-weight: 500;
 }

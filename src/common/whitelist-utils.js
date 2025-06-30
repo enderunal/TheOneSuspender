@@ -76,24 +76,17 @@ export async function resolveTabUrl(tab) {
         try {
             // Try to parse from hash first (new format)
             const hash = tab.url.split('#')[1] || '';
-            const hashParams = {};
-            for (const part of hash.split('&')) {
-                const [key, ...rest] = part.split('=');
-                if (key) hashParams[key] = rest.join('=');
+            if (hash) {
+                const hashParams = new URLSearchParams(hash);
+                const url = hashParams.get('url');
+                if (url) return url;
             }
-            if (hashParams.url) return hashParams.url;
+
             // Fallback to old query param method
             const urlParams = new URLSearchParams(new URL(tab.url).search);
-            const originalEncodedUrl = urlParams.get('url');
-            if (originalEncodedUrl) {
-                let originalUrl = originalEncodedUrl;
-                try {
-                    if (originalEncodedUrl.includes('%')) {
-                        originalUrl = decodeURIComponent(originalEncodedUrl);
-                    }
-                } catch (e) { /* ignore decode error, use as-is */ }
-                return originalUrl;
-            }
+            const originalUrl = urlParams.get('url');
+            if (originalUrl) return originalUrl;
+
             return null; // No 'url' parameter found
         } catch (e) {
             // Log error or handle appropriately if URL parsing fails

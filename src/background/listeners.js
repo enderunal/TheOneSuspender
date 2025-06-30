@@ -3,6 +3,7 @@ import * as Const from '../common/constants.js';
 import * as Logger from '../common/logger.js';
 import * as Preferences from '../common/prefs.js';
 import * as State from '../common/state.js';
+import * as SessionManager from '../common/session-manager.js';
 
 import * as Suspension from '../suspension/suspension.js';
 
@@ -483,6 +484,16 @@ export function handleAlarmEvent(alarm) {
             Logger.log('Cleaning up state references...', Logger.LogComponent.BACKGROUND);
             // Call background's cleanupStateReferences function
             await State.cleanupStateReferences();
+        }, Logger.LogComponent.BACKGROUND);
+    } else if (alarm.name === 'TS_SESSION_FREQUENT_SAVE') {
+        // Handle frequent session backup (configurable frequency)
+        Logger.withErrorHandling('TS_SESSION_FREQUENT_SAVE', async () => {
+            const autoSaveEnabled = await SessionManager.getAutoSaveEnabled();
+            if (autoSaveEnabled) {
+                Logger.detailedLog('Performing automatic session save...', Logger.LogComponent.BACKGROUND);
+                await SessionManager.saveCurrentSession(null, true);
+                Logger.detailedLog('Automatic session save completed', Logger.LogComponent.BACKGROUND);
+            }
         }, Logger.LogComponent.BACKGROUND);
     }
 }
