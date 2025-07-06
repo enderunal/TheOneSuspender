@@ -6,7 +6,7 @@ export const WHITELIST_KEY = 'whitelist';
 /** @type {import('./types.js').Prefs} */
 export const defaultPrefs = {
     suspendAfter: 10, // Default suspend time in minutes
-    lastPositiveSuspendAfter: 10, // New preference
+    lastPositiveSuspendAfter: 10,
     preserveHistory: true,
     neverSuspendPinned: true,
     neverSuspendAudio: true,
@@ -17,13 +17,13 @@ export const defaultPrefs = {
     maxConcurrent: 5, // Default maximum concurrent operations
     autoSuspendEnabled: true, // New: allow user to disable auto suspension
     theme: 'gold', // default theme: sophisticated warm gold
-    sessionMaxSessions: 50, // Maximum number of sessions to keep
-    sessionAutoSaveFrequency: 5, // Auto-save frequency in minutes
+    sessionMaxSessions: 10, // Maximum number of sessions to keep
+    sessionAutoSaveFrequency: 30, // Auto-save frequency in minutes
     // Logging preferences
-    enableStandardLogs: true,
-    enableDetailedLogs: true,
-    enableWarningLogs: true,
-    enableErrorLogs: true
+    enableStandardLogs: false,
+    enableDetailedLogs: false,
+    enableWarningLogs: false,
+    enableErrorLogs: false
 };
 
 /** @type {import('./types.js').Prefs} */
