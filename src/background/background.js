@@ -116,13 +116,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 // Handle browser startup
 chrome.runtime.onStartup.addListener(async () => {
     Logger.log("Browser startup detected", Logger.LogComponent.BACKGROUND);
-    try {
-        await chrome.storage.local.set({ BULK_OP_IN_PROGRESS: false, BULK_OP_TIMESTAMP: null });
-        globalThis.isBulkOpRunning = false;
-        Logger.log("Cleared startup locks", Logger.LogComponent.BACKGROUND);
-    } catch (error) {
-        Logger.logError("Error clearing startup locks", error, Logger.LogComponent.BACKGROUND);
-    }
+    globalThis.isBulkOpRunning = false;
 });
 
 // Set up message handler immediately

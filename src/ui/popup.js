@@ -79,13 +79,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 		}
 	}
 
-	// Listen for changes to BULK_OP_IN_PROGRESS to update UI live
-	chrome.storage.onChanged.addListener((changes, area) => {
-		if (area === 'local' && changes.BULK_OP_IN_PROGRESS) {
-			console.debug('[Popup] BULK_OP_IN_PROGRESS changed:', changes.BULK_OP_IN_PROGRESS);
-			loadInitialData();
-		}
-	});
+	// Bulk operation tracking simplified - no storage listener needed
 
 	function disableAllControls() {
 		Object.values(elements).forEach(el => {

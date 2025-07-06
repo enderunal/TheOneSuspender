@@ -348,8 +348,6 @@ export async function suspendAllTabsAllSpecs(isManual = false) {
         return;
     }
     globalThis.isBulkOpRunning = true;
-    await chrome.storage.local.set({ BULK_OP_IN_PROGRESS: true, BULK_OP_TIMESTAMP: Date.now() });
-    Logger.log(`${context}: BULK_OP_IN_PROGRESS set to true`);
     try {
         for (const window of allWindows) {
             try {
@@ -364,8 +362,6 @@ export async function suspendAllTabsAllSpecs(isManual = false) {
         Logger.logError(context, error);
     } finally {
         globalThis.isBulkOpRunning = false;
-        await chrome.storage.local.set({ BULK_OP_IN_PROGRESS: false });
-        Logger.log(`${context}: BULK_OP_IN_PROGRESS set to false`);
     }
 }
 
@@ -382,8 +378,6 @@ export async function unsuspendAllTabsAllSpecs() {
         return;
     }
     globalThis.isBulkOpRunning = true;
-    await chrome.storage.local.set({ BULK_OP_IN_PROGRESS: true, BULK_OP_TIMESTAMP: Date.now() });
-    Logger.log(`${context}: BULK_OP_IN_PROGRESS set to true`);
     try {
         for (const window of allWindows) {
             try {
@@ -398,8 +392,6 @@ export async function unsuspendAllTabsAllSpecs() {
         Logger.logError(context, error);
     } finally {
         globalThis.isBulkOpRunning = false;
-        await chrome.storage.local.set({ BULK_OP_IN_PROGRESS: false });
-        Logger.log(`${context}: BULK_OP_IN_PROGRESS set to false`);
     }
 }
 
