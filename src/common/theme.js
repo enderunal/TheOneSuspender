@@ -2,40 +2,6 @@
 
 import * as Prefs from './prefs.js';
 
-// Single storage change listener for all theme changes
-let themeChangeCallbacks = [];
-let listenerInitialized = false;
-
-/**
- * Initialize the storage change listener (only once)
- */
-function initializeStorageListener() {
-    if (listenerInitialized) return;
-
-    chrome.storage.onChanged.addListener((changes, namespace) => {
-        if (namespace === 'local' && changes[Prefs.PREFS_KEY]) {
-            const newPrefs = changes[Prefs.PREFS_KEY].newValue;
-            const oldPrefs = changes[Prefs.PREFS_KEY].oldValue;
-
-            if (newPrefs?.theme !== oldPrefs?.theme) {
-                const newTheme = newPrefs.theme || 'gold';
-                applyTheme(newTheme);
-
-                // Call all registered callbacks
-                themeChangeCallbacks.forEach(callback => {
-                    try {
-                        callback(newTheme);
-                    } catch (e) {
-                        console.error('Error in theme change callback:', e);
-                    }
-                });
-            }
-        }
-    });
-
-    listenerInitialized = true;
-}
-
 /**
  * Apply theme to the current document
  * @param {string} theme - Theme name (e.g., 'gold', 'silver', etc.)
@@ -56,7 +22,7 @@ export function applyTheme(theme) {
             `${document.body.className} theme-${theme}` : `theme-${theme}`;
     }
 
-    // Cache theme for next page load
+    // Cache theme for next page load (essential for anti-flashbang)
     try {
         localStorage.setItem('tos_cached_theme', theme);
     } catch (e) {
@@ -65,7 +31,7 @@ export function applyTheme(theme) {
 }
 
 /**
- * Initialize theme for any page - this is the only function pages should call
+ * Initialize theme for any page - loads theme and sets up storage listener
  * @returns {Promise<string>} The applied theme
  */
 export async function initializeThemeForPage() {
@@ -78,26 +44,23 @@ export async function initializeThemeForPage() {
         // Apply theme
         applyTheme(theme);
 
-        // Initialize the storage listener
-        initializeStorageListener();
+        // Set up storage listener for theme changes
+        chrome.storage.onChanged.addListener((changes, namespace) => {
+            if (namespace === 'local' && changes[Prefs.PREFS_KEY]) {
+                const newPrefs = changes[Prefs.PREFS_KEY].newValue;
+                const oldPrefs = changes[Prefs.PREFS_KEY].oldValue;
+
+                if (newPrefs?.theme !== oldPrefs?.theme) {
+                    const newTheme = newPrefs.theme || 'gold';
+                    applyTheme(newTheme);
+                }
+            }
+        });
 
         return theme;
     } catch (error) {
         console.warn('Failed to initialize theme:', error);
         applyTheme('gold');
         return 'gold';
-    }
-}
-
-// For backwards compatibility - redirect old functions to the new one
-export const loadThemeImmediately = initializeThemeForPage;
-export const loadAndApplyTheme = initializeThemeForPage;
-export const initTheme = initializeThemeForPage;
-
-// For pages that need to listen to theme changes with custom callback
-export function onThemeChange(callback) {
-    if (typeof callback === 'function') {
-        themeChangeCallbacks.push(callback);
-        initializeStorageListener();
     }
 } 
