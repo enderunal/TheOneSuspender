@@ -14,7 +14,6 @@ export const defaultPrefs = {
     neverSuspendLastWindow: true,
     neverSuspendOffline: false,
     unsavedFormHandling: 'ask', // Allowed: 'normal', 'never', 'ask'
-    maxConcurrent: 5, // Default maximum concurrent operations
     autoSuspendEnabled: true, // New: allow user to disable auto suspension
     theme: 'gold', // default theme: sophisticated warm gold
     sessionMaxSessions: 10, // Maximum number of sessions to keep
@@ -97,8 +96,6 @@ function validatePrefs(prefsToValidate) {
     if (typeof prefsToValidate.neverSuspendActive !== 'boolean') throw new Error('neverSuspendActive must be boolean');
     if (typeof prefsToValidate.neverSuspendLastWindow !== 'boolean') throw new Error('neverSuspendLastWindow must be boolean');
     if (typeof prefsToValidate.neverSuspendOffline !== 'boolean') throw new Error('neverSuspendOffline must be boolean');
-    // this is not used for now, but might be in the future
-    if (typeof prefsToValidate.maxConcurrent !== 'number' || prefsToValidate.maxConcurrent < 1) throw new Error('maxConcurrent must be a number >= 1');
     if (!unsavedFormHandlingValues.includes(prefsToValidate.unsavedFormHandling)) {
         throw new Error('unsavedFormHandling must be one of: normal, never, ask');
     }

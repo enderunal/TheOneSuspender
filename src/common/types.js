@@ -8,7 +8,6 @@
  * @property {boolean} neverSuspendLastWindow
  * @property {boolean} neverSuspendOffline
  * @property {'normal'|'never'|'ask'} unsavedFormHandling
- * @property {number} maxConcurrent
  * @property {boolean} autoSuspendEnabled
  */
 
