@@ -41,6 +41,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 	const saveButton = document.getElementById("save-settings");
 	const autoSuspendEnabledInput = document.getElementById("autoSuspendEnabled");
 
+	// Logging control elements
+	const enableStandardLogsInput = document.getElementById("enableStandardLogs");
+	const enableDetailedLogsInput = document.getElementById("enableDetailedLogs");
+	const enableWarningLogsInput = document.getElementById("enableWarningLogs");
+	const enableErrorLogsInput = document.getElementById("enableErrorLogs");
+
 	// --- Export/Import Suspended Tabs ---
 	const exportBtn = document.getElementById("export-suspended-tabs");
 	const exportFormat = document.getElementById("export-format");
@@ -137,12 +143,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 	setupTextFieldListeners();
 
 	// --- Load Settings ---
-	function loadSettings() {
+	async function loadSettings() {
 		// Populate with defaults first so we always have something
 		populateForm(Prefs.defaultPrefs, []);
 
-		// Corrected: Use chrome.storage.local and PREFS_KEY, WHITELIST_KEY
-		chrome.storage.local.get([Prefs.PREFS_KEY, Prefs.WHITELIST_KEY], (result) => {
+		try {
+			const result = await chrome.storage.local.get([Prefs.PREFS_KEY, Prefs.WHITELIST_KEY]);
 			const loadedSettings = { ...Prefs.defaultPrefs, ...(result[Prefs.PREFS_KEY] || {}) };
 			if (loadedSettings.suspendAfter > 0) {
 				loadedSettings.lastPositiveSuspendAfter = loadedSettings.suspendAfter;
@@ -151,7 +157,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 			}
 			populateForm(loadedSettings, result[Prefs.WHITELIST_KEY] || []);
 			validateInactivityMinutes();
-		});
+		} catch (error) {
+			showError(error.message || 'Failed to load settings');
+		}
 	}
 
 	function populateForm(settings, whitelistItems) {
@@ -188,6 +196,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 			const defaultRadio = document.querySelector('input[name="unsavedFormHandling"][value="normal"]');
 			if (defaultRadio) defaultRadio.checked = true;
 		}
+
+		// Load logging settings
+		enableStandardLogsInput.checked = settings.enableStandardLogs !== false; // Default to true
+		enableDetailedLogsInput.checked = settings.enableDetailedLogs !== false; // Default to true
+		enableWarningLogsInput.checked = settings.enableWarningLogs !== false; // Default to true
+		enableErrorLogsInput.checked = settings.enableErrorLogs !== false; // Default to true
 
 		// Update Material Design text field labels after values are loaded
 		updateTextFieldLabels();
@@ -300,6 +314,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 			theme: themeInput.value,
 			sessionMaxSessions: parseInt(sessionMaxSessionsInput.value, 10),
 			sessionAutoSaveFrequency: parseInt(sessionAutoSaveFrequencyInput.value, 10),
+			// Logging settings
+			enableStandardLogs: enableStandardLogsInput.checked,
+			enableDetailedLogs: enableDetailedLogsInput.checked,
+			enableWarningLogs: enableWarningLogsInput.checked,
+			enableErrorLogs: enableErrorLogsInput.checked
 		};
 
 		Logger.log(`Value of whitelistTextarea.value before splitting: ${whitelistTextarea.value}`, Logger.LogComponent.OPTIONS);
@@ -339,7 +358,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 			});
 
 			if (chrome.runtime.lastError || !prefsResponse?.success) {
-				Logger.logWarning("Warning: Failed to notify background script of preference changes", Logger.LogComponent.OPTIONS);
+				if (prefsResponse?.stillInitializing) {
+					Logger.logWarning("Warning: Background script is still initializing, preferences may not be fully applied yet", Logger.LogComponent.OPTIONS);
+				} else {
+					const errorMsg = chrome.runtime.lastError?.message || prefsResponse?.error || "Unknown error";
+					Logger.logWarning(`Warning: Failed to notify background script of preference changes: ${errorMsg}`, Logger.LogComponent.OPTIONS);
+				}
 			}
 
 			// Success message

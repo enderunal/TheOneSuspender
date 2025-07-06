@@ -1,11 +1,11 @@
 // logger.js
 
-// Global logging configuration
-const LogConfig = {
-    enableStandardLogs: false,    // Standard logs (info)
-    enableDetailedLogs: false,    // Detailed/debug logs
-    enableWarningLogs: false,     // Warnings
-    enableErrorLogs: false,       // Errors
+// Global logging configuration - will be updated from storage
+let LogConfig = {
+    enableStandardLogs: true,     // Standard logs (info)
+    enableDetailedLogs: true,     // Detailed/debug logs
+    enableWarningLogs: true,      // Warnings
+    enableErrorLogs: true,        // Errors
     logPrefix: "TheOneSuspender"    // Base prefix for all logs
 };
 
@@ -20,6 +20,34 @@ export const LogComponent = {
     SCHEDULING: "Schedule",
     GENERAL: ""  // General logs use the base prefix only
 };
+
+/**
+ * Initialize logging configuration from storage
+ * Called when the extension starts up
+ */
+export async function initializeLogging() {
+    try {
+        const result = await chrome.storage.local.get(['TS_PREFS']);
+        const prefs = result['TS_PREFS'] || {};
+        updateLoggingConfig(prefs);
+    } catch (error) {
+        console.error('[Logger] Failed to initialize logging configuration:', error);
+    }
+}
+
+/**
+ * Update logging configuration from preferences
+ * Called when settings are saved
+ * @param {object} prefs - Preferences object containing logging settings
+ */
+export function updateLoggingConfig(prefs) {
+    if (prefs && typeof prefs === 'object') {
+        LogConfig.enableStandardLogs = prefs.enableStandardLogs !== false; // Default to true
+        LogConfig.enableDetailedLogs = prefs.enableDetailedLogs !== false; // Default to true
+        LogConfig.enableWarningLogs = prefs.enableWarningLogs !== false; // Default to true
+        LogConfig.enableErrorLogs = prefs.enableErrorLogs !== false; // Default to true
+    }
+}
 
 /**
  * Log a message at the info level
@@ -157,5 +185,7 @@ export default {
     logError,
     withErrorHandling,
     safeClearAlarm,
-    LogComponent
+    LogComponent,
+    initializeLogging,
+    updateLoggingConfig
 }; 

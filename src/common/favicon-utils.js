@@ -29,7 +29,7 @@ export function buildFaviconUrl(pageUrl, size = 16) {
  * @param {function} callback - Callback function with (faviconUrl) or (null) if none found
  * @param {number} [size=16] - The size of the favicon to retrieve
  */
-export function discoverFavicon(originalUrl, callback, size = 16) {
+export async function discoverFavicon(originalUrl, callback, size = 16) {
     if (!originalUrl) {
         callback(null);
         return;

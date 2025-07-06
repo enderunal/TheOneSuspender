@@ -18,7 +18,12 @@ export const defaultPrefs = {
     autoSuspendEnabled: true, // New: allow user to disable auto suspension
     theme: 'gold', // default theme: sophisticated warm gold
     sessionMaxSessions: 50, // Maximum number of sessions to keep
-    sessionAutoSaveFrequency: 5 // Auto-save frequency in minutes
+    sessionAutoSaveFrequency: 5, // Auto-save frequency in minutes
+    // Logging preferences
+    enableStandardLogs: true,
+    enableDetailedLogs: true,
+    enableWarningLogs: true,
+    enableErrorLogs: true
 };
 
 /** @type {import('./types.js').Prefs} */
@@ -51,6 +56,9 @@ export async function loadPrefs() {
 
         Logger.detailedLog("[TheOneSuspender] Prefs loaded:", JSON.stringify(prefs));
         Logger.detailedLog("Whitelist loaded:", whitelist);
+
+        // Update logger configuration with loaded preferences
+        Logger.updateLoggingConfig(prefs);
     } catch (error) {
         Logger.logError("Error loading settings from storage", error);
         prefs = { ...defaultPrefs }; // Fallback to defaults on error
@@ -101,6 +109,11 @@ function validatePrefs(prefsToValidate) {
     if (typeof prefsToValidate.sessionAutoSaveFrequency !== 'number' || prefsToValidate.sessionAutoSaveFrequency < 1 || prefsToValidate.sessionAutoSaveFrequency > 1440) {
         throw new Error('sessionAutoSaveFrequency must be a number between 1 and 1440 minutes (24 hours)');
     }
+    // Validate logging preferences
+    if (typeof prefsToValidate.enableStandardLogs !== 'boolean') throw new Error('enableStandardLogs must be boolean');
+    if (typeof prefsToValidate.enableDetailedLogs !== 'boolean') throw new Error('enableDetailedLogs must be boolean');
+    if (typeof prefsToValidate.enableWarningLogs !== 'boolean') throw new Error('enableWarningLogs must be boolean');
+    if (typeof prefsToValidate.enableErrorLogs !== 'boolean') throw new Error('enableErrorLogs must be boolean');
 }
 
 /**

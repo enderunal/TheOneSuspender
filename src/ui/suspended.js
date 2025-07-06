@@ -216,7 +216,7 @@ import * as FaviconUtils from '../common/favicon-utils.js';
 				// Use dynamic favicon discovery instead of reading from URL parameter
 				if (originalUrl) {
 					Logger.log(`Attempting to discover favicon for: ${originalUrl.substring(0, 60)}`, Logger.LogComponent.SUSPENDED);
-					FaviconUtils.discoverFavicon(originalUrl, (discoveredFaviconUrl) => {
+					await FaviconUtils.discoverFavicon(originalUrl, (discoveredFaviconUrl) => {
 						if (discoveredFaviconUrl) {
 							Logger.log(`Processing discovered favicon: ${discoveredFaviconUrl.substring(0, 60)}`, Logger.LogComponent.SUSPENDED);
 							processFaviconWithCanvas(discoveredFaviconUrl);

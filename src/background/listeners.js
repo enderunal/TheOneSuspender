@@ -51,92 +51,92 @@ async function notifyAllTabsPrefsChanged() {
 }
 
 // ===================== Core Logic =====================
-export function handleMessage(request, sender, sendResponse) {
+function handleMessage(request, sender, sendResponse) {
     if (!request || !request.type) {
         Logger.logError("handleMessage", "Invalid request object", Logger.LogComponent.BACKGROUND, request);
         sendResponse({ error: "Invalid request" });
         return false;
     }
 
-    // Handle IS_BULK_OP_RUNNING directly
+    // Handle IS_BULK_OP_RUNNING directly (always available)
     if (request.type === 'IS_BULK_OP_RUNNING') {
         sendResponse({ running: globalThis.isBulkOpRunning });
-        return true;
+        return false;
     }
 
     const context = `handleMessage(${request.type})`;
     Logger.detailedLog(`${context}: Received message from ${sender.tab ? 'tab ' + sender.tab.id : 'extension'}`, Logger.LogComponent.BACKGROUND, request);
 
+    // Extension initializes immediately, no need for initialization checks
+
     // Handle commands based on their permission requirements
     switch (request.type) {
-        // All other operations require extension origin
         case Const.MSG_SAVE_SETTINGS:
             if (!validateMessageSender(sender, true)) {
                 sendResponse({ error: "Permission denied" });
                 Logger.logError(context, `Unauthorized attempt to call ${request.type} from ${JSON.stringify(sender)}`, Logger.LogComponent.BACKGROUND);
-                return true;
+                return false;
             }
 
-            try {
+            // Handle async operation
+            handleAsyncMessage(context, async () => {
                 if (!request.settings || typeof request.settings !== 'object') {
-                    sendResponse({ error: "Invalid settings: Expected an object" });
-                    return false;
+                    return { error: "Invalid settings: Expected an object" };
                 }
 
                 const newSettings = { ...Preferences.defaultPrefs, ...request.settings };
-
                 const oldSuspendAfter = Preferences.prefs.suspendAfter;
                 const oldUnsavedFormHandling = Preferences.prefs.unsavedFormHandling;
 
-                Preferences.savePrefs(newSettings).then(() => {
-                    Logger.log("Settings saved successfully via saveSettings message", Logger.LogComponent.BACKGROUND);
-                    sendResponse({ success: true });
+                await Preferences.savePrefs(newSettings);
+                Logger.log("Settings saved successfully via saveSettings message", Logger.LogComponent.BACKGROUND);
 
-                    if (Preferences.prefs.suspendAfter !== oldSuspendAfter || Preferences.prefs.unsavedFormHandling !== oldUnsavedFormHandling) {
-                        Logger.detailedLog("Relevant settings changed, rescheduling all tabs.", Logger.LogComponent.BACKGROUND);
-                        Scheduling.debouncedScheduleAllTabs();
-                    }
-                    // Notify content scripts if unsavedFormHandling changed
-                    if (Preferences.prefs.unsavedFormHandling !== oldUnsavedFormHandling) {
-                        notifyAllTabsPrefsChanged();
-                    }
-                }).catch(error => {
-                    Logger.logError(context, error, Logger.LogComponent.BACKGROUND);
-                    sendResponse({ error: error.message || "Failed to save settings" });
-                });
-                return true; // Indicates that sendResponse will be called asynchronously.
-            } catch (e) {
-                Logger.logError(context, e, Logger.LogComponent.BACKGROUND);
-                sendResponse({ error: e.message || "Server error during saveSettings" });
-                return false;
-            }
+                if (Preferences.prefs.suspendAfter !== oldSuspendAfter || Preferences.prefs.unsavedFormHandling !== oldUnsavedFormHandling) {
+                    Logger.detailedLog("Relevant settings changed, rescheduling all tabs.", Logger.LogComponent.BACKGROUND);
+                    Scheduling.debouncedScheduleAllTabs();
+                }
+                // Notify content scripts if unsavedFormHandling changed
+                if (Preferences.prefs.unsavedFormHandling !== oldUnsavedFormHandling) {
+                    await notifyAllTabsPrefsChanged();
+                }
+
+                return { success: true };
+            }, sendResponse);
+            return true;
 
         case Const.MSG_SAVE_WHITELIST:
             if (!validateMessageSender(sender, true)) {
                 sendResponse({ error: "Permission denied" });
                 Logger.logError(context, `Unauthorized attempt to call ${request.type} from ${JSON.stringify(sender)}`, Logger.LogComponent.BACKGROUND);
-                return true;
-            }
-
-            try {
-                if (!request.newWhitelist || !Array.isArray(request.newWhitelist)) {
-                    sendResponse({ error: "Invalid whitelist: Expected an array" });
-                    return false;
-                }
-                Preferences.saveWhitelist(request.newWhitelist).then(() => {
-                    Logger.log("Whitelist saved successfully via saveWhitelist message", Logger.LogComponent.BACKGROUND);
-                    Scheduling.debouncedScheduleAllTabs();
-                    sendResponse({ success: true });
-                }).catch(error => {
-                    Logger.logError(context, error, Logger.LogComponent.BACKGROUND);
-                    sendResponse({ error: error.message || "Failed to save whitelist" });
-                });
-                return true;
-            } catch (e) {
-                Logger.logError(context, e, Logger.LogComponent.BACKGROUND);
-                sendResponse({ error: e.message || "Server error during saveWhitelist" });
                 return false;
             }
+
+            // Handle async operation
+            handleAsyncMessage(context, async () => {
+                if (!request.newWhitelist || !Array.isArray(request.newWhitelist)) {
+                    return { error: "Invalid whitelist: Expected an array" };
+                }
+                await Preferences.saveWhitelist(request.newWhitelist);
+                Logger.log("Whitelist saved successfully via saveWhitelist message", Logger.LogComponent.BACKGROUND);
+                Scheduling.debouncedScheduleAllTabs();
+                return { success: true };
+            }, sendResponse);
+            return true;
+
+        case Const.MSG_PREFS_CHANGED:
+            if (!validateMessageSender(sender, true)) {
+                sendResponse({ error: "Permission denied" });
+                Logger.logError(context, `Unauthorized attempt to call ${request.type} from ${JSON.stringify(sender)}`, Logger.LogComponent.BACKGROUND);
+                return false;
+            }
+
+            // Handle async operation
+            handleAsyncMessage(context, async () => {
+                await Scheduling.scheduleAllTabs();
+                await rescheduleSessionAutoSave();
+                return { success: true };
+            }, sendResponse);
+            return true;
 
         case Const.MSG_SUSPEND_TAB:
             // Allow from extension pages OR from content scripts with a valid tab context
@@ -145,7 +145,7 @@ export function handleMessage(request, sender, sendResponse) {
             if (!isExtensionPage && !isContentScript) {
                 sendResponse({ error: "Permission denied" });
                 Logger.logError(context, `Unauthorized attempt to call ${request.type} from ${JSON.stringify(sender)}`, Logger.LogComponent.BACKGROUND);
-                return true;
+                return false;
             }
 
             const receivedTabId = request.tabId;
@@ -153,45 +153,47 @@ export function handleMessage(request, sender, sendResponse) {
             const tabIdToUse = receivedTabId || senderTabId;
             const isManual = !!request.isManual;
 
-            Logger.detailedLog(`${context}: Received request.tabId: ${receivedTabId}, sender.tab.id: ${senderTabId}. Using tabId: ${tabIdToUse}, isManual: ${isManual}`, Logger.LogComponent.BACKGROUND);
-
             if (tabIdToUse) {
-                Logger.withErrorHandling(`suspendTab(id=${tabIdToUse}, manual=${isManual})`, async () => {
+                // Handle async operation
+                handleAsyncMessage(`suspendTab(id=${tabIdToUse}, manual=${isManual})`, async () => {
                     const result = await Suspension.suspendTab(tabIdToUse, isManual);
-                    Logger.detailedLog(`${context}: suspendTab(id=${tabIdToUse}, manual=${isManual}) result: ${result}`, Logger.LogComponent.BACKGROUND);
-                    sendResponse({ success: result });
-                }, sendResponse, Logger.LogComponent.BACKGROUND);
+                    return { success: result };
+                }, sendResponse);
+                return true;
             } else {
                 Logger.logError(context, "Missing tabId for suspension. request.tabId and sender.tab.id were both missing.", Logger.LogComponent.BACKGROUND);
                 sendResponse({ error: "Missing tabId for suspension: request.tabId and sender.tab.id were both unavailable." });
+                return false;
             }
-            return true;
 
         case Const.MSG_UNSUSPEND_TAB:
             if (!validateMessageSender(sender, true)) {
                 sendResponse({ error: "Permission denied" });
                 Logger.logError(context, `Unauthorized attempt to call ${request.type} from ${JSON.stringify(sender)}`, Logger.LogComponent.BACKGROUND);
-                return true;
+                return false;
             }
 
             if (request.tabId) {
-                Logger.withErrorHandling(`unsuspendTab(${request.tabId})`, async () => {
+                // Handle async operation
+                handleAsyncMessage(`unsuspendTab(${request.tabId})`, async () => {
                     const result = await Suspension.unsuspendTab(request.tabId, !!request.shouldFocus);
-                    sendResponse({ success: result });
-                }, sendResponse, Logger.LogComponent.BACKGROUND);
+                    return { success: result };
+                }, sendResponse);
+                return true;
             } else {
                 sendResponse({ error: "Missing tabId" });
+                return false;
             }
-            return true;
 
         case Const.MSG_SUSPEND_ALL_TABS_IN_WINDOW:
             if (!validateMessageSender(sender, true)) {
                 sendResponse({ error: "Permission denied" });
                 Logger.logError(context, `Unauthorized attempt to call ${request.type} from ${JSON.stringify(sender)}`, Logger.LogComponent.BACKGROUND);
-                return true;
+                return false;
             }
 
-            Logger.withErrorHandling(Const.MSG_SUSPEND_ALL_TABS_IN_WINDOW, async () => {
+            // Handle async operation
+            handleAsyncMessage(Const.MSG_SUSPEND_ALL_TABS_IN_WINDOW, async () => {
                 let windowId;
                 if (request.windowId) {
                     windowId = request.windowId;
@@ -202,18 +204,19 @@ export function handleMessage(request, sender, sendResponse) {
                     windowId = currentWindow.id;
                 }
                 await Suspension.suspendAllTabsInWindow(windowId, true);
-                sendResponse({ success: true });
-            }, sendResponse, Logger.LogComponent.BACKGROUND);
+                return { success: true };
+            }, sendResponse);
             return true;
 
         case Const.MSG_UNSUSPEND_ALL_TABS_IN_WINDOW:
             if (!validateMessageSender(sender, true)) {
                 sendResponse({ error: "Permission denied" });
                 Logger.logError(context, `Unauthorized attempt to call ${request.type} from ${JSON.stringify(sender)}`, Logger.LogComponent.BACKGROUND);
-                return true;
+                return false;
             }
 
-            Logger.withErrorHandling(Const.MSG_UNSUSPEND_ALL_TABS_IN_WINDOW, async () => {
+            // Handle async operation
+            handleAsyncMessage(Const.MSG_UNSUSPEND_ALL_TABS_IN_WINDOW, async () => {
                 let windowId;
                 if (request.windowId) {
                     windowId = request.windowId;
@@ -224,34 +227,36 @@ export function handleMessage(request, sender, sendResponse) {
                     windowId = currentWindow.id;
                 }
                 await Suspension.unsuspendAllTabsInWindow(windowId);
-                sendResponse({ success: true });
-            }, sendResponse, Logger.LogComponent.BACKGROUND);
+                return { success: true };
+            }, sendResponse);
             return true;
 
         case Const.MSG_SUSPEND_ALL_TABS_ALL_SPECS:
             if (!validateMessageSender(sender, true)) {
                 sendResponse({ error: "Permission denied" });
                 Logger.logError(context, `Unauthorized attempt to call ${request.type} from ${JSON.stringify(sender)}`, Logger.LogComponent.BACKGROUND);
-                return true;
+                return false;
             }
 
-            Logger.withErrorHandling(Const.MSG_SUSPEND_ALL_TABS_ALL_SPECS, async () => {
+            // Handle async operation
+            handleAsyncMessage(Const.MSG_SUSPEND_ALL_TABS_ALL_SPECS, async () => {
                 await Suspension.suspendAllTabsAllSpecs(true); // isManual = true
-                sendResponse({ success: true });
-            }, sendResponse, Logger.LogComponent.BACKGROUND);
+                return { success: true };
+            }, sendResponse);
             return true;
 
         case Const.MSG_UNSUSPEND_ALL_TABS_ALL_SPECS:
             if (!validateMessageSender(sender, true)) {
                 sendResponse({ error: "Permission denied" });
                 Logger.logError(context, `Unauthorized attempt to call ${request.type} from ${JSON.stringify(sender)}`, Logger.LogComponent.BACKGROUND);
-                return true;
+                return false;
             }
 
-            Logger.withErrorHandling(Const.MSG_UNSUSPEND_ALL_TABS_ALL_SPECS, async () => {
+            // Handle async operation
+            handleAsyncMessage(Const.MSG_UNSUSPEND_ALL_TABS_ALL_SPECS, async () => {
                 await Suspension.unsuspendAllTabsAllSpecs();
-                sendResponse({ success: true });
-            }, sendResponse, Logger.LogComponent.BACKGROUND);
+                return { success: true };
+            }, sendResponse);
             return true;
 
         default:
@@ -259,7 +264,18 @@ export function handleMessage(request, sender, sendResponse) {
             sendResponse({ error: "Unknown message type" });
             return false;
     }
-    return true; // Default to true for async responses unless explicitly false.
+}
+
+// Helper function to handle async messages properly
+function handleAsyncMessage(context, asyncFunction, sendResponse) {
+    asyncFunction()
+        .then(result => {
+            sendResponse(result);
+        })
+        .catch(error => {
+            Logger.logError(context, error, Logger.LogComponent.BACKGROUND);
+            sendResponse({ error: error.message || "Unknown error" });
+        });
 }
 
 export function handleTabCreated(tab) {
@@ -485,9 +501,9 @@ export function handleAlarmEvent(alarm) {
             // Call background's cleanupStateReferences function
             await State.cleanupStateReferences();
         }, Logger.LogComponent.BACKGROUND);
-    } else if (alarm.name === 'TS_SESSION_FREQUENT_SAVE') {
+    } else if (alarm.name === Const.TS_SESSION_FREQUENT_SAVE) {
         // Handle frequent session backup (configurable frequency)
-        Logger.withErrorHandling('TS_SESSION_FREQUENT_SAVE', async () => {
+        Logger.withErrorHandling(Const.TS_SESSION_FREQUENT_SAVE, async () => {
             const autoSaveEnabled = await SessionManager.getAutoSaveEnabled();
             if (autoSaveEnabled) {
                 Logger.detailedLog('Performing automatic session save...', Logger.LogComponent.BACKGROUND);
@@ -619,29 +635,57 @@ export function handleCommand(command) {
 // ===================== Exported Functions =====================
 //+reviewed
 export function initListeners() {
-    // Clear any existing listeners
+    // Clear any existing non-message listeners (message handler is already set up in background.js)
     try {
-        chrome.runtime.onMessage.removeListener(handleMessage);
         chrome.tabs.onCreated.removeListener(handleTabCreated);
         chrome.tabs.onUpdated.removeListener(handleTabUpdated);
         chrome.tabs.onRemoved.removeListener(handleTabRemoved);
         chrome.tabs.onActivated.removeListener(handleTabActivated);
         chrome.windows.onFocusChanged.removeListener(handleWindowFocusChanged);
-        chrome.alarms.onAlarm.removeListener(handleAlarmEvent);
         chrome.commands.onCommand.removeListener(handleCommand);
     } catch (e) {
         // Ignore errors during cleanup
     }
 
-    // Set up listeners
-    chrome.runtime.onMessage.addListener(handleMessage);
+    // Set up all listeners except message handler (which is already set up in background.js)
     chrome.tabs.onCreated.addListener(handleTabCreated);
     chrome.tabs.onUpdated.addListener(handleTabUpdated);
     chrome.tabs.onRemoved.addListener(handleTabRemoved);
     chrome.tabs.onActivated.addListener(handleTabActivated);
     chrome.windows.onFocusChanged.addListener(handleWindowFocusChanged);
-    chrome.alarms.onAlarm.addListener(handleAlarmEvent);
     chrome.commands.onCommand.addListener(handleCommand);
 
-    Logger.log("All event listeners initialized", Logger.LogComponent.BACKGROUND);
+    Logger.log("All event listeners initialized (message handler was set up earlier in background.js)", Logger.LogComponent.BACKGROUND);
 }
+
+// ===================== Session Auto-Save Management =====================
+/**
+ * Reschedule the session auto-save alarm with updated frequency
+ * Called when session preferences are changed
+ */
+async function rescheduleSessionAutoSave() {
+    try {
+        // Clear existing alarm
+        const wasCleared = await chrome.alarms.clear(Const.TS_SESSION_FREQUENT_SAVE);
+        Logger.log(`Session auto-save alarm cleared: ${wasCleared}`, Logger.LogComponent.BACKGROUND);
+
+        // Create new alarm with updated frequency
+        // Read from storage to get the latest value
+        const result = await chrome.storage.local.get([Preferences.PREFS_KEY]);
+        const currentPrefs = { ...Preferences.defaultPrefs, ...(result[Preferences.PREFS_KEY] || {}) };
+        const saveFrequency = currentPrefs.sessionAutoSaveFrequency || 5;
+        await chrome.alarms.create(Const.TS_SESSION_FREQUENT_SAVE, { periodInMinutes: saveFrequency });
+
+        Logger.log(`Session auto-save rescheduled for every ${saveFrequency} minutes`, Logger.LogComponent.BACKGROUND);
+
+        // Debug: Check all alarms
+        const allAlarms = await chrome.alarms.getAll();
+        const sessionAlarms = allAlarms.filter(a => a.name.includes('SESSION'));
+        Logger.log(`All session-related alarms: ${JSON.stringify(sessionAlarms)}`, Logger.LogComponent.BACKGROUND);
+    } catch (error) {
+        Logger.logError("Error rescheduling session auto-save alarm", error, Logger.LogComponent.BACKGROUND);
+    }
+}
+
+export { handleMessage };
+

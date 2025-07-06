@@ -6,12 +6,7 @@ export const TS_TAB_SCAN_INTERVAL_MINUTES = 0.5; // Check tabs every 30 seconds
 export const TS_TAB_SCAN_ALARM_NAME = 'TS_tabScanAlarm'; // The single alarm name for tab scanning
 export const TS_ALARM_CLEANUP_NAME = 'TS_alarmCleanup';
 export const TS_STATE_CLEANUP_NAME = 'TS_stateCleanup';
-export const TS_INIT_STARTUP_ALARM_NAME = 'TS_init_startup';
-export const TS_INIT_ON_ALARM_PREFIX = 'TS_init_on_';
-export const TS_INIT_RETRY_PREFIX = 'TS_init_retry_';
-
-// For background.js initialization
-export const INIT_RETRY_DELAY_MINUTES = 1; // Time to wait before retrying initialization
+export const TS_SESSION_FREQUENT_SAVE = 'TS_session_frequent_save';
 
 // Other constants
 export const MAX_TABS_PER_SCAN = 1000; // Maximum tabs to process in one scan cycle

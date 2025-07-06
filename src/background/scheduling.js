@@ -307,7 +307,7 @@ export async function scheduleAllTabs() {
 		const tabs = await chrome.tabs.query({ url: ['http://*/*', 'https://*/*'] });
 		stats.total = tabs.length;
 
-		const batchSize = 10;
+		const batchSize = 200;
 
 		for (let i = 0; i < tabs.length; i += batchSize) {
 			const batch = tabs.slice(i, Math.min(i + batchSize, tabs.length));

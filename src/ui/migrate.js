@@ -62,8 +62,9 @@ function extractSuspendedTabData(tabUrl) {
     return { originalUrl, title };
 }
 
-function scanTabs() {
-    chrome.tabs.query({}, (tabs) => {
+async function scanTabs() {
+    try {
+        const tabs = await chrome.tabs.query({});
         tabsToMigrate = tabs
             .filter(isForeignSuspendedTab)
             .map(tab => {
@@ -86,7 +87,10 @@ function scanTabs() {
             migrationList.appendChild(li);
         });
         migrateBtn.disabled = false;
-    });
+    } catch (error) {
+        migrationList.innerHTML = '<li>Error scanning tabs: ' + error.message + '</li>';
+        migrateBtn.disabled = true;
+    }
 }
 
 async function migrateTabs() {
@@ -126,7 +130,7 @@ async function migrateTabs() {
             migrationList.innerHTML = '<li>No suspended tabs from other extensions found.</li>';
             migrateBtn.disabled = true;
             // Optionally, rescan after a short delay to catch any tabs that may not have reloaded yet
-            setTimeout(scanTabs, 1000);
+            setTimeout(async () => await scanTabs(), 1000);
         }
     }
     processBatch();
@@ -155,5 +159,5 @@ copyUrlsBtn.addEventListener('click', copyAllUrls);
 (async () => {
     // Initialize theme using common method
     await Theme.initializeThemeForPage();
-    scanTabs();
+    await scanTabs();
 })(); 

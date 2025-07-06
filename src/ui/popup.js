@@ -31,52 +31,52 @@ document.addEventListener("DOMContentLoaded", async () => {
 		try {
 			console.debug('[Popup] loadInitialData called');
 			// Ask background if a bulk operation is running
-			chrome.runtime.sendMessage({ type: 'IS_BULK_OP_RUNNING' }, (response) => {
-				if (chrome.runtime.lastError) {
-					console.debug('[Popup] loadInitialData: runtime.lastError', chrome.runtime.lastError);
-					// Background not available, assume no operation
-					loadNormalUI();
-					return;
-				}
-				if (response && response.running) {
-					showFeedback('Operation in progress...', true);
-					disableAllControls();
-					return;
-				}
-				loadNormalUI();
-			});
+			const response = await chrome.runtime.sendMessage({ type: 'IS_BULK_OP_RUNNING' });
+			if (response && response.running) {
+				showFeedback('Operation in progress...', true);
+				disableAllControls();
+				return;
+			}
+			await loadNormalUI();
 		} catch (error) {
-			showError(`Error loading initial data: ${error.message}`);
+			console.debug('[Popup] loadInitialData error:', error);
+			// Check if it's an initialization error with more details
+			if (error.message && error.message.includes('stillInitializing')) {
+				const match = error.message.match(/attempt (\d+)/);
+				const attemptNum = match ? match[1] : 'unknown';
+				showError(`Extension is initializing (attempt ${attemptNum}). Please wait...`);
+			} else if (error.message && error.message.includes('initializing')) {
+				showError('Extension is initializing. Please wait and try again.');
+			} else {
+				showError(`Error loading initial data: ${error.message}`);
+			}
 			disableAllControls();
 		}
 	}
 
-	function loadNormalUI() {
+	async function loadNormalUI() {
 		Object.values(elements).forEach(el => {
 			if (el && typeof el.disabled !== 'undefined') el.disabled = false;
 		});
-		chrome.storage.local.get([Prefs.PREFS_KEY, Prefs.WHITELIST_KEY], (result) => {
-			if (chrome.runtime.lastError) {
-				showError(chrome.runtime.lastError.message);
+
+		try {
+			const result = await chrome.storage.local.get([Prefs.PREFS_KEY, Prefs.WHITELIST_KEY]);
+			const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+
+			const activeTab = tabs[0];
+			if (!activeTab) {
+				showError('No active tab found.');
+				disableAllControls();
 				return;
 			}
-			chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-				if (chrome.runtime.lastError) {
-					showError(chrome.runtime.lastError.message);
-					return;
-				}
-				const activeTab = tabs[0];
-				if (!activeTab) {
-					showError('No active tab found.');
-					disableAllControls();
-					return;
-				}
-				currentTab = activeTab;
-				currentPrefs = { ...Prefs.defaultPrefs, ...(result[Prefs.PREFS_KEY] || {}) };
-				currentWhitelist = result[Prefs.WHITELIST_KEY] || [];
-				updateUI();
-			});
-		});
+
+			currentTab = activeTab;
+			currentPrefs = { ...Prefs.defaultPrefs, ...(result[Prefs.PREFS_KEY] || {}) };
+			currentWhitelist = result[Prefs.WHITELIST_KEY] || [];
+			updateUI();
+		} catch (error) {
+			showError(error.message || 'Failed to load popup data');
+		}
 	}
 
 	// Listen for changes to BULK_OP_IN_PROGRESS to update UI live
@@ -274,40 +274,37 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 	// --- Communication & Feedback ---
 	async function sendMessageAndFeedback(action, feedbackText, onSuccessCallback, onFailureCallback) {
-		// Ask background if a bulk operation is running
-		chrome.runtime.sendMessage({ type: 'IS_BULK_OP_RUNNING' }, (response) => {
-			if (chrome.runtime.lastError) {
-				// Background not available, assume no operation
-				loadInitialData();
-				return;
-			}
-			if (response && response.running) {
+		try {
+			// Ask background if a bulk operation is running
+			const bulkResponse = await chrome.runtime.sendMessage({ type: 'IS_BULK_OP_RUNNING' });
+			if (bulkResponse && bulkResponse.running) {
 				showFeedback('Operation in progress...', true);
 				disableAllControls();
 				return;
 			}
+
 			// Disable all controls during operation
 			disableAllControls();
 			showFeedback(feedbackText, true); // Persistent while processing
-			chrome.runtime.sendMessage(action).then((response) => {
-				if (response && response.success) {
-					showFeedback(feedbackText.replace("...", "succeeded!"), false, 2000);
-					if (onSuccessCallback) onSuccessCallback();
-				} else if (response && response.error) {
-					showError(response.error);
-					if (onFailureCallback) onFailureCallback();
-				} else {
-					showError(`Action failed: ${action.type}`);
-					if (onFailureCallback) onFailureCallback();
-				}
-			}).catch((error) => {
-				showError(`Error during ${action.type}: ${error.message}`);
+
+			const response = await chrome.runtime.sendMessage(action);
+			if (response && response.success) {
+				showFeedback(feedbackText.replace("...", "succeeded!"), false, 2000);
+				if (onSuccessCallback) onSuccessCallback();
+			} else if (response && response.error) {
+				showError(response.error);
 				if (onFailureCallback) onFailureCallback();
-			}).finally(() => {
-				// Re-enable controls after operation
-				loadInitialData();
-			});
-		});
+			} else {
+				showError(`Action failed: ${action.type}`);
+				if (onFailureCallback) onFailureCallback();
+			}
+		} catch (error) {
+			showError(`Error during ${action.type}: ${error.message}`);
+			if (onFailureCallback) onFailureCallback();
+		} finally {
+			// Re-enable controls after operation
+			await loadInitialData();
+		}
 	}
 
 	function showFeedback(message, persistent = false, duration = 2000) {
@@ -346,30 +343,35 @@ document.addEventListener("DOMContentLoaded", async () => {
 	const unsuspendSelectedBtn = document.getElementById('unsuspend-selected-tabs');
 	const selectedTabsSection = document.getElementById('selected-tabs-section');
 
-	chrome.tabs.query({ currentWindow: true, highlighted: true }, function (tabs) {
-		const show = tabs.length > 1;
-		setElementsVisibility([selectedTabsSection], show);
+	(async () => {
+		try {
+			const tabs = await chrome.tabs.query({ currentWindow: true, highlighted: true });
+			const show = tabs.length > 1;
+			setElementsVisibility([selectedTabsSection], show);
 
-		if (show) {
-			const tabIds = tabs.map(tab => tab.id);
-			if (suspendSelectedBtn) {
-				suspendSelectedBtn.onclick = function () {
-					tabIds.forEach(tabId => {
-						chrome.runtime.sendMessage({ type: Const.MSG_SUSPEND_TAB, tabId, isManual: true });
-					});
-					showFeedback("Suspending selected tabs...");
-				};
+			if (show) {
+				const tabIds = tabs.map(tab => tab.id);
+				if (suspendSelectedBtn) {
+					suspendSelectedBtn.onclick = async function () {
+						for (const tabId of tabIds) {
+							await chrome.runtime.sendMessage({ type: Const.MSG_SUSPEND_TAB, tabId, isManual: true });
+						}
+						showFeedback("Suspending selected tabs...");
+					};
+				}
+				if (unsuspendSelectedBtn) {
+					unsuspendSelectedBtn.onclick = async function () {
+						for (const tabId of tabIds) {
+							await chrome.runtime.sendMessage({ type: Const.MSG_UNSUSPEND_TAB, tabId });
+						}
+						showFeedback("Unsuspending selected tabs...");
+					};
+				}
 			}
-			if (unsuspendSelectedBtn) {
-				unsuspendSelectedBtn.onclick = function () {
-					tabIds.forEach(tabId => {
-						chrome.runtime.sendMessage({ type: Const.MSG_UNSUSPEND_TAB, tabId });
-					});
-					showFeedback("Unsuspending selected tabs...");
-				};
-			}
+		} catch (error) {
+			console.error('Error setting up multi-tab buttons:', error);
 		}
-	});
+	})();
 
 	// --- Startup Sequence ---
 	loadInitialData();
