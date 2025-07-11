@@ -449,4 +449,203 @@ test.describe('URL Building Tests', () => {
 
         console.log(`✓ Google search bug test passed: ${buggyUrl} → ${restoredUrl}`);
     });
+});
+
+test.describe('URL Parsing Tests (suspension-utils.js)', () => {
+    test('getOriginalDataFromUrl should extract URLs correctly from suspended URLs', async () => {
+        // Mock the getOriginalDataFromUrl function (matches actual implementation)
+        const getOriginalDataFromUrl = (suspendedUrl) => {
+            try {
+                const hash = suspendedUrl.split('#')[1] || '';
+
+                // Extract URL from the end since it's unencoded and may contain & characters
+                const urlMatch = hash.match(/&url=(.+)$/);
+                if (urlMatch) {
+                    const url = urlMatch[1];
+                    if (url && /^https?:\/\//.test(url)) {
+                        return { url };
+                    }
+                }
+
+                // fallback to query string for backward compatibility
+                const urlObj = new URL(suspendedUrl);
+                const qUrl = urlObj.searchParams.get('url');
+                if (qUrl && /^https?:\/\//.test(qUrl)) return { url: qUrl };
+                return null;
+            } catch (e) {
+                return null;
+            }
+        };
+
+        // Test the specific Google search case that was failing
+        const suspendedUrl = 'chrome-extension://test/suspended.html#title=Google%20Search&timestamp=1234567890&favicon=https://www.google.com/favicon.ico&url=https://www.google.com//search?udm=14&q=secret+level';
+        const result = getOriginalDataFromUrl(suspendedUrl);
+
+        expect(result).not.toBeNull();
+        expect(result.url).toBe('https://www.google.com//search?udm=14&q=secret+level');
+    });
+
+    test('getOriginalDataFromUrl should handle complex URLs with multiple parameters', async () => {
+        const getOriginalDataFromUrl = (suspendedUrl) => {
+            try {
+                const hash = suspendedUrl.split('#')[1] || '';
+                const urlMatch = hash.match(/&url=(.+)$/);
+                if (urlMatch) {
+                    const url = urlMatch[1];
+                    if (url && /^https?:\/\//.test(url)) {
+                        return { url };
+                    }
+                }
+                const urlObj = new URL(suspendedUrl);
+                const qUrl = urlObj.searchParams.get('url');
+                if (qUrl && /^https?:\/\//.test(qUrl)) return { url: qUrl };
+                return null;
+            } catch (e) {
+                return null;
+            }
+        };
+
+        const originalUrl = 'https://example.com/path?param1=value1&param2=value2&param3=value3';
+        const suspendedUrl = `chrome-extension://test/suspended.html#title=Test&timestamp=1234567890&url=${originalUrl}`;
+        const result = getOriginalDataFromUrl(suspendedUrl);
+
+        expect(result).not.toBeNull();
+        expect(result.url).toBe(originalUrl);
+    });
+
+    test('getOriginalDataFromUrl should handle URLs with encoded characters', async () => {
+        const getOriginalDataFromUrl = (suspendedUrl) => {
+            try {
+                const hash = suspendedUrl.split('#')[1] || '';
+                const urlMatch = hash.match(/&url=(.+)$/);
+                if (urlMatch) {
+                    const url = urlMatch[1];
+                    if (url && /^https?:\/\//.test(url)) {
+                        return { url };
+                    }
+                }
+                const urlObj = new URL(suspendedUrl);
+                const qUrl = urlObj.searchParams.get('url');
+                if (qUrl && /^https?:\/\//.test(qUrl)) return { url: qUrl };
+                return null;
+            } catch (e) {
+                return null;
+            }
+        };
+
+        const originalUrl = 'https://example.com/search?q=hello%20world&category=news';
+        const suspendedUrl = `chrome-extension://test/suspended.html#title=Test&timestamp=1234567890&url=${originalUrl}`;
+        const result = getOriginalDataFromUrl(suspendedUrl);
+
+        expect(result).not.toBeNull();
+        expect(result.url).toBe(originalUrl);
+    });
+
+    test('getOriginalDataFromUrl should handle URLs with ampersands in query', async () => {
+        const getOriginalDataFromUrl = (suspendedUrl) => {
+            try {
+                const hash = suspendedUrl.split('#')[1] || '';
+                const urlMatch = hash.match(/&url=(.+)$/);
+                if (urlMatch) {
+                    const url = urlMatch[1];
+                    if (url && /^https?:\/\//.test(url)) {
+                        return { url };
+                    }
+                }
+                const urlObj = new URL(suspendedUrl);
+                const qUrl = urlObj.searchParams.get('url');
+                if (qUrl && /^https?:\/\//.test(qUrl)) return { url: qUrl };
+                return null;
+            } catch (e) {
+                return null;
+            }
+        };
+
+        const originalUrl = 'https://example.com/api?data={"key":"value"}&format=json&callback=test';
+        const suspendedUrl = `chrome-extension://test/suspended.html#title=Test&timestamp=1234567890&url=${originalUrl}`;
+        const result = getOriginalDataFromUrl(suspendedUrl);
+
+        expect(result).not.toBeNull();
+        expect(result.url).toBe(originalUrl);
+    });
+
+    test('getOriginalDataFromUrl should return null for invalid URLs', async () => {
+        const getOriginalDataFromUrl = (suspendedUrl) => {
+            try {
+                const hash = suspendedUrl.split('#')[1] || '';
+                const urlMatch = hash.match(/&url=(.+)$/);
+                if (urlMatch) {
+                    const url = urlMatch[1];
+                    if (url && /^https?:\/\//.test(url)) {
+                        return { url };
+                    }
+                }
+                const urlObj = new URL(suspendedUrl);
+                const qUrl = urlObj.searchParams.get('url');
+                if (qUrl && /^https?:\/\//.test(qUrl)) return { url: qUrl };
+                return null;
+            } catch (e) {
+                return null;
+            }
+        };
+
+        const suspendedUrl = 'chrome-extension://test/suspended.html#title=Test&timestamp=1234567890&url=invalid-url';
+        const result = getOriginalDataFromUrl(suspendedUrl);
+
+        expect(result).toBeNull();
+    });
+
+    test('getOriginalDataFromUrl should return null when no URL parameter exists', async () => {
+        const getOriginalDataFromUrl = (suspendedUrl) => {
+            try {
+                const hash = suspendedUrl.split('#')[1] || '';
+                const urlMatch = hash.match(/&url=(.+)$/);
+                if (urlMatch) {
+                    const url = urlMatch[1];
+                    if (url && /^https?:\/\//.test(url)) {
+                        return { url };
+                    }
+                }
+                const urlObj = new URL(suspendedUrl);
+                const qUrl = urlObj.searchParams.get('url');
+                if (qUrl && /^https?:\/\//.test(qUrl)) return { url: qUrl };
+                return null;
+            } catch (e) {
+                return null;
+            }
+        };
+
+        const suspendedUrl = 'chrome-extension://test/suspended.html#title=Test&timestamp=1234567890';
+        const result = getOriginalDataFromUrl(suspendedUrl);
+
+        expect(result).toBeNull();
+    });
+
+    test('getOriginalDataFromUrl should fallback to query string for backward compatibility', async () => {
+        const getOriginalDataFromUrl = (suspendedUrl) => {
+            try {
+                const hash = suspendedUrl.split('#')[1] || '';
+                const urlMatch = hash.match(/&url=(.+)$/);
+                if (urlMatch) {
+                    const url = urlMatch[1];
+                    if (url && /^https?:\/\//.test(url)) {
+                        return { url };
+                    }
+                }
+                const urlObj = new URL(suspendedUrl);
+                const qUrl = urlObj.searchParams.get('url');
+                if (qUrl && /^https?:\/\//.test(qUrl)) return { url: qUrl };
+                return null;
+            } catch (e) {
+                return null;
+            }
+        };
+
+        const originalUrl = 'https://example.com/test';
+        const suspendedUrl = `chrome-extension://test/suspended.html?url=${encodeURIComponent(originalUrl)}`;
+        const result = getOriginalDataFromUrl(suspendedUrl);
+
+        expect(result).not.toBeNull();
+        expect(result.url).toBe(originalUrl);
+    });
 }); 

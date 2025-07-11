@@ -9,10 +9,18 @@ import * as Logger from '../common/logger.js';
 export function getOriginalDataFromUrl(suspendedUrl) {
     try {
         const hash = suspendedUrl.split('#')[1] || '';
-        const params = new URLSearchParams(hash);
-        const url = params.get('url');
-        if (url && /^https?:\/\//.test(url)) return { url };
-        // fallback to query string
+
+        // Extract URL from the end since it's unencoded and may contain & characters
+        // This matches the same logic used in suspended.js
+        const urlMatch = hash.match(/&url=(.+)$/);
+        if (urlMatch) {
+            const url = urlMatch[1];
+            if (url && /^https?:\/\//.test(url)) {
+                return { url };
+            }
+        }
+
+        // fallback to query string for backward compatibility
         const urlObj = new URL(suspendedUrl);
         const qUrl = urlObj.searchParams.get('url');
         if (qUrl && /^https?:\/\//.test(qUrl)) return { url: qUrl };
