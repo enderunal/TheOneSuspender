@@ -11,10 +11,17 @@ export function buildSuspendedUrl(tab) {
     const suspendedUrlBase = chrome.runtime.getURL("suspended.html");
     const urlObj = new URL(suspendedUrlBase);
     const params = new URLSearchParams();
+
+    // Add encoded parameters first
     if (tab.title) params.set("title", tab.title);
     params.set("timestamp", Date.now());
-    params.set("url", tab.url);
-    urlObj.hash = params.toString();
+    if (tab.favIconUrl) params.set("favicon", tab.favIconUrl);
+
+    // Build the hash with original URL at the end as clear text (not encoded)
+    let hashString = params.toString();
+    hashString += `&url=${tab.url}`;
+
+    urlObj.hash = hashString;
     Logger.detailedLog(`[TheOneSuspender] Built suspended URL with hash for tab ${tab.id}: ${urlObj.toString()}`);
     return urlObj.toString();
 } 

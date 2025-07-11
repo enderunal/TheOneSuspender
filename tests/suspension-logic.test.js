@@ -181,21 +181,28 @@ test.describe('Tab Suspension Logic Tests', () => {
     test('tab suspension URL building works correctly', async () => {
         const buildSuspendedUrl = (tab) => {
             const baseUrl = 'chrome-extension://extension-id/suspended.html';
+            const urlObj = new URL(baseUrl);
             const params = new URLSearchParams();
 
-            if (tab.url) params.set('url', tab.url);
-            if (tab.title) params.set('title', tab.title);
-            if (tab.favIconUrl) params.set('favicon', tab.favIconUrl);
-            params.set('timestamp', Date.now().toString());
+            // Add encoded parameters first
+            if (tab.title) params.set("title", tab.title);
+            params.set("timestamp", Date.now());
+            if (tab.favIconUrl) params.set("favicon", tab.favIconUrl);
 
-            return `${baseUrl}?${params.toString()}`;
+            // Build the hash with original URL at the end as clear text (not encoded)
+            let hashString = params.toString();
+            hashString += `&url=${tab.url}`;
+
+            urlObj.hash = hashString;
+            return urlObj.toString();
         };
 
         const parseOriginalDataFromUrl = (suspendedUrl) => {
             try {
-                const url = new URL(suspendedUrl);
-                const params = url.searchParams;
+                const hash = suspendedUrl.split('#')[1];
+                if (!hash) return null;
 
+                const params = new URLSearchParams(hash);
                 return {
                     originalUrl: params.get('url'),
                     originalTitle: params.get('title'),
@@ -216,7 +223,8 @@ test.describe('Tab Suspension Logic Tests', () => {
 
         const suspendedUrl = buildSuspendedUrl(githubTab);
         expect(suspendedUrl).toContain('suspended.html');
-        expect(suspendedUrl).toContain('url=https%3A%2F%2Fgithub.com%2Fenderunal%2FTheOneSuspender');
+        // Verify URL is at the end as clear text (not encoded)
+        expect(suspendedUrl).toMatch(/&url=https:\/\/github\.com\/enderunal\/TheOneSuspender$/);
 
         const parsedData = parseOriginalDataFromUrl(suspendedUrl);
         expect(parsedData.originalUrl).toBe(githubTab.url);
@@ -235,6 +243,9 @@ test.describe('Tab Suspension Logic Tests', () => {
         const googleParsedData = parseOriginalDataFromUrl(googleSuspendedUrl);
         expect(googleParsedData.originalUrl).toBe(googleTab.url);
         expect(googleParsedData.originalTitle).toBe(googleTab.title);
+
+        // Verify URL is at the end as clear text
+        expect(googleSuspendedUrl).toMatch(/&url=https:\/\/google\.com\/search\?q=test$/);
     });
 
     test('suspension prevention for allowed protocols', async () => {

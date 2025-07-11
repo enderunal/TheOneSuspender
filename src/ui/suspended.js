@@ -10,11 +10,21 @@ import * as FaviconUtils from '../common/favicon-utils.js';
 
 		// Parse parameters from the hash, not the query string
 		const hash = location.hash.startsWith('#') ? location.hash.slice(1) : location.hash;
-		const params = new URLSearchParams(hash);
 
-		let originalUrl = params.get('url') || "";
+		// Extract URL from the end since it's unencoded and may contain & characters
+		let originalUrl = "";
+		let paramsString = hash;
+		const urlMatch = hash.match(/&url=(.+)$/);
+		if (urlMatch) {
+			originalUrl = urlMatch[1];
+			// Remove the URL part to parse other parameters correctly
+			paramsString = hash.replace(/&url=.+$/, '');
+		}
+
+		const params = new URLSearchParams(paramsString);
 		const pageTitle = params.get('title') || (originalUrl || "Tab Suspended");
 		const timestamp = params.has('timestamp') ? parseInt(params.get('timestamp'), 10) : 0;
+		const faviconUrl = params.get('favicon') || ""; // Get favicon URL from parameters
 
 		Logger.log("Using hash parameters.", Logger.LogComponent.SUSPENDED);
 
@@ -188,9 +198,12 @@ import * as FaviconUtils from '../common/favicon-utils.js';
 					setFallbackIcon();
 				};
 
-				// Use dynamic favicon discovery
-				if (originalUrl) {
-					Logger.log(`Attempting to discover favicon for: ${originalUrl.substring(0, 60)}`, Logger.LogComponent.SUSPENDED);
+				// Use favicon URL from parameters if available, otherwise use dynamic discovery
+				if (faviconUrl) {
+					Logger.log(`Using favicon from URL parameter: ${faviconUrl.substring(0, 60)}`, Logger.LogComponent.SUSPENDED);
+					processWithCanvas(faviconUrl);
+				} else if (originalUrl) {
+					Logger.log(`No favicon URL parameter found. Attempting to discover favicon for: ${originalUrl.substring(0, 60)}`, Logger.LogComponent.SUSPENDED);
 					await FaviconUtils.discoverFavicon(originalUrl, (discoveredFaviconUrl) => {
 						if (discoveredFaviconUrl) {
 							Logger.log(`Processing discovered favicon: ${discoveredFaviconUrl.substring(0, 60)}`, Logger.LogComponent.SUSPENDED);
