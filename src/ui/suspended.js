@@ -2,31 +2,27 @@
 import * as Logger from '../common/logger.js';
 import * as Theme from '../common/theme.js';
 import * as FaviconUtils from '../common/favicon-utils.js';
+import * as SuspensionUtils from '../suspension/suspension-utils.js';
 
 (async () => {
 	try {
 		// Initialize theme using common method
 		await Theme.initializeThemeForPage();
 
-		// Parse parameters from the hash, not the query string
+		// Use centralized URL parsing logic
+		const originalData = SuspensionUtils.getOriginalDataFromUrl(location.href);
+		const originalUrl = originalData ? originalData.url : "";
+
+		// Parse other parameters from the hash
 		const hash = location.hash.startsWith('#') ? location.hash.slice(1) : location.hash;
-
-		// Extract URL from the end since it's unencoded and may contain & characters
-		let originalUrl = "";
-		let paramsString = hash;
-		const urlMatch = hash.match(/&url=(.+)$/);
-		if (urlMatch) {
-			originalUrl = urlMatch[1];
-			// Remove the URL part to parse other parameters correctly
-			paramsString = hash.replace(/&url=.+$/, '');
-		}
-
+		const paramsString = hash.replace(/&url=.+$/, '');
 		const params = new URLSearchParams(paramsString);
+		
 		const pageTitle = params.get('title') || (originalUrl || "Tab Suspended");
 		const timestamp = params.has('timestamp') ? parseInt(params.get('timestamp'), 10) : 0;
 		const faviconUrl = params.get('favicon') || ""; // Get favicon URL from parameters
 
-		Logger.log("Using hash parameters.", Logger.LogComponent.SUSPENDED);
+		Logger.log("Using centralized URL parsing logic.", Logger.LogComponent.SUSPENDED);
 
 		// 1) Title & header
 		try {
