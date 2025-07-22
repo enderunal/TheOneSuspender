@@ -648,4 +648,322 @@ test.describe('URL Parsing Tests (suspension-utils.js)', () => {
         expect(result).not.toBeNull();
         expect(result.url).toBe(originalUrl);
     });
+
+    test.describe('Backward Compatibility - URL-encoded URLs', () => {
+        test('getOriginalDataFromUrl should decode legacy URL-encoded URLs from hash', async () => {
+            // Mock the actual implementation with backward compatibility
+            const getOriginalDataFromUrl = (suspendedUrl) => {
+                try {
+                    const hash = suspendedUrl.split('#')[1] || '';
+
+                    // Extract URL from the end since it's unencoded and may contain & characters
+                    const urlMatch = hash.match(/&url=(.+)$/);
+                    if (urlMatch) {
+                        let url = urlMatch[1];
+                        
+                        // Check if the URL is valid as-is (current format)
+                        if (url && /^https?:\/\//.test(url)) {
+                            return { url };
+                        }
+                        
+                        // Backward compatibility: try to decode URL-encoded URLs from old system
+                        try {
+                            const decodedUrl = decodeURIComponent(url);
+                            if (decodedUrl && /^https?:\/\//.test(decodedUrl)) {
+                                return { url: decodedUrl };
+                            }
+                        } catch (decodeError) {
+                            // Failed to decode, continue to other methods
+                        }
+                    }
+
+                    // fallback to query string for backward compatibility
+                    const urlObj = new URL(suspendedUrl);
+                    const qUrl = urlObj.searchParams.get('url');
+                    if (qUrl && /^https?:\/\//.test(qUrl)) return { url: qUrl };
+                    
+                    // Also try to decode query string URL for backward compatibility
+                    if (qUrl) {
+                        try {
+                            const decodedQUrl = decodeURIComponent(qUrl);
+                            if (decodedQUrl && /^https?:\/\//.test(decodedQUrl)) {
+                                return { url: decodedQUrl };
+                            }
+                        } catch (decodeError) {
+                            // Failed to decode
+                        }
+                    }
+                    
+                    return null;
+                } catch (e) {
+                    return null;
+                }
+            };
+
+            // Test the exact scenario from the user's bug report
+            const encodedUrl = 'https%3A%2F%2Fwww.futuretools.io';
+            const expectedDecodedUrl = 'https://www.futuretools.io';
+            const suspendedUrl = `chrome-extension://test/suspended.html#title=Community&timestamp=1753087286291&url=${encodedUrl}`;
+            
+            const result = getOriginalDataFromUrl(suspendedUrl);
+
+            expect(result).not.toBeNull();
+            expect(result.url).toBe(expectedDecodedUrl);
+            console.log(`✓ Encoded URL decoded: ${encodedUrl} → ${result.url}`);
+        });
+
+        test('getOriginalDataFromUrl should decode various URL-encoded URLs', async () => {
+            const getOriginalDataFromUrl = (suspendedUrl) => {
+                try {
+                    const hash = suspendedUrl.split('#')[1] || '';
+                    const urlMatch = hash.match(/&url=(.+)$/);
+                    if (urlMatch) {
+                        let url = urlMatch[1];
+                        if (url && /^https?:\/\//.test(url)) {
+                            return { url };
+                        }
+                        try {
+                            const decodedUrl = decodeURIComponent(url);
+                            if (decodedUrl && /^https?:\/\//.test(decodedUrl)) {
+                                return { url: decodedUrl };
+                            }
+                        } catch (decodeError) {
+                            // Continue
+                        }
+                    }
+                    const urlObj = new URL(suspendedUrl);
+                    const qUrl = urlObj.searchParams.get('url');
+                    if (qUrl && /^https?:\/\//.test(qUrl)) return { url: qUrl };
+                    if (qUrl) {
+                        try {
+                            const decodedQUrl = decodeURIComponent(qUrl);
+                            if (decodedQUrl && /^https?:\/\//.test(decodedQUrl)) {
+                                return { url: decodedQUrl };
+                            }
+                        } catch (decodeError) {
+                            // Continue
+                        }
+                    }
+                    return null;
+                } catch (e) {
+                    return null;
+                }
+            };
+
+            const testCases = [
+                {
+                    name: 'Future Tools (user reported bug)',
+                    encoded: 'https%3A%2F%2Fwww.futuretools.io',
+                    expected: 'https://www.futuretools.io'
+                },
+                {
+                    name: 'Google Search with complex query',
+                    encoded: 'https%3A%2F%2Fwww.google.com%2Fsearch%3Fq%3Dtest%2Bquery%26source%3Dweb',
+                    expected: 'https://www.google.com/search?q=test+query&source=web'
+                },
+                {
+                    name: 'GitHub repository',
+                    encoded: 'https%3A%2F%2Fgithub.com%2Fenderunal%2FTheOneSuspender',
+                    expected: 'https://github.com/enderunal/TheOneSuspender'
+                },
+                {
+                    name: 'URL with port number',
+                    encoded: 'https%3A%2F%2Flocalhost%3A3000%2Fapp%2Ftest',
+                    expected: 'https://localhost:3000/app/test'
+                },
+                {
+                    name: 'URL with special characters',
+                    encoded: 'https%3A%2F%2Fexample.com%2Fpath%3Fparam%3Dvalue%26another%3Dtest%2Bspace',
+                    expected: 'https://example.com/path?param=value&another=test+space'
+                }
+            ];
+
+            testCases.forEach(testCase => {
+                const suspendedUrl = `chrome-extension://test/suspended.html#title=Test&timestamp=1234567890&url=${testCase.encoded}`;
+                const result = getOriginalDataFromUrl(suspendedUrl);
+
+                expect(result).not.toBeNull();
+                expect(result.url).toBe(testCase.expected);
+                console.log(`✓ ${testCase.name}: ${testCase.encoded} → ${result.url}`);
+            });
+        });
+
+        test('getOriginalDataFromUrl should decode URL-encoded URLs from query params (legacy format)', async () => {
+            const getOriginalDataFromUrl = (suspendedUrl) => {
+                try {
+                    const hash = suspendedUrl.split('#')[1] || '';
+                    const urlMatch = hash.match(/&url=(.+)$/);
+                    if (urlMatch) {
+                        let url = urlMatch[1];
+                        if (url && /^https?:\/\//.test(url)) {
+                            return { url };
+                        }
+                        try {
+                            const decodedUrl = decodeURIComponent(url);
+                            if (decodedUrl && /^https?:\/\//.test(decodedUrl)) {
+                                return { url: decodedUrl };
+                            }
+                        } catch (decodeError) {
+                            // Continue
+                        }
+                    }
+                    const urlObj = new URL(suspendedUrl);
+                    const qUrl = urlObj.searchParams.get('url');
+                    if (qUrl && /^https?:\/\//.test(qUrl)) return { url: qUrl };
+                    if (qUrl) {
+                        try {
+                            const decodedQUrl = decodeURIComponent(qUrl);
+                            if (decodedQUrl && /^https?:\/\//.test(decodedQUrl)) {
+                                return { url: decodedQUrl };
+                            }
+                        } catch (decodeError) {
+                            // Continue
+                        }
+                    }
+                    return null;
+                } catch (e) {
+                    return null;
+                }
+            };
+
+            // Test legacy format with URL-encoded URLs in query params
+            const encodedUrl = 'https%3A%2F%2Fwww.example.com%2Ftest%3Fquery%3Dvalue';
+            const expectedUrl = 'https://www.example.com/test?query=value';
+            const suspendedUrl = `chrome-extension://test/suspended.html?url=${encodedUrl}&title=Test`;
+            
+            const result = getOriginalDataFromUrl(suspendedUrl);
+
+            expect(result).not.toBeNull();
+            expect(result.url).toBe(expectedUrl);
+            console.log(`✓ Legacy query param encoded URL: ${encodedUrl} → ${result.url}`);
+        });
+
+        test('getOriginalDataFromUrl should handle mixed scenarios (encoded and unencoded)', async () => {
+            const getOriginalDataFromUrl = (suspendedUrl) => {
+                try {
+                    const hash = suspendedUrl.split('#')[1] || '';
+                    const urlMatch = hash.match(/&url=(.+)$/);
+                    if (urlMatch) {
+                        let url = urlMatch[1];
+                        if (url && /^https?:\/\//.test(url)) {
+                            return { url };
+                        }
+                        try {
+                            const decodedUrl = decodeURIComponent(url);
+                            if (decodedUrl && /^https?:\/\//.test(decodedUrl)) {
+                                return { url: decodedUrl };
+                            }
+                        } catch (decodeError) {
+                            // Continue
+                        }
+                    }
+                    const urlObj = new URL(suspendedUrl);
+                    const qUrl = urlObj.searchParams.get('url');
+                    if (qUrl && /^https?:\/\//.test(qUrl)) return { url: qUrl };
+                    if (qUrl) {
+                        try {
+                            const decodedQUrl = decodeURIComponent(qUrl);
+                            if (decodedQUrl && /^https?:\/\//.test(decodedQUrl)) {
+                                return { url: decodedQUrl };
+                            }
+                        } catch (decodeError) {
+                            // Continue
+                        }
+                    }
+                    return null;
+                } catch (e) {
+                    return null;
+                }
+            };
+
+            const testCases = [
+                {
+                    name: 'Current format (unencoded)',
+                    url: 'https://example.com/current',
+                    suspended: `chrome-extension://test/suspended.html#title=Test&timestamp=1234567890&url=https://example.com/current`,
+                    expected: 'https://example.com/current'
+                },
+                {
+                    name: 'Legacy format (encoded)',
+                    url: 'https%3A%2F%2Fexample.com%2Flegacy',
+                    suspended: `chrome-extension://test/suspended.html#title=Test&timestamp=1234567890&url=https%3A%2F%2Fexample.com%2Flegacy`,
+                    expected: 'https://example.com/legacy'
+                }
+            ];
+
+            testCases.forEach(testCase => {
+                const result = getOriginalDataFromUrl(testCase.suspended);
+
+                expect(result).not.toBeNull();
+                expect(result.url).toBe(testCase.expected);
+                console.log(`✓ ${testCase.name}: extracted ${result.url}`);
+            });
+        });
+
+        test('getOriginalDataFromUrl should gracefully handle malformed encoded URLs', async () => {
+            const getOriginalDataFromUrl = (suspendedUrl) => {
+                try {
+                    const hash = suspendedUrl.split('#')[1] || '';
+                    const urlMatch = hash.match(/&url=(.+)$/);
+                    if (urlMatch) {
+                        let url = urlMatch[1];
+                        if (url && /^https?:\/\//.test(url)) {
+                            return { url };
+                        }
+                        try {
+                            const decodedUrl = decodeURIComponent(url);
+                            if (decodedUrl && /^https?:\/\//.test(decodedUrl)) {
+                                return { url: decodedUrl };
+                            }
+                        } catch (decodeError) {
+                            // Continue
+                        }
+                    }
+                    const urlObj = new URL(suspendedUrl);
+                    const qUrl = urlObj.searchParams.get('url');
+                    if (qUrl && /^https?:\/\//.test(qUrl)) return { url: qUrl };
+                    if (qUrl) {
+                        try {
+                            const decodedQUrl = decodeURIComponent(qUrl);
+                            if (decodedQUrl && /^https?:\/\//.test(decodedQUrl)) {
+                                return { url: decodedQUrl };
+                            }
+                        } catch (decodeError) {
+                            // Continue
+                        }
+                    }
+                    return null;
+                } catch (e) {
+                    return null;
+                }
+            };
+
+            const malformedCases = [
+                {
+                    name: 'Incomplete encoding',
+                    malformed: 'https%3A%2F%2Fexample.com%2F%',
+                    description: 'URL with incomplete percent encoding at the end'
+                },
+                {
+                    name: 'Invalid encoding sequence',
+                    malformed: 'https%3A%2F%2Fexample.com%2F%ZZ',
+                    description: 'URL with invalid hex characters in encoding'
+                },
+                {
+                    name: 'Not a URL after decoding',
+                    malformed: 'not%20a%20url%20at%20all',
+                    description: 'Text that decodes but is not a valid URL'
+                }
+            ];
+
+            malformedCases.forEach(testCase => {
+                const suspendedUrl = `chrome-extension://test/suspended.html#title=Test&timestamp=1234567890&url=${testCase.malformed}`;
+                const result = getOriginalDataFromUrl(suspendedUrl);
+
+                // Should gracefully return null for malformed URLs
+                expect(result).toBeNull();
+                console.log(`✓ ${testCase.name}: gracefully handled malformed URL`);
+            });
+        });
+    });
 }); 

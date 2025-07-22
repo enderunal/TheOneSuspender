@@ -7,7 +7,7 @@
         "test:headed": "playwright test --headed",
         "test:debug": "playwright test --debug",
         "test:ui": "playwright test --ui",
-        "screenshots": "playwright test tests/auto-screenshots.test.js --headless"
+        "screenshots": "playwright test ../chrome-web-store-screenshots.test.js --headless"
     },
     "devDependencies": {
         "@playwright/test": "^1.40.0"
