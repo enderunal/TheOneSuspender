@@ -4,19 +4,16 @@ This directory contains all the automated packaging tools for The One Suspender 
 
 ## Quick Start
 
-From the **project root directory**, run:
+From the **packaging** directory, run:
 
 ```bash
-# First time setup
-npm run install-packaging
-
-# Create a package
+cd packaging
+npm install
 npm run build
 ```
 
-## Available Commands (from root)
+## Available Commands (from packaging directory)
 
-- `npm run install-packaging` - Install packaging dependencies
 - `npm run package` - Create extension ZIP file
 - `npm run package-crx` - Create extension CRX file
 - `npm run clean` - Remove old packages
@@ -58,7 +55,7 @@ Creates both files in the project root directory:
 - adm-zip (ZIP verification)
 - crx (CRX creation support)
 
-Dependencies are automatically installed with `npm run install-packaging`.
+Dependencies are automatically installed with `npm install`.
 
 ### CRX Creation Requirements:
 - Google Chrome must be installed for CRX file creation
