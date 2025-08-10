@@ -5,11 +5,96 @@ import * as Logger from '../common/logger.js';
 import * as Prefs from '../common/prefs.js';
 import * as Suspension from '../suspension/suspension.js';
 
+// Persistent storage key for scheduled suspension times
+const SCHEDULES_STORAGE_KEY = 'TS_tab_suspend_times_v1';
+
 export const SMALL_DELAY_MS = 50;
 export const DEBOUNCE_DELAY_MS = 5000; // For debouncing frequent events like settings changes before rescheduling
 
 // Object to store tab suspension times (efficient, no per-tab alarms)
 let tabSuspendTimes = new Map();
+
+// Debounced persistence timeout
+let persistTimeoutId = null;
+const PERSIST_DEBOUNCE_MS = 1000;
+
+/**
+ * Persist current tabSuspendTimes Map to chrome.storage.local in a compact form
+ */
+async function persistSchedules() {
+	try {
+		const entries = [];
+		for (const [tabId, data] of tabSuspendTimes.entries()) {
+			const info = typeof data === 'number' ? { scheduledTime: data, delayMinutes: -1 } : data;
+			entries.push({ tabId, scheduledTime: info.scheduledTime, delayMinutes: info.delayMinutes });
+		}
+		await chrome.storage.local.set({ [SCHEDULES_STORAGE_KEY]: entries });
+		Logger.detailedLog(`Persisted ${entries.length} scheduled tab entries`, Logger.LogComponent.SCHEDULING);
+	} catch (e) {
+		Logger.logError('persistSchedules', e, Logger.LogComponent.SCHEDULING);
+	}
+}
+
+function persistSchedulesDebounced() {
+	try {
+		if (persistTimeoutId) clearTimeout(persistTimeoutId);
+		persistTimeoutId = setTimeout(() => {
+			persistTimeoutId = null;
+			// Fire and forget
+			persistSchedules();
+		}, PERSIST_DEBOUNCE_MS);
+	} catch (e) {
+		Logger.logError('persistSchedulesDebounced', e, Logger.LogComponent.SCHEDULING);
+	}
+}
+
+/**
+ * Initialize in-memory scheduling state from persisted storage.
+ * Should be called on service worker startup before any scans run.
+ */
+export async function initializeSchedulingState() {
+	try {
+		// Clear in-memory state first
+		tabSuspendTimes.clear();
+
+		// If auto suspension is disabled, also clear persisted schedules
+		if (!Prefs.prefs.autoSuspendEnabled) {
+			await chrome.storage.local.set({ [SCHEDULES_STORAGE_KEY]: [] });
+			Logger.detailedLog('Auto suspension disabled; cleared persisted schedules', Logger.LogComponent.SCHEDULING);
+			return;
+		}
+
+		const result = await chrome.storage.local.get([SCHEDULES_STORAGE_KEY]);
+		const entries = Array.isArray(result[SCHEDULES_STORAGE_KEY]) ? result[SCHEDULES_STORAGE_KEY] : [];
+
+		if (entries.length === 0) {
+			Logger.detailedLog('No persisted schedules found on startup', Logger.LogComponent.SCHEDULING);
+			return;
+		}
+
+		// Rehydrate map with only existing tabs; adjust overdue times to "now" so next scan suspends immediately
+		const existingTabs = await chrome.tabs.query({});
+		const existingIds = new Set(existingTabs.map(t => t.id));
+
+		const now = Date.now();
+		let restored = 0;
+		for (const entry of entries) {
+			if (!entry || typeof entry.tabId !== 'number') continue;
+			if (!existingIds.has(entry.tabId)) continue;
+			const scheduledTime = Math.min(Math.max(0, entry.scheduledTime || 0), Number.MAX_SAFE_INTEGER);
+			const delayMinutes = typeof entry.delayMinutes === 'number' ? entry.delayMinutes : Prefs.prefs.suspendAfter;
+			const normalizedTime = scheduledTime <= now ? now : scheduledTime;
+			tabSuspendTimes.set(entry.tabId, { scheduledTime: normalizedTime, delayMinutes });
+			restored++;
+		}
+		Logger.log(`Restored ${restored} scheduled tabs from storage`, Logger.LogComponent.SCHEDULING);
+
+		// Ensure scan alarm exists
+		await setupTabScanAlarm();
+	} catch (e) {
+		Logger.logError('initializeSchedulingState', e, Logger.LogComponent.SCHEDULING);
+	}
+}
 
 // Track timeouts for debounced functions so they can be cleared during cleanup
 const debounceTimeouts = new Map();
@@ -22,6 +107,7 @@ const debounceTimeouts = new Map();
 export function removeTabSuspendTime(tabId) {
 	const hadEntry = tabSuspendTimes.has(tabId);
 	tabSuspendTimes.delete(tabId);
+	if (hadEntry) persistSchedulesDebounced();
 	return hadEntry;
 }
 
@@ -106,6 +192,7 @@ export async function scanTabsForSuspension() {
 						if (success) {
 							stats.suspended++;
 							tabSuspendTimes.delete(tab.id);
+							persistSchedulesDebounced();
 						} else {
 							stats.errors++;
 						}
@@ -122,6 +209,8 @@ export async function scanTabsForSuspension() {
 		}
 
 		Logger.log(`Tab scan complete: ${stats.scanned} scanned, ${stats.suspended} suspended, ${stats.cleaned} cleaned, ${stats.errors} errors`);
+		// Persist after a scan in case of cleanup or changes
+		persistSchedulesDebounced();
 		return stats;
 	} catch (e) {
 		Logger.logError(`Error in scanTabsForSuspension:`, e);
@@ -138,6 +227,7 @@ export async function cancelTabSuspendTracking(tabId) {
 	try {
 		tabSuspendTimes.delete(tabId);
 		Logger.detailedLog(`Cancelled suspend tracking for tab ${tabId}`);
+		persistSchedulesDebounced();
 		return true;
 	} catch (e) {
 		Logger.logError(`Error cancelling tab suspend tracking for ${tabId}:`, e);
@@ -215,6 +305,7 @@ export async function scheduleTabInMap(tabId, delayMinutes = null) {
 		});
 		await setupTabScanAlarm();
 		Logger.detailedLog(`Scheduled tab ${tabId} for suspension at ${new Date(suspendTime).toLocaleTimeString()}`);
+		persistSchedulesDebounced();
 		return true;
 	} catch (e) {
 		Logger.logError(`Error scheduling tab ${tabId} for suspension:`, e);
@@ -236,6 +327,19 @@ export async function getTabSuspendTime(tabId) {
 		return suspendData;
 	}
 	return null;
+}
+
+/**
+ * Returns a snapshot of current scheduling map (for stats/UI)
+ * @returns {Promise<{size:number, entries:Array<{tabId:number, scheduledTime:number, delayMinutes:number}>}>}
+ */
+export async function getSchedulingSnapshot() {
+	const entries = [];
+	for (const [tabId, data] of tabSuspendTimes.entries()) {
+		const info = typeof data === 'number' ? { scheduledTime: data, delayMinutes: -1 } : data;
+		entries.push({ tabId, scheduledTime: info.scheduledTime, delayMinutes: info.delayMinutes });
+	}
+	return { size: entries.length, entries };
 }
 
 /**
@@ -285,6 +389,7 @@ export async function scheduleAllTabs() {
 		Logger.detailedLog('Auto suspension is disabled; not scheduling any tabs. Clearing all suspension tracking.');
 		tabSuspendTimes.clear();
 		await chrome.alarms.clear(Const.TS_TAB_SCAN_ALARM_NAME);
+		await chrome.storage.local.set({ [SCHEDULES_STORAGE_KEY]: [] });
 		return;
 	}
 	const stats = { success: 0, skipped: 0, failed: 0, total: 0 };
@@ -352,6 +457,7 @@ export async function scheduleAllTabs() {
 		}
 
 		Logger.log(`Tab scheduling complete: ${stats.success} scheduled, ${stats.skipped} skipped, ${stats.failed} failed, ${stats.total} total`);
+		persistSchedulesDebounced();
 		return stats;
 	} catch (e) {
 		Logger.logError(`Error in scheduleAllTabs:`, e);
@@ -406,6 +512,26 @@ export const debouncedScheduleAllTabs = debounce(() => {
 		Logger.logError('Error in debouncedScheduleAllTabs:', e);
 	});
 }, DEBOUNCE_DELAY_MS, 'scheduleAllTabs');
+
+/**
+ * Alarm-backed debounce to survive service worker restarts
+ */
+export async function debouncedScheduleAllTabsAlarmBacked() {
+	try {
+		// Best-effort in-process debounce (fast path if worker stays alive)
+		debouncedScheduleAllTabs();
+
+		// Also schedule an alarm so reschedule happens even if worker sleeps
+		await chrome.alarms.clear(Const.TS_SCHEDULE_DEBOUNCE_ALARM);
+		const minDelayMinutes = 0.1; // 6 seconds is minimum allowed
+		await chrome.alarms.create(Const.TS_SCHEDULE_DEBOUNCE_ALARM, { delayInMinutes: minDelayMinutes });
+		Logger.detailedLog('Scheduled alarm-backed debounced scheduleAllTabs', Logger.LogComponent.SCHEDULING);
+	} catch (e) {
+		Logger.logError('debouncedScheduleAllTabsAlarmBacked', e, Logger.LogComponent.SCHEDULING);
+		// Fall back to immediate scheduling on error
+		try { await scheduleAllTabs(); } catch (_) { }
+	}
+}
 
 /**
  * Clear all debounced timeouts - called during extension cleanup

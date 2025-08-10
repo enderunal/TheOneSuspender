@@ -134,58 +134,14 @@ import * as SuspensionUtils from '../suspension/suspension-utils.js';
 			Logger.logError("Error setting up event listeners", eventError, Logger.LogComponent.SUSPENDED);
 		}
 
-		// 4) Favicon - Simplified Canvas approach to gray out favicons
+		// 4) Favicon - Deterministic, cached favicon processing using Chrome _favicon
 		try {
 			const faviconLink = document.getElementById("favicon");
 			const setFallbackIcon = () => {
 				if (!faviconLink) return;
 				faviconLink.onerror = null;
 				faviconLink.href = 'icons/icon16.png';
-				// Apply grayscale to fallback icon via Canvas
-				processWithCanvas('icons/icon16.png');
 				Logger.log("Setting grayed fallback icon.", Logger.LogComponent.SUSPENDED);
-			};
-
-			const processWithCanvas = (imageUrl) => {
-				if (!faviconLink) return;
-				const img = new Image();
-
-				img.onload = () => {
-					try {
-						const canvas = document.createElement('canvas');
-						const size = 16; // Standard favicon size
-						canvas.width = size;
-						canvas.height = size;
-						const ctx = canvas.getContext('2d');
-
-						if (ctx) {
-							ctx.filter = 'grayscale(40%) opacity(60%)';
-							ctx.drawImage(img, 0, 0, size, size);
-							faviconLink.href = canvas.toDataURL();
-							Logger.log(`Applied grayscale to favicon: ${imageUrl.substring(0, 60)}`, Logger.LogComponent.SUSPENDED);
-						} else {
-							// Fallback if Canvas fails
-							faviconLink.href = imageUrl;
-							Logger.logWarning(`Canvas context failed, using original favicon: ${imageUrl.substring(0, 60)}`, Logger.LogComponent.SUSPENDED);
-						}
-					} catch (e) {
-						// Fallback if Canvas processing fails
-						faviconLink.href = imageUrl;
-						Logger.logWarning(`Canvas processing failed, using original favicon: ${imageUrl.substring(0, 60)}`, Logger.LogComponent.SUSPENDED, e);
-					}
-				};
-
-				img.onerror = () => {
-					Logger.logWarning(`Failed to load image: ${imageUrl.substring(0, 60)}`, Logger.LogComponent.SUSPENDED);
-					faviconLink.href = 'icons/icon16.png';
-				};
-
-				// Set crossOrigin for external images
-				if (imageUrl.startsWith("http")) {
-					img.crossOrigin = "anonymous";
-				}
-
-				img.src = imageUrl;
 			};
 
 			if (faviconLink) {
@@ -194,21 +150,16 @@ import * as SuspensionUtils from '../suspension/suspension-utils.js';
 					setFallbackIcon();
 				};
 
-				// Use favicon URL from parameters if available, otherwise use dynamic discovery
-				if (faviconUrl) {
-					Logger.log(`Using favicon from URL parameter: ${faviconUrl.substring(0, 60)}`, Logger.LogComponent.SUSPENDED);
-					processWithCanvas(faviconUrl);
-				} else if (originalUrl) {
-					Logger.log(`No favicon URL parameter found. Attempting to discover favicon for: ${originalUrl.substring(0, 60)}`, Logger.LogComponent.SUSPENDED);
-					await FaviconUtils.discoverFavicon(originalUrl, (discoveredFaviconUrl) => {
-						if (discoveredFaviconUrl) {
-							Logger.log(`Processing discovered favicon: ${discoveredFaviconUrl.substring(0, 60)}`, Logger.LogComponent.SUSPENDED);
-							processWithCanvas(discoveredFaviconUrl);
-						} else {
-							Logger.log("No favicon discovered. Using fallback.", Logger.LogComponent.SUSPENDED);
-							setFallbackIcon();
-						}
-					});
+				if (originalUrl) {
+					// Prefer processed favicon via extension _favicon endpoint + cache
+					const dataUrl = await FaviconUtils.getProcessedFaviconDataUrl(originalUrl);
+					if (dataUrl) {
+						faviconLink.href = dataUrl;
+					} else if (faviconUrl) {
+						faviconLink.href = faviconUrl; // as a last resort
+					} else {
+						setFallbackIcon();
+					}
 				} else {
 					Logger.log("No original URL available for favicon discovery. Using fallback.", Logger.LogComponent.SUSPENDED);
 					setFallbackIcon();

@@ -7,6 +7,7 @@ export const TS_TAB_SCAN_ALARM_NAME = 'TS_tabScanAlarm'; // The single alarm nam
 export const TS_ALARM_CLEANUP_NAME = 'TS_alarmCleanup';
 export const TS_STATE_CLEANUP_NAME = 'TS_stateCleanup';
 export const TS_SESSION_FREQUENT_SAVE = 'TS_session_frequent_save';
+export const TS_SCHEDULE_DEBOUNCE_ALARM = 'TS_scheduleAllTabs_debounce';
 
 // Other constants
 export const MAX_TABS_PER_SCAN = 1000; // Maximum tabs to process in one scan cycle
@@ -25,3 +26,6 @@ export const MSG_SUSPEND_ALL_TABS_ALL_SPECS = 'MSG_suspendAllTabsAllSpecs';
 export const MSG_UNSUSPEND_ALL_TABS_ALL_SPECS = 'MSG_unsuspendAllTabsAllSpecs';
 export const MSG_PREFS_CHANGED = 'MSG_prefsChanged';
 export const MSG_PROMPT_SUSPEND = 'PROMPT_SUSPEND';
+export const MSG_CLEAR_FAVICON_CACHE = 'MSG_clearFaviconCache';
+export const MSG_REFRESH_ALL_SUSPENDED_FAVICONS = 'MSG_refreshAllSuspendedFavicons';
+export const MSG_GET_EXTENSION_STATS = 'MSG_getExtensionStats';

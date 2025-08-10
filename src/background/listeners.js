@@ -93,7 +93,8 @@ function handleMessage(request, sender, sendResponse) {
 
                 if (Preferences.prefs.suspendAfter !== oldSuspendAfter || Preferences.prefs.unsavedFormHandling !== oldUnsavedFormHandling) {
                     Logger.detailedLog("Relevant settings changed, rescheduling all tabs.", Logger.LogComponent.BACKGROUND);
-                    Scheduling.debouncedScheduleAllTabs();
+                    // Use alarm-backed debounce so reschedule survives worker restarts
+                    Scheduling.debouncedScheduleAllTabsAlarmBacked();
                 }
                 // Notify content scripts if unsavedFormHandling changed
                 if (Preferences.prefs.unsavedFormHandling !== oldUnsavedFormHandling) {
@@ -118,7 +119,7 @@ function handleMessage(request, sender, sendResponse) {
                 }
                 await Preferences.saveWhitelist(request.newWhitelist);
                 Logger.log("Whitelist saved successfully via saveWhitelist message", Logger.LogComponent.BACKGROUND);
-                Scheduling.debouncedScheduleAllTabs();
+                Scheduling.debouncedScheduleAllTabsAlarmBacked();
                 return { success: true };
             }, sendResponse);
             return true;
@@ -260,6 +261,47 @@ function handleMessage(request, sender, sendResponse) {
             return true;
 
         default:
+            // Utility/admin messages for Tools
+            if (request.type === Const.MSG_CLEAR_FAVICON_CACHE) {
+                handleAsyncMessage(context, async () => {
+                    try {
+                        await chrome.storage.local.set({ TS_favicon_cache_v1: {} });
+                        return { success: true };
+                    } catch (e) {
+                        return { error: e.message };
+                    }
+                }, sendResponse);
+                return true;
+            }
+            if (request.type === Const.MSG_REFRESH_ALL_SUSPENDED_FAVICONS) {
+                handleAsyncMessage(context, async () => {
+                    const suspendedPrefix = chrome.runtime.getURL(Const.SUSPENDED_PAGE_PATH);
+                    const tabs = await chrome.tabs.query({ url: suspendedPrefix + '*' });
+                    // Force reload of suspended pages to re-run favicon script
+                    for (const tab of tabs) {
+                        if (tab.id) {
+                            try { await chrome.tabs.reload(tab.id, { bypassCache: true }); } catch { }
+                        }
+                    }
+                    return { success: true, count: tabs.length };
+                }, sendResponse);
+                return true;
+            }
+            if (request.type === Const.MSG_GET_EXTENSION_STATS) {
+                handleAsyncMessage(context, async () => {
+                    const allTabs = await chrome.tabs.query({});
+                    const suspendedPrefix = chrome.runtime.getURL(Const.SUSPENDED_PAGE_PATH);
+                    let total = 0, suspended = 0, scheduled = 0, skipped = 0;
+                    total = allTabs.length;
+                    suspended = allTabs.filter(t => t.url && t.url.startsWith(suspendedPrefix)).length;
+                    // Approximate scheduled count from internal scheduling map
+                    const scheduledInfo = await Scheduling.getSchedulingSnapshot();
+                    scheduled = scheduledInfo.size || 0;
+                    skipped = total - suspended - scheduled;
+                    return { success: true, total, suspended, scheduled, skipped };
+                }, sendResponse);
+                return true;
+            }
             Logger.log(`${context}: Unknown message type received`, Logger.LogComponent.BACKGROUND);
             sendResponse({ error: "Unknown message type" });
             return false;

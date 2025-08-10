@@ -503,30 +503,35 @@
                             Backup and restore your suspended tabs data.
                         </p>
 
-                        <div class="export-import-controls">
-                            <div class="export-group">
-                                <div class="md-text-field compact">
-                                    <select id="export-format" aria-label="Export format">
-                                        <option value="json">JSON</option>
-                                        <option value="txt">TXT</option>
-                                    </select>
-                                    <label for="export-format">Export Format</label>
+                        <div class="export-import-controls two-rows">
+                            <div class="export-group" aria-label="Export controls">
+                                <div class="group-title md-typescale-title-small">Export</div>
+                                <div class="row-actions">
+                                    <div class="md-text-field compact">
+                                        <select id="export-format" aria-label="Export format">
+                                            <option value="json">JSON</option>
+                                            <option value="txt">TXT</option>
+                                        </select>
+                                        <label for="export-format">Export Format</label>
+                                    </div>
+                                    <button type="button" id="export-suspended-tabs"
+                                        class="md-button filled">Export</button>
                                 </div>
-                                <button type="button" id="export-suspended-tabs" class="md-button outlined">
-                                    Export
-                                </button>
                             </div>
 
-                            <div class="import-group">
-                                <div class="file-input-container">
-                                    <input type="file" id="import-file" accept=".json,.txt" class="file-input">
-                                    <label for="import-file" class="file-input-label md-button outlined">
-                                        Choose File
-                                    </label>
+                            <div class="export-import-divider" role="separator" aria-hidden="true"></div>
+
+                            <div class="import-group" aria-label="Import controls">
+                                <div class="group-title md-typescale-title-small">Import</div>
+                                <div class="row-actions">
+                                    <div class="file-input-container">
+                                        <input type="file" id="import-file" accept=".json,.txt" class="file-input">
+                                        <label for="import-file" class="file-input-label md-button filled">Choose
+                                            File</label>
+                                    </div>
+                                    <button type="button" id="import-suspended-tabs"
+                                        class="md-button filled">Import</button>
                                 </div>
-                                <button type="button" id="import-suspended-tabs" class="md-button outlined">
-                                    Import
-                                </button>
                             </div>
                         </div>
 
@@ -555,6 +560,42 @@
                         <a href="migrate.html" class="md-button filled tool-link">
                             Migrate from Marvelous Suspender
                         </a>
+                    </div>
+
+                    <div class="md-divider"></div>
+
+                    <div class="tool-section">
+                        <h3 class="md-typescale-title-medium subsection-title">Favicons</h3>
+                        <p class="md-typescale-body-medium section-description">
+                            Rebuild and refresh favicons for suspended tabs.
+                        </p>
+                        <div class="export-import-controls inline-actions">
+                            <button type="button" id="clear-favicon-cache" class="md-button filled">Clear Favicon
+                                Cache</button>
+                            <button type="button" id="refresh-favicons" class="md-button filled">Refresh Suspended
+                                Favicons</button>
+                            <div id="favicon-tools-status" class="md-feedback"></div>
+                        </div>
+                    </div>
+
+                    <div class="md-divider"></div>
+
+                    <div class="tool-section">
+                        <h3 class="md-typescale-title-medium subsection-title">Extension Statistics</h3>
+                        <p class="md-typescale-body-medium section-description">Live counts across all windows.</p>
+                        <div class="stats-grid" id="extension-stats">
+                            <div class="stat-item"><span class="label">Total Tabs</span><span class="value"
+                                    id="stat-total">-</span></div>
+                            <div class="stat-item"><span class="label">Suspended</span><span class="value"
+                                    id="stat-suspended">-</span></div>
+                            <div class="stat-item"><span class="label">Scheduled</span><span class="value"
+                                    id="stat-scheduled">-</span></div>
+                            <div class="stat-item"><span class="label">Other</span><span class="value"
+                                    id="stat-other">-</span></div>
+                        </div>
+                        <div class="export-import-controls inline-actions">
+                            <button type="button" id="refresh-stats" class="md-button filled">Refresh Stats</button>
+                        </div>
                     </div>
                 </div>
             </div>

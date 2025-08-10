@@ -44,13 +44,16 @@ async function initialize() {
             }
         }
 
+        // Restore scheduling state before creating alarms or rescheduling
+        await Scheduling.initializeSchedulingState();
+
         // Set up necessary alarms
         await setupNecessaryAlarms();
 
         // Initialize event listeners
         Listeners.initListeners();
 
-        // Schedule existing tabs
+        // Schedule existing tabs (will respect restored per-tab times)
         if (Prefs.prefs.autoSuspendEnabled) {
             Logger.log("Scheduling existing tabs...", Logger.LogComponent.BACKGROUND);
             const scheduleResult = await Scheduling.scheduleAllTabs();
@@ -105,6 +108,14 @@ async function setupNecessaryAlarms() {
 chrome.alarms.onAlarm.addListener(async (alarm) => {
     if (!alarm || !alarm.name) return;
     Listeners.handleAlarmEvent(alarm);
+    // Handle alarm-backed debounce for scheduling
+    if (alarm.name === Const.TS_SCHEDULE_DEBOUNCE_ALARM) {
+        try {
+            await Scheduling.scheduleAllTabs();
+        } catch (e) {
+            Logger.logError('Error executing scheduleAllTabs from debounce alarm', e, Logger.LogComponent.BACKGROUND);
+        }
+    }
 });
 
 // Handle extension install/update

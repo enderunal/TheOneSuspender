@@ -53,6 +53,39 @@ document.addEventListener("DOMContentLoaded", async () => {
 	const importFileInput = document.getElementById("import-file");
 	const importBtn = document.getElementById("import-suspended-tabs");
 	const exportImportStatus = document.getElementById("export-import-status");
+	// Favicon tools elements
+	const clearFaviconCacheBtn = document.getElementById('clear-favicon-cache');
+	const refreshFaviconsBtn = document.getElementById('refresh-favicons');
+	const faviconToolsStatus = document.getElementById('favicon-tools-status');
+
+	// Stats elements
+	const refreshStatsBtn = document.getElementById('refresh-stats');
+	const statTotalEl = document.getElementById('stat-total');
+	const statSuspendedEl = document.getElementById('stat-suspended');
+	const statScheduledEl = document.getElementById('stat-scheduled');
+	const statOtherEl = document.getElementById('stat-other');
+
+	function setFaviconToolsStatus(msg, type = 'info') {
+		if (!faviconToolsStatus) return;
+		faviconToolsStatus.textContent = msg;
+		faviconToolsStatus.className = `md-feedback visible ${type}`;
+		if (msg) faviconToolsStatus.classList.add('visible');
+		else faviconToolsStatus.classList.remove('visible');
+	}
+
+	async function refreshStats() {
+		try {
+			const resp = await new Promise((resolve) => chrome.runtime.sendMessage({ type: Const.MSG_GET_EXTENSION_STATS }, resolve));
+			if (!resp || !resp.success) throw new Error(resp?.error || 'Failed to get stats');
+			if (statTotalEl) statTotalEl.textContent = String(resp.total);
+			if (statSuspendedEl) statSuspendedEl.textContent = String(resp.suspended);
+			if (statScheduledEl) statScheduledEl.textContent = String(resp.scheduled);
+			if (statOtherEl) statOtherEl.textContent = String(resp.total - resp.suspended - resp.scheduled);
+		} catch (e) {
+			console.error('Failed to refresh stats', e);
+		}
+	}
+
 
 	// Session Manager elements
 	const saveCurrentSessionBtn = document.getElementById("save-current-session");
@@ -141,6 +174,41 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 	// Add event listeners for Material Design text field label positioning
 	setupTextFieldListeners();
+	// Tools: Favicon cache clear
+	if (clearFaviconCacheBtn) {
+		clearFaviconCacheBtn.addEventListener('click', async () => {
+			setFaviconToolsStatus('Clearing favicon cache...', 'info');
+			try {
+				const resp = await new Promise((resolve) => chrome.runtime.sendMessage({ type: Const.MSG_CLEAR_FAVICON_CACHE }, resolve));
+				if (!resp || !resp.success) throw new Error(resp?.error || 'Failed');
+				setFaviconToolsStatus('Favicon cache cleared.', 'success');
+			} catch (e) {
+				setFaviconToolsStatus('Error clearing favicon cache: ' + (e.message || e), 'error');
+			}
+			setTimeout(() => setFaviconToolsStatus(''), 2500);
+		});
+	}
+
+	// Tools: Refresh favicons for suspended tabs
+	if (refreshFaviconsBtn) {
+		refreshFaviconsBtn.addEventListener('click', async () => {
+			setFaviconToolsStatus('Refreshing suspended favicons...', 'info');
+			try {
+				const resp = await new Promise((resolve) => chrome.runtime.sendMessage({ type: Const.MSG_REFRESH_ALL_SUSPENDED_FAVICONS }, resolve));
+				if (!resp || !resp.success) throw new Error(resp?.error || 'Failed');
+				setFaviconToolsStatus(`Triggered refresh on ${resp.count} suspended tabs.`, 'success');
+			} catch (e) {
+				setFaviconToolsStatus('Error refreshing favicons: ' + (e.message || e), 'error');
+			}
+			setTimeout(() => setFaviconToolsStatus(''), 2500);
+		});
+	}
+
+	// Tools: Stats refresh
+	if (refreshStatsBtn) {
+		refreshStatsBtn.addEventListener('click', refreshStats);
+	}
+
 
 	// --- Load Settings ---
 	async function loadSettings() {
