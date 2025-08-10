@@ -4,16 +4,16 @@ Generated screenshots at 1280x800 resolution.
 
 ## Available Screenshots
 
-- **appearance-gold-dark.png**: 60KB
-- **appearance-gold.png**: 60KB
-- **options-gold-dark.png**: 100KB
-- **options-gold.png**: 100KB
+- **appearance-gold-dark.png**: 68KB
+- **appearance-gold.png**: 69KB
+- **options-gold-dark.png**: 144KB
+- **options-gold.png**: 143KB
 - **popup-gold-dark.png**: 33KB
 - **popup-gold.png**: 33KB
-- **suspended-gold-dark.png**: 36KB
-- **suspended-gold.png**: 37KB
-- **tools-gold-dark.png**: 57KB
-- **tools-gold.png**: 57KB
+- **suspended-gold-dark.png**: 33KB
+- **suspended-gold.png**: 34KB
+- **tools-gold-dark.png**: 86KB
+- **tools-gold.png**: 87KB
 
 ## Chrome Web Store Requirements
 
@@ -32,5 +32,5 @@ For your Chrome Web Store listing, select these 5 screenshots:
 4. suspended-gold.png - Shows suspended page experience
 5. popup-gold.png - Shows extension popup
 
-Generated on: 2025-06-17T19:19:16.281Z
+Generated on: 2025-08-10T18:57:27.448Z
 Total screenshots: 10

@@ -28,10 +28,10 @@ test.describe('Basic Extension Tests', () => {
 
         try {
             // Navigate to a simple page
-            await page.goto('https://example.com');
+            await page.goto('https://google.com');
 
             // Check if the page loads
-            await expect(page).toHaveTitle(/Example/);
+            await expect(page).toHaveTitle(/Google/);
 
             // Try to access chrome APIs (they might not be available in this context)
             const hasChromeAPIs = await page.evaluate(() => {
@@ -41,7 +41,7 @@ test.describe('Basic Extension Tests', () => {
             // This test is more about checking if the browser launches correctly
             console.log('Chrome APIs available:', hasChromeAPIs);
         } finally {
-            await context.close();
+            await context.close().catch(() => { });
         }
     });
 
@@ -66,7 +66,7 @@ test.describe('Basic Extension Tests', () => {
 
             expect(hasContent).toBeTruthy();
         } finally {
-            await context.close();
+            await context.close().catch(() => { });
         }
     });
 }); 
