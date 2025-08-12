@@ -50,6 +50,28 @@ async function notifyAllTabsPrefsChanged() {
     }
 }
 
+// Helper: batched reload for suspended tabs to refresh favicons CPU-friendly
+async function reloadSuspendedTabsBatched(tabs, batchSize = 10, perTabDelayMs = 200, batchDelayMs = 1200) {
+    const total = tabs.length;
+    let processed = 0;
+    for (let i = 0; i < total; i += batchSize) {
+        const batch = tabs.slice(i, i + batchSize);
+        for (const tab of batch) {
+            if (tab.id) {
+                try { await chrome.tabs.reload(tab.id, { bypassCache: true }); } catch { }
+                processed++;
+                if (perTabDelayMs > 0) {
+                    await new Promise(r => setTimeout(r, perTabDelayMs));
+                }
+            }
+        }
+        if (i + batchSize < total && batchDelayMs > 0) {
+            await new Promise(r => setTimeout(r, batchDelayMs));
+        }
+    }
+    return processed;
+}
+
 // ===================== Core Logic =====================
 function handleMessage(request, sender, sendResponse) {
     if (!request || !request.type) {
@@ -277,13 +299,11 @@ function handleMessage(request, sender, sendResponse) {
                 handleAsyncMessage(context, async () => {
                     const suspendedPrefix = chrome.runtime.getURL(Const.SUSPENDED_PAGE_PATH);
                     const tabs = await chrome.tabs.query({ url: suspendedPrefix + '*' });
-                    // Force reload of suspended pages to re-run favicon script
-                    for (const tab of tabs) {
-                        if (tab.id) {
-                            try { await chrome.tabs.reload(tab.id, { bypassCache: true }); } catch { }
-                        }
-                    }
-                    return { success: true, count: tabs.length };
+                    const batchSize = Number.isFinite(request?.batchSize) ? request.batchSize : 10;
+                    const perTabDelayMs = Number.isFinite(request?.perTabDelayMs) ? request.perTabDelayMs : 200;
+                    const batchDelayMs = Number.isFinite(request?.batchDelayMs) ? request.batchDelayMs : 1200;
+                    const count = await reloadSuspendedTabsBatched(tabs, batchSize, perTabDelayMs, batchDelayMs);
+                    return { success: true, count, total: tabs.length };
                 }, sendResponse);
                 return true;
             }
