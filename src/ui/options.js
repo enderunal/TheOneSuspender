@@ -189,6 +189,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 		});
 	}
 
+	// Listen for favicon refresh progress from background
+	chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+		if (message.type === Const.MSG_FAVICON_REFRESH_PROGRESS) {
+			setFaviconToolsStatus('Refreshing suspended favicons...', 'info');
+		} else if (message.type === Const.MSG_FAVICON_REFRESH_DONE) {
+			setFaviconToolsStatus('Favicons refreshed.', 'success');
+			setTimeout(() => setFaviconToolsStatus(''), 2500);
+		}
+	});
+
 	// Tools: Refresh favicons for suspended tabs
 	if (refreshFaviconsBtn) {
 		refreshFaviconsBtn.addEventListener('click', async () => {
@@ -196,11 +206,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 			try {
 				const resp = await new Promise((resolve) => chrome.runtime.sendMessage({ type: Const.MSG_REFRESH_ALL_SUSPENDED_FAVICONS }, resolve));
 				if (!resp || !resp.success) throw new Error(resp?.error || 'Failed');
-				setFaviconToolsStatus(`Triggered refresh on ${resp.count} suspended tabs.`, 'success');
+				// Do not show completion here; wait for MSG_FAVICON_REFRESH_DONE
 			} catch (e) {
 				setFaviconToolsStatus('Error refreshing favicons: ' + (e.message || e), 'error');
+				setTimeout(() => setFaviconToolsStatus(''), 2500);
 			}
-			setTimeout(() => setFaviconToolsStatus(''), 2500);
 		});
 	}
 

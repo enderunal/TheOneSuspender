@@ -17,10 +17,9 @@ import * as SuspensionUtils from '../suspension/suspension-utils.js';
 		const hash = location.hash.startsWith('#') ? location.hash.slice(1) : location.hash;
 		const paramsString = hash.replace(/&url=.+$/, '');
 		const params = new URLSearchParams(paramsString);
-		
+
 		const pageTitle = params.get('title') || (originalUrl || "Tab Suspended");
 		const timestamp = params.has('timestamp') ? parseInt(params.get('timestamp'), 10) : 0;
-		const faviconUrl = params.get('favicon') || ""; // Get favicon URL from parameters
 
 		Logger.log("Using centralized URL parsing logic.", Logger.LogComponent.SUSPENDED);
 
@@ -134,52 +133,61 @@ import * as SuspensionUtils from '../suspension/suspension-utils.js';
 			Logger.logError("Error setting up event listeners", eventError, Logger.LogComponent.SUSPENDED);
 		}
 
-		// 4) Favicon - Deterministic, cached favicon processing using Chrome _favicon
+		// 4) Favicon - favicon handling with grayscale processing
 		try {
 			const faviconLink = document.getElementById("favicon");
-			const setFallbackIcon = () => {
-				if (!faviconLink) return;
-				faviconLink.onerror = null;
+			if (!faviconLink) {
+				Logger.logWarning("Favicon link element not found in DOM", Logger.LogComponent.SUSPENDED);
+				return;
+			}
+
+			if (!originalUrl) {
 				faviconLink.href = 'icons/icon16.png';
-				Logger.log("Setting grayed fallback icon.", Logger.LogComponent.SUSPENDED);
-			};
+				return;
+			}
 
-			if (faviconLink) {
-				faviconLink.onerror = () => {
-					Logger.logWarning(`Failed to load favicon via <link> tag. Using fallback.`, Logger.LogComponent.SUSPENDED);
-					setFallbackIcon();
-				};
-
-				if (originalUrl) {
-					// Prefer processed favicon via extension _favicon endpoint + cache
-					const dataUrl = await FaviconUtils.getProcessedFaviconDataUrl(originalUrl);
-					if (dataUrl) {
-						faviconLink.href = dataUrl;
-					} else if (faviconUrl) {
-						faviconLink.href = faviconUrl; // as a last resort
-					} else {
-						setFallbackIcon();
-					}
-				} else {
-					Logger.log("No original URL available for favicon discovery. Using fallback.", Logger.LogComponent.SUSPENDED);
-					setFallbackIcon();
-				}
-			} else {
-				Logger.logWarning("Favicon link element not found in DOM.", Logger.LogComponent.SUSPENDED);
+			try {
+				const processedFavicon = await FaviconUtils.getOrCreateSuspendedFavicon(originalUrl);
+				faviconLink.href = processedFavicon || 'icons/icon16.png';
+			} catch (e) {
+				Logger.logError("Error getting or processing favicon", e, Logger.LogComponent.SUSPENDED);
+				faviconLink.href = 'icons/icon16.png';
 			}
 		} catch (faviconError) {
 			Logger.logError("Error handling favicon", faviconError, Logger.LogComponent.SUSPENDED);
+			try {
+				const faviconLink = document.getElementById("favicon");
+				if (faviconLink) faviconLink.href = 'icons/icon16.png';
+			} catch (fallbackError) {
+				Logger.logError("Fallback favicon failed", fallbackError, Logger.LogComponent.SUSPENDED);
+			}
 		}
 	} catch (globalError) {
 		// Top-level try-catch to prevent complete script failure
 		console.error("[TheOneSuspender ERROR] Fatal error in suspended.js:", globalError);
 
 		// Try to extract and use the original URL for restore functionality
-		// even if the rest of the script fails
+		// even if the rest of the script fails - supports backward compatibility
 		try {
-			const params = new URLSearchParams(location.search);
-			const encodedUrlParam = params.get('url');
-			if (encodedUrlParam) {
+			// Try multiple URL extraction methods for backward compatibility
+			let recoveryUrl = null;
+
+			// Method 1: Current hash-based format
+			try {
+				const hashData = SuspensionUtils.getOriginalDataFromUrl(location.href);
+				if (hashData?.url) recoveryUrl = hashData.url;
+			} catch (e) { /* continue */ }
+
+			// Method 2: Legacy query parameter format
+			if (!recoveryUrl) {
+				try {
+					const params = new URLSearchParams(location.search);
+					const encodedUrlParam = params.get('url');
+					if (encodedUrlParam) recoveryUrl = encodedUrlParam;
+				} catch (e) { /* continue */ }
+			}
+
+			if (recoveryUrl) {
 				// Add a simple way to restore the tab despite errors
 				document.body.innerHTML = `
 					<div style="text-align:center; padding:20px; font-family:system-ui;">
@@ -189,7 +197,7 @@ import * as SuspensionUtils from '../suspension/suspension-utils.js';
 					</div>
 				`;
 				document.getElementById('emergency-restore')?.addEventListener('click', () => {
-					location.href = originalUrl;
+					location.href = recoveryUrl;
 				});
 				document.title = "Tab Suspended (Recovery)";
 			}

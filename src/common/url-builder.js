@@ -15,7 +15,6 @@ export function buildSuspendedUrl(tab) {
     // Add encoded parameters first
     if (tab.title) params.set("title", tab.title);
     params.set("timestamp", Date.now());
-    if (tab.favIconUrl) params.set("favicon", tab.favIconUrl);
 
     // Build the hash with original URL at the end as clear text (not encoded)
     let hashString = params.toString();

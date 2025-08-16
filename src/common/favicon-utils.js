@@ -4,7 +4,7 @@
 import * as Logger from './logger.js';
 
 const FAVICON_CACHE_KEY = 'TS_favicon_cache_v1';
-const MAX_CACHE_ENTRIES = 5000;
+const MAX_CACHE_ENTRIES = 4000;
 
 function getHostname(url) {
     try { return new URL(url).hostname; } catch { return null; }
@@ -36,12 +36,12 @@ async function saveCache(cache) {
 }
 
 /**
- * Constructs a favicon URL
+ * Constructs a favicon URL using Chrome extension API
  * @param {string} pageUrl - The URL of the page whose favicon we want
  * @param {number} [size=16] - The size of the favicon (16, 32, etc.)
- * @returns {string} The Chrome favicon API URL
+ * @returns {string} The Chrome extension favicon API URL
  */
-export function buildFaviconUrl(pageUrl, size = 16) {
+export function buildChromeExtensionFaviconUrl(pageUrl, size = 16) {
     if (!pageUrl) return null;
 
     try {
@@ -50,119 +50,223 @@ export function buildFaviconUrl(pageUrl, size = 16) {
         url.searchParams.set("size", size.toString());
         return url.toString();
     } catch (error) {
-        Logger.logError('Error building favicon URL', error, Logger.LogComponent.SUSPENDED);
+        Logger.logError('Error building Chrome extension favicon URL', error, Logger.LogComponent.SUSPENDED);
         return null;
     }
 }
 
 /**
- * Gets a favicon URL for the given page URL
+ * Attempts to get favicon from direct URLs and external services
  * @param {string} originalUrl - The original URL of the page
- * @param {function} callback - Callback function with (faviconUrl) or (null) if none found
- * @param {number} [size=16] - The size of the favicon to retrieve
+ * @returns {Promise<string|null>} Direct favicon URL if found, null otherwise
  */
-export async function discoverFavicon(originalUrl, callback, size = 16) {
-    if (!originalUrl) {
-        callback(null);
-        return;
-    }
+export async function getFaviconFromDirectSources(originalUrl) {
+    if (!originalUrl) return null;
 
     try {
-        const faviconUrl = buildFaviconUrl(originalUrl, size);
+        const url = new URL(originalUrl);
+        const hostname = url.hostname;
+        const baseUrl = `${url.protocol}//${hostname}`;
 
-        if (!faviconUrl) {
-            Logger.logWarning(`Failed to build favicon URL for: ${originalUrl}`, Logger.LogComponent.SUSPENDED);
-            callback(null);
-            return;
+        // Try direct favicon paths first
+        const directPaths = [
+            `${baseUrl}/favicon.ico`,
+            `${baseUrl}/favicon.png`,
+            `${baseUrl}/apple-touch-icon.png`
+        ];
+
+        for (const faviconPath of directPaths) {
+            try {
+                const isAvailable = await testDirectFavicon(faviconPath);
+                if (isAvailable) {
+                    Logger.log(`Found direct favicon at: ${faviconPath}`, Logger.LogComponent.SUSPENDED);
+                    return faviconPath;
+                }
+            } catch (e) {
+                Logger.logError(`Error testing direct favicon: ${faviconPath}`, e, Logger.LogComponent.SUSPENDED);
+                // Continue to next path
+            }
         }
 
-        // Test if the favicon loads successfully
+        // Try external favicon services as fallback
+        const externalServices = [
+            `https://www.google.com/s2/favicons?domain_url=${hostname}`,
+            `https://icons.duckduckgo.com/ip2/${hostname}.ico`,
+            `https://favicon.yandex.net/favicon/${hostname}/`
+        ];
+
+        for (const serviceUrl of externalServices) {
+            try {
+                const isAvailable = await testDirectFavicon(serviceUrl);
+                if (isAvailable) {
+                    Logger.log(`Found favicon from external service: ${serviceUrl}`, Logger.LogComponent.SUSPENDED);
+                    return serviceUrl;
+                }
+            } catch (e) {
+                Logger.logError(`Error testing external favicon: ${serviceUrl}`, e, Logger.LogComponent.SUSPENDED);
+                // Continue to next service
+            }
+        }
+
+        return null;
+    } catch (error) {
+        Logger.logError('Error getting favicon from direct sources', error, Logger.LogComponent.SUSPENDED);
+        return null;
+    }
+}
+
+/**
+ * Tests if a direct favicon URL is accessible
+ * @param {string} faviconUrl - The URL to test
+ * @returns {Promise<boolean>} True if accessible, false otherwise
+ */
+function testDirectFavicon(faviconUrl) {
+    return new Promise((resolve) => {
         const img = new Image();
-
         img.onload = () => {
-            Logger.log(`Successfully loaded favicon via Chrome API for: ${originalUrl.substring(0, 60)}`, Logger.LogComponent.SUSPENDED);
-            callback(faviconUrl);
+            // Check if it's actually a favicon and not a 404 page or generic image
+            if (img.width > 0 && img.height > 0 && img.width <= 256 && img.height <= 256) {
+                resolve(true);
+            } else {
+                resolve(false);
+            }
         };
-
-        img.onerror = () => {
-            Logger.logWarning(`Failed to load favicon via Chrome API for: ${originalUrl.substring(0, 60)}`, Logger.LogComponent.SUSPENDED);
-            callback(null);
-        };
-
+        img.onerror = () => resolve(false);
         img.src = faviconUrl;
 
+        // Timeout after 3 seconds
+        setTimeout(() => resolve(false), 3000);
+    });
+}
+
+/**
+ * Processes any favicon URL to apply grayscale and opacity effects with caching
+ * @param {string} faviconUrl - The favicon URL (Chrome API, direct, or external service)
+ * @param {string} originalUrl - The original page URL for cache key generation
+ * @returns {Promise<string|null>} Processed data URL or null if processing fails
+ */
+export async function processAnyFaviconUrl(faviconUrl, originalUrl = null) {
+    if (!faviconUrl) return null;
+
+    try {
+        const img = await loadImageWithCrossOrigin(faviconUrl);
+
+        // Create canvas and apply grayscale + opacity effect
+        const canvas = document.createElement('canvas');
+        const size = 16;
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+
+        if (!ctx) {
+            Logger.logWarning('Failed to get canvas context for favicon processing', Logger.LogComponent.SUSPENDED);
+            return faviconUrl; // Return original if processing fails
+        }
+
+        // Apply the same grayscale and opacity effect as before
+        ctx.filter = 'grayscale(60%) opacity(50%)';
+        ctx.drawImage(img, 0, 0, size, size);
+
+        const processedDataUrl = canvas.toDataURL();
+
+        // Cache the result if we have originalUrl and got a data URL
+        if (originalUrl && processedDataUrl.startsWith('data:')) {
+            const hostname = getHostname(originalUrl);
+            if (hostname) {
+                const cache = await loadCache();
+                cache[hostname] = processedDataUrl;
+                await saveCache(cache);
+                Logger.log(`Cached processed favicon for ${hostname}`, Logger.LogComponent.SUSPENDED);
+            }
+        }
+
+        return processedDataUrl;
+
     } catch (error) {
-        Logger.logError('Error discovering favicon via Chrome API', error, Logger.LogComponent.SUSPENDED);
-        callback(null);
+        Logger.logWarning(`Failed to process favicon ${faviconUrl}, using original: ${error.message}`, Logger.LogComponent.SUSPENDED);
+        return faviconUrl; // Return original URL if processing fails
     }
 }
 
 /**
- * Returns a processed (grayscale + opacity) favicon data URL for a page.
- * Uses Chrome's internal _favicon endpoint to avoid CORS tainting and caches results by hostname.
- * @param {string} originalUrl
- * @returns {Promise<string|null>} data URL or null
+ * Loads an image with proper cross-origin handling
+ * @param {string} src - Image source URL
+ * @returns {Promise<HTMLImageElement>} Loaded image
  */
-export async function getProcessedFaviconDataUrl(originalUrl) {
-    const hostname = getHostname(originalUrl);
-    if (!hostname) return null;
-
-    // Try cache first
-    const cache = await loadCache();
-    if (cache[hostname]) {
-        return cache[hostname];
-    }
-
-    // Stagger to avoid thundering herd after browser restart
-    try {
-        const delayMs = Math.floor(Math.random() * 800);
-        await new Promise(r => setTimeout(r, delayMs));
-    } catch { }
-
-    // Try multiple sizes and a couple retries
-    const sizes = [32, 16, 64];
-    for (const size of sizes) {
-        const url = buildFaviconUrl(originalUrl, size);
-        if (!url) continue;
-
-        const dataUrl = await loadAndProcess(url);
-        if (dataUrl) {
-            cache[hostname] = dataUrl;
-            await saveCache(cache);
-            return dataUrl;
-        }
-    }
-    return null;
-}
-
-async function loadAndProcess(imageUrl) {
-    try {
-        const img = await loadImage(imageUrl);
-        try {
-            const canvas = document.createElement('canvas');
-            const size = 16;
-            canvas.width = size;
-            canvas.height = size;
-            const ctx = canvas.getContext('2d');
-            if (!ctx) return null;
-            ctx.filter = 'grayscale(60%) opacity(50%)';
-            ctx.drawImage(img, 0, 0, size, size);
-            return canvas.toDataURL();
-        } catch (e) {
-            Logger.logWarning('Canvas processing failed for favicon', Logger.LogComponent.SUSPENDED, e);
-            return null;
-        }
-    } catch (e) {
-        return null;
-    }
-}
-
-function loadImage(src) {
+function loadImageWithCrossOrigin(src) {
     return new Promise((resolve, reject) => {
         const img = new Image();
         img.onload = () => resolve(img);
-        img.onerror = () => reject(new Error('image error'));
-        // _favicon endpoint is extension-origin; no crossOrigin needed
+        img.onerror = (e) => {
+            Logger.logError(`Failed to load image: ${src}`, e, Logger.LogComponent.SUSPENDED);
+            reject(new Error('Failed to load image'));
+        };
+        try {
+            Logger.log(`Loading image with crossOrigin: ${img.crossOrigin}`, Logger.LogComponent.SUSPENDED);
+            // Set crossOrigin for external URLs to avoid CORS taint
+            if (src.startsWith('https://') && !src.includes(chrome.runtime.id)) {
+                try {
+                    img.crossOrigin = 'anonymous';
+                } catch (e) {
+                    Logger.logError(`Failed to set crossOrigin for image: ${src}`, e, Logger.LogComponent.SUSPENDED);
+                }
+            }
+            Logger.log(`Loaded image with crossOrigin: ${img.crossOrigin}`, Logger.LogComponent.SUSPENDED);
+        } catch (e) {
+            Logger.logError(`Error during crossOrigin assignment for image: ${src}`, e, Logger.LogComponent.SUSPENDED);
+        }
         img.src = src;
     });
 }
+
+/**
+ * Gets the suspended favicon for a URL, using cache, Chrome API, direct, and external sources.
+ * Always returns a processed (grayscale) data URL or fallback icon.
+ * @param {string} originalUrl
+ * @returns {Promise<string>} data URL or fallback icon path
+ */
+export async function getOrCreateSuspendedFavicon(originalUrl) {
+    if (!originalUrl) return 'icons/icon16.png';
+    const hostname = getHostname(originalUrl);
+    if (!hostname) return 'icons/icon16.png';
+    const cache = await loadCache();
+    if (cache[hostname]) {
+        Logger.log(`Favicon cache hit for ${hostname}`, Logger.LogComponent.SUSPENDED);
+        return cache[hostname];
+    }
+    // Try Chrome API
+    const chromeApiFaviconUrl = buildChromeExtensionFaviconUrl(originalUrl, 16);
+    if (chromeApiFaviconUrl) {
+        try {
+            const testImg = await loadImageWithCrossOrigin(chromeApiFaviconUrl);
+            // If not globe icon, process and cache
+            if (testImg.naturalWidth > 16 || testImg.naturalHeight > 16 || testImg.src.includes('data:image')) {
+                const processed = await processAnyFaviconUrl(chromeApiFaviconUrl, originalUrl);
+                if (processed && processed.startsWith('data:')) {
+                    Logger.log(`Favicon processed and cached for ${hostname} (Chrome API)`, Logger.LogComponent.SUSPENDED);
+                    return processed;
+                }
+            }
+        } catch (e) {
+            Logger.logError(`Error in Chrome API favicon pipeline for ${originalUrl} (url: ${chromeApiFaviconUrl})`, e, Logger.LogComponent.SUSPENDED);
+            // Ignore and try next
+        }
+    }
+    // Try direct/external sources
+    const altFaviconUrl = await getFaviconFromDirectSources(originalUrl);
+    if (altFaviconUrl) {
+        try {
+            const processed = await processAnyFaviconUrl(altFaviconUrl, originalUrl);
+            if (processed && processed.startsWith('data:')) {
+                Logger.log(`Favicon processed and cached for ${hostname} (external)`, Logger.LogComponent.SUSPENDED);
+                return processed;
+            }
+        } catch (e) {
+            Logger.logError(`Error in external favicon pipeline for ${originalUrl} (url: ${altFaviconUrl})`, e, Logger.LogComponent.SUSPENDED);
+            // Ignore and fallback
+        }
+    }
+    Logger.logWarning(`Favicon fallback for ${hostname}`, Logger.LogComponent.SUSPENDED);
+    return 'icons/icon16.png';
+}
+

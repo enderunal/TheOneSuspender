@@ -29,3 +29,5 @@ export const MSG_PROMPT_SUSPEND = 'PROMPT_SUSPEND';
 export const MSG_CLEAR_FAVICON_CACHE = 'MSG_clearFaviconCache';
 export const MSG_REFRESH_ALL_SUSPENDED_FAVICONS = 'MSG_refreshAllSuspendedFavicons';
 export const MSG_GET_EXTENSION_STATS = 'MSG_getExtensionStats';
+export const MSG_FAVICON_REFRESH_PROGRESS = 'MSG_faviconRefreshProgress';
+export const MSG_FAVICON_REFRESH_DONE = 'MSG_faviconRefreshDone';

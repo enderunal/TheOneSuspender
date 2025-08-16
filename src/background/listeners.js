@@ -16,6 +16,18 @@ if (typeof globalThis.isBulkOpRunning === 'undefined') {
     globalThis.isBulkOpRunning = false;
 }
 
+// Global state for favicon refresh
+if (typeof globalThis.isFaviconRefreshRunning === 'undefined') {
+    globalThis.isFaviconRefreshRunning = false;
+}
+
+// Helper: broadcast favicon refresh progress
+function broadcastFaviconRefreshProgress(isRunning) {
+    chrome.runtime.sendMessage({
+        type: isRunning ? Const.MSG_FAVICON_REFRESH_PROGRESS : Const.MSG_FAVICON_REFRESH_DONE
+    });
+}
+
 // ===================== Utility/Helper Functions =====================
 //+reviewed
 function validateMessageSender(sender, requiresExtensionOrigin = true) {
@@ -297,12 +309,19 @@ function handleMessage(request, sender, sendResponse) {
             }
             if (request.type === Const.MSG_REFRESH_ALL_SUSPENDED_FAVICONS) {
                 handleAsyncMessage(context, async () => {
+                    if (globalThis.isFaviconRefreshRunning) {
+                        return { success: false, error: 'Favicon refresh already running' };
+                    }
+                    globalThis.isFaviconRefreshRunning = true;
+                    broadcastFaviconRefreshProgress(true);
                     const suspendedPrefix = chrome.runtime.getURL(Const.SUSPENDED_PAGE_PATH);
                     const tabs = await chrome.tabs.query({ url: suspendedPrefix + '*' });
                     const batchSize = Number.isFinite(request?.batchSize) ? request.batchSize : 10;
                     const perTabDelayMs = Number.isFinite(request?.perTabDelayMs) ? request.perTabDelayMs : 200;
                     const batchDelayMs = Number.isFinite(request?.batchDelayMs) ? request.batchDelayMs : 1200;
                     const count = await reloadSuspendedTabsBatched(tabs, batchSize, perTabDelayMs, batchDelayMs);
+                    globalThis.isFaviconRefreshRunning = false;
+                    broadcastFaviconRefreshProgress(false);
                     return { success: true, count, total: tabs.length };
                 }, sendResponse);
                 return true;
