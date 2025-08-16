@@ -31,3 +31,4 @@ export const MSG_REFRESH_ALL_SUSPENDED_FAVICONS = 'MSG_refreshAllSuspendedFavico
 export const MSG_GET_EXTENSION_STATS = 'MSG_getExtensionStats';
 export const MSG_FAVICON_REFRESH_PROGRESS = 'MSG_faviconRefreshProgress';
 export const MSG_FAVICON_REFRESH_DONE = 'MSG_faviconRefreshDone';
+export const MSG_GET_SKIPPED_TABS = 'MSG_getSkippedTabs';

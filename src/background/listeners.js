@@ -336,8 +336,42 @@ function handleMessage(request, sender, sendResponse) {
                     // Approximate scheduled count from internal scheduling map
                     const scheduledInfo = await Scheduling.getSchedulingSnapshot();
                     scheduled = scheduledInfo.size || 0;
-                    skipped = total - suspended - scheduled;
+                    // Calculate skipped using the same logic as the Skipped Tabs page
+                    let skippedCount = 0;
+                    for (const tab of allTabs) {
+                        if (tab.url && tab.url.startsWith(suspendedPrefix)) continue;
+                        const isScheduled = scheduledInfo.entries.some(e => e.tabId === tab.id);
+                        if (isScheduled) continue;
+                        const skipReason = await Suspension.shouldSkipTabForScheduling(tab, true);
+                        if (skipReason) skippedCount++;
+                    }
+                    skipped = skippedCount;
                     return { success: true, total, suspended, scheduled, skipped };
+                }, sendResponse);
+                return true;
+            }
+            if (request.type === Const.MSG_GET_SKIPPED_TABS) {
+                handleAsyncMessage(context, async () => {
+                    const tabs = await chrome.tabs.query({}); // Query all tabs, not just http(s)
+                    const suspendedPrefix = chrome.runtime.getURL(Const.SUSPENDED_PAGE_PATH);
+                    const scheduledInfo = await Scheduling.getSchedulingSnapshot();
+                    const skippedTabs = [];
+                    for (const tab of tabs) {
+                        if (!tab.id) continue;
+                        if (tab.url && tab.url.startsWith(suspendedPrefix)) continue;
+                        const isScheduled = scheduledInfo.entries.some(e => e.tabId === tab.id);
+                        if (isScheduled) continue;
+                        const skipReason = await Suspension.shouldSkipTabForScheduling(tab, true);
+                        if (skipReason) {
+                            skippedTabs.push({
+                                tabId: tab.id,
+                                title: tab.title,
+                                url: tab.url,
+                                reason: skipReason
+                            });
+                        }
+                    }
+                    return { success: true, skippedTabs };
                 }, sendResponse);
                 return true;
             }

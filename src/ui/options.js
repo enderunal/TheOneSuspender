@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 	const statTotalEl = document.getElementById('stat-total');
 	const statSuspendedEl = document.getElementById('stat-suspended');
 	const statScheduledEl = document.getElementById('stat-scheduled');
-	const statOtherEl = document.getElementById('stat-other');
+	const statSkippedEl = document.getElementById('stat-skipped');
 
 	function setFaviconToolsStatus(msg, type = 'info') {
 		if (!faviconToolsStatus) return;
@@ -80,7 +80,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 			if (statTotalEl) statTotalEl.textContent = String(resp.total);
 			if (statSuspendedEl) statSuspendedEl.textContent = String(resp.suspended);
 			if (statScheduledEl) statScheduledEl.textContent = String(resp.scheduled);
-			if (statOtherEl) statOtherEl.textContent = String(resp.total - resp.suspended - resp.scheduled);
+			if (statSkippedEl) {
+				statSkippedEl.textContent = String(resp.total - resp.suspended - resp.scheduled);
+				statSkippedEl.onclick = () => { window.open('skipped.html', '_blank'); };
+			}
 		} catch (e) {
 			console.error('Failed to refresh stats', e);
 		}
