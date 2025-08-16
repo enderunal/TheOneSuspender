@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "UnaSuspender - The One Suspender",
-	"version": "1.0.99",
+	"version": "1.0.100",
 	"description": "Auto-suspend inactive tabs with full manual controls and preferences.",
 	"incognito": "split",
 	"permissions": [
@@ -23,7 +23,9 @@
 				"migrate.html",
 				"src/ui/migrate.js",
 				"shortcuts.html",
-				"src/ui/shortcuts.js",
+				"skipped.html",
+				"src/ui/skipped.js",
+				"styles/skipped.css",
 				"styles/options.css",
 				"styles/colors.css",
 				"styles/material-colors.css",
