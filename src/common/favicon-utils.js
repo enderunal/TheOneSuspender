@@ -6,8 +6,8 @@ import * as Logger from './logger.js';
 const FAVICON_CACHE_KEY = 'TS_favicon_cache_v1';
 const MAX_CACHE_ENTRIES = 4000;
 
-function getHostname(url) {
-    try { return new URL(url).hostname; } catch { return null; }
+function getOrigin(url) {
+    try { return new URL(url).origin; } catch { return null; }
 }
 
 async function loadCache() {
@@ -171,12 +171,12 @@ export async function processAnyFaviconUrl(faviconUrl, originalUrl = null) {
 
         // Cache the result if we have originalUrl and got a data URL
         if (originalUrl && processedDataUrl.startsWith('data:')) {
-            const hostname = getHostname(originalUrl);
-            if (hostname) {
+            const origin = getOrigin(originalUrl);
+            if (origin) {
                 const cache = await loadCache();
-                cache[hostname] = processedDataUrl;
+                cache[origin] = processedDataUrl;
                 await saveCache(cache);
-                Logger.log(`Cached processed favicon for ${hostname}`, Logger.LogComponent.SUSPENDED);
+                Logger.log(`Cached processed favicon for ${origin}`, Logger.LogComponent.SUSPENDED);
             }
         }
 
@@ -227,12 +227,12 @@ function loadImageWithCrossOrigin(src) {
  */
 export async function getOrCreateSuspendedFavicon(originalUrl) {
     if (!originalUrl) return 'icons/icon16.png';
-    const hostname = getHostname(originalUrl);
-    if (!hostname) return 'icons/icon16.png';
+    const origin = getOrigin(originalUrl);
+    if (!origin) return 'icons/icon16.png';
     const cache = await loadCache();
-    if (cache[hostname]) {
-        Logger.log(`Favicon cache hit for ${hostname}`, Logger.LogComponent.SUSPENDED);
-        return cache[hostname];
+    if (cache[origin]) {
+        Logger.log(`Favicon cache hit for ${origin}`, Logger.LogComponent.SUSPENDED);
+        return cache[origin];
     }
     // Try Chrome API
     const chromeApiFaviconUrl = buildChromeExtensionFaviconUrl(originalUrl, 16);
@@ -243,7 +243,7 @@ export async function getOrCreateSuspendedFavicon(originalUrl) {
             if (testImg.naturalWidth > 16 || testImg.naturalHeight > 16 || testImg.src.includes('data:image')) {
                 const processed = await processAnyFaviconUrl(chromeApiFaviconUrl, originalUrl);
                 if (processed && processed.startsWith('data:')) {
-                    Logger.log(`Favicon processed and cached for ${hostname} (Chrome API)`, Logger.LogComponent.SUSPENDED);
+                    Logger.log(`Favicon processed and cached for ${origin} (Chrome API)`, Logger.LogComponent.SUSPENDED);
                     return processed;
                 }
             }
@@ -258,7 +258,7 @@ export async function getOrCreateSuspendedFavicon(originalUrl) {
         try {
             const processed = await processAnyFaviconUrl(altFaviconUrl, originalUrl);
             if (processed && processed.startsWith('data:')) {
-                Logger.log(`Favicon processed and cached for ${hostname} (external)`, Logger.LogComponent.SUSPENDED);
+                Logger.log(`Favicon processed and cached for ${origin} (external)`, Logger.LogComponent.SUSPENDED);
                 return processed;
             }
         } catch (e) {
@@ -266,7 +266,7 @@ export async function getOrCreateSuspendedFavicon(originalUrl) {
             // Ignore and fallback
         }
     }
-    Logger.logWarning(`Favicon fallback for ${hostname}`, Logger.LogComponent.SUSPENDED);
+    Logger.logWarning(`Favicon fallback for ${origin}`, Logger.LogComponent.SUSPENDED);
     return 'icons/icon16.png';
 }
 

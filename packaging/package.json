@@ -1,6 +1,6 @@
 {
     "name": "theone-suspender",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "description": "Auto-suspend inactive tabs with full manual controls and preferences.",
     "scripts": {
         "package": "node package.js",
