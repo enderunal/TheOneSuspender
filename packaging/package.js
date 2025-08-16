@@ -9,6 +9,7 @@ const INCLUDE_ITEMS = [
     'license.html',
     'manifest.json',
     'migrate.html',
+    'skipped.html',
     'options.html',
     'popup.html',
     'README.md',
