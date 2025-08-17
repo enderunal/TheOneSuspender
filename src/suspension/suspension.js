@@ -4,6 +4,7 @@ import * as Prefs from '../common/prefs.js';
 import * as TabClassifier from '../common/tab-classifier.js';
 import * as ExistenceUtils from '../common/existence-utils.js';
 import * as Const from '../common/constants.js'
+import * as FaviconUtils from '../common/favicon-utils.js';
 
 import * as SuspendClose from './suspend-close.js';
 import * as SuspendPreserve from './suspend-preserve.js';
@@ -123,6 +124,10 @@ export async function suspendTab(tabId, isManual = false) {
     if (!tabToSuspend) {
         Logger.log(`${context}: Tab does not exist.`);
         return false; // Tab doesn't exist
+    }
+    // Persist the favicon for this tab if possible
+    if (tabToSuspend.url && tabToSuspend.favIconUrl) {
+        FaviconUtils.saveFaviconForUrl(tabToSuspend.url, tabToSuspend.favIconUrl);
     }
 
     if (tabToSuspend.url && tabToSuspend.url.startsWith(chrome.runtime.getURL("suspended.html"))) {
