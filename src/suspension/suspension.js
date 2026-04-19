@@ -229,12 +229,14 @@ export async function unsuspendTab(tabId) {
                 return false;
             }
 
-            // Update tab to original URL
-            await chrome.tabs.update(tabId, {
-                url: originalData.url,
-                active: tab.active, // Maintain active state
-                highlighted: tab.highlighted // Maintain highlighted state
-            });
+            // Build update properties - avoid passing highlighted:false to prevent
+            // "Cannot unhighlight all tabs" errors on recent Chrome versions.
+            const updateProps = {
+                url: originalData.url
+            };
+            if (tab.active) updateProps.active = true;
+            if (tab.highlighted) updateProps.highlighted = true;
+            await chrome.tabs.update(tabId, updateProps);
 
             Logger.log(`Tab ${tabId} unsuspended to ${originalData.url}.`);
             return true;

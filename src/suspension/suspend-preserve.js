@@ -60,11 +60,15 @@ export async function suspendTabPreserveHistory(originalTab, hasUnsavedData = fa
 
     // Update the target tab (which might be the new tab from discard, or the original) with our suspended URL
     try {
-        await chrome.tabs.update(currentTargetTabId, {
-            url: suspendedPageUrl,
-            active: shouldActivate,
-            highlighted: shouldActivate // Ensure tab is visible if activated
-        });
+        // Build update properties - only include highlighted:true when activating,
+        // because setting highlighted:false on the last highlighted tab in a window
+        // causes Chrome to throw "Cannot unhighlight all tabs" error.
+        const updateProps = { url: suspendedPageUrl };
+        if (shouldActivate) {
+            updateProps.active = true;
+            updateProps.highlighted = true;
+        }
+        await chrome.tabs.update(currentTargetTabId, updateProps);
         Logger.log(`${context}: Navigated tab ${currentTargetTabId} to suspended.html (active: ${shouldActivate})`);
         return true; // Successfully navigated the target tab
     } catch (updateError) {
